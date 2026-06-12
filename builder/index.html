@@ -1208,6 +1208,7 @@ const NOOR_REPLIES=[
 let noorIdx=0;
 function openTalk(){
   push("v-talk");
+  if(!talkLoaded){talkLoaded=true;loadTalkHistory();}
   const v=$("talkbody");
   requestAnimationFrame(()=>{v.scrollTop=v.scrollHeight;});
 }
@@ -1216,7 +1217,11 @@ function talkScroll(){
   requestAnimationFrame(()=>{v.scrollTop=v.scrollHeight;});
 }
 const CREW_API="https://crew-api-two.vercel.app/api/noor";
+const CREW_HISTORY="https://crew-api-two.vercel.app/api/history";
 let TALK_HISTORY=[];
+let talkLoaded=false;
+function crewDevice(){let d;try{d=localStorage.getItem("crew_device");}catch(e){}if(!d){d=(self.crypto&&crypto.randomUUID)?crypto.randomUUID():("11111111-2222-4333-8444-"+(Date.now().toString(16)+"000000000000").slice(0,12));try{localStorage.setItem("crew_device",d);}catch(e){}}return d;}
+function loadTalkHistory(){fetch(CREW_HISTORY+"?device_id="+encodeURIComponent(crewDevice())).then(function(r){return r.json();}).then(function(d){if(d.messages&&d.messages.length){var log=$("talklog");log.innerHTML="";d.messages.forEach(function(m){var row=document.createElement("div");row.className="chatrow";if(m.role==="user"){var b=document.createElement("div");b.className="bub user";b.textContent=m.content;row.appendChild(b);}else{row.innerHTML='<span class="av av-noor sm" style="font-size:12px;">★</span><div class="bub agent"></div>';row.querySelector(".bub").textContent=m.content;}log.appendChild(row);});talkScroll();}}).catch(function(){});}
 function sendTalk(){
   const f=$("talkfield");
   const txt=f.value.trim();
@@ -1236,7 +1241,7 @@ function sendTalk(){
   r.innerHTML='<span class="av av-noor sm" style="font-size:12px;">★</span><div class="bub agent"><span class="typing"><i></i><i></i><i></i></span></div>';
   log.appendChild(r);
   talkScroll();
-  fetch(CREW_API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:TALK_HISTORY})})
+  fetch(CREW_API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({device_id:crewDevice(),message:txt})})
     .then(x=>x.json())
     .then(d=>{
       const reply=(d&&d.reply)?d.reply:NOOR_REPLIES[noorIdx++%NOOR_REPLIES.length];
