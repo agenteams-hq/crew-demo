@@ -353,7 +353,7 @@ input{font-family:inherit;}
         <span class="zicon work"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2.5"/><path d="M9 8V6.5A2.5 2.5 0 0 1 11.5 4h1A2.5 2.5 0 0 1 15 6.5V8"/></svg></span>
         <span class="zt">Work</span><span class="zl"></span>
       </div>
-      <div class="card">
+      <div class="card" id="disc-work-rows">
         <div class="lrow" style="padding:12px 15px;"><span class="av av-sufi sm">S</span>
           <div style="flex:1;"><div class="tit" style="font-size:13.5px;">Reply to order DMs</div><div class="sub">Sufi · Support · in your voice</div></div><span class="tgl on" onclick="this.classList.toggle('on')"></span></div>
         <div class="lrow" style="padding:12px 15px;"><span class="av av-kee sm">K</span>
@@ -366,7 +366,7 @@ input{font-family:inherit;}
         <span class="zicon pers"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5 12 3.8l8.5 6.7V20a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1v-9.5Z"/></svg></span>
         <span class="zt pers">Personal</span><span class="zl"></span>
       </div>
-      <div class="card">
+      <div class="card" id="disc-pers-rows">
         <div class="lrow" style="padding:12px 15px;"><span class="av av-talia sm">T</span>
           <div style="flex:1;"><div class="tit" style="font-size:13.5px;">Watch KUL&rarr;BKK fares</div><div class="sub">Talia · Travel · for Mak visits</div></div><span class="tgl on" onclick="this.classList.toggle('on')"></span></div>
         <div class="lrow" style="padding:12px 15px;"><span class="av av-iman sm">I</span>
@@ -390,7 +390,7 @@ input{font-family:inherit;}
           <span class="dot" style="width:6px;height:6px;border-radius:50%;background:var(--green);"></span>Talk to your agent
         </button>
         <button style="position:relative;display:inline-flex;" onclick="push('v-settings')" aria-label="Settings">
-          <span class="av av-crew sm" style="font-size:13px;">F</span>
+          <span class="av av-crew sm" style="font-size:13px;" id="homeav">F</span>
           <span style="position:absolute;right:-4px;bottom:-4px;width:17px;height:17px;border-radius:50%;background:#fff;border:1px solid var(--hair2);display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(32,36,30,.12);">
             <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#565B4E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M18.5 5.5l-2.1 2.1M7.6 16.4l-2.1 2.1"/></svg>
           </span>
@@ -428,7 +428,7 @@ input{font-family:inherit;}
   <!-- ================= CREW ================= -->
   <div class="view tabview" id="v-crew">
     <div class="vbody vtop tabpad">
-      <div class="eyebrow">Fares&rsquo;s Crew</div>
+      <div class="eyebrow" id="crewowner">Fares&rsquo;s Crew</div>
       <h2 class="display" style="font-size:28px;margin:8px 0 0;">Four at work, two at home.</h2>
 
       <!-- orchestrator hero -->
@@ -608,9 +608,9 @@ input{font-family:inherit;}
     </div>
     <div class="vbody" style="padding-top:12px;">
       <div style="display:flex;align-items:center;gap:13px;">
-        <span class="av av-crew lg" style="font-size:24px;">F</span>
+        <span class="av av-crew lg" style="font-size:24px;" id="setav">F</span>
         <div>
-          <div style="font-family:var(--serif);font-size:24px;font-weight:520;letter-spacing:-.01em;">Fares</div>
+          <div style="font-family:var(--serif);font-size:24px;font-weight:520;letter-spacing:-.01em;" id="setname">Fares</div>
           <div class="sub" style="font-size:12px;color:var(--mute);">Your product · account, plan &amp; notifications &rsaquo;</div>
         </div>
       </div>
@@ -1351,22 +1351,141 @@ function endCall(){
 }
 
 /* ============ ONBOARDING ============ */
+/* Intent-first: the very first question is what you want Crew for.
+   The choice (crew_intent) tailors the follow-up questions and the
+   discovery list. Additive - OB/obNext keep their names. */
+const CREW_INTENT_DEFAULT="work";
+function crewIntentGet(){try{return localStorage.getItem("crew_intent")||"";}catch(e){return "";}}
+const CREW_INTENTS=[
+  {id:"work",label:"My work",reply:"For my work."},
+  {id:"business",label:"My business",reply:"For my business."},
+  {id:"personal",label:"Personal life",reply:"For my personal life."},
+  {id:"everything",label:"A bit of everything",reply:"A bit of everything, honestly."}
+];
+const OB_FLOWS={
+  work:[
+    {t:"agent",text:"Good choice. What should we call you?"},
+    {t:"name"},
+    {t:"agent",text:"Nice to meet you. What does a normal week look like?"},
+    {t:"chips",opts:[
+      {label:"Shipping code and reviews",reply:"Mostly shipping - code, reviews, the odd deploy."},
+      {label:"Meetings, docs and a team",reply:"Meetings, docs and keeping a team moving."}]},
+    {t:"agent",text:"So PRs, deploys and standup prep probably eat your focus. Want your Crew to take those first?"},
+    {t:"chips",dots:2,opts:[
+      {label:"Yes, take them",reply:"Yes, take them."},
+      {label:"Let me pick",reply:"Let me pick which ones."}]},
+    {t:"agent",text:"And outside work, anything you’d quietly hand off?"},
+    {t:"chips",opts:[
+      {label:"Travel and life admin",reply:"Flights, reminders, the odd booking."},
+      {label:"Not much, keep it work",reply:"Not much for now, keep it to work."}]},
+    {t:"agent",text:"Noted. I’ll keep work and personal <b>strictly apart</b>: separate agents, separate memory."},
+    {t:"brain"},
+    {t:"cta",label:"Looks right, meet my Crew"}
+  ],
+  business:[
+    {t:"agent",text:"Love it. What should we call you?"},
+    {t:"name"},
+    {t:"agent",text:"Nice to meet you. What kind of business is it?"},
+    {t:"chips",opts:[
+      {label:"A shop that sells online",reply:"A shop - online orders, mostly through Instagram."},
+      {label:"Services and clients",reply:"Services - clients, quotes, invoices."}]},
+    {t:"agent",text:"So customer DMs, invoices and promos probably eat your evenings. Want your Crew to take those first?"},
+    {t:"chips",dots:2,opts:[
+      {label:"Yes, take them",reply:"Yes, take them."},
+      {label:"Let me pick",reply:"Let me pick which ones."}]},
+    {t:"agent",text:"And outside the business, anything you’d quietly hand off?"},
+    {t:"chips",opts:[
+      {label:"Trips and appointments",reply:"Flights to see family, the recurring appointments."},
+      {label:"Not much, keep it business",reply:"Not much for now, keep it to the business."}]},
+    {t:"agent",text:"Noted. I’ll keep work and personal <b>strictly apart</b>: separate agents, separate memory."},
+    {t:"brain"},
+    {t:"cta",label:"Looks right, meet my Crew"}
+  ],
+  personal:[
+    {t:"agent",text:"The good stuff. What should we call you?"},
+    {t:"name"},
+    {t:"agent",text:"Nice to meet you. What eats your week the most?"},
+    {t:"chips",opts:[
+      {label:"Trips and bookings",reply:"Trips, mostly - fares, holds, bookings."},
+      {label:"Reminders and errands",reply:"Reminders and errands. The little things pile up."}]},
+    {t:"agent",text:"Easy. Your Crew can watch fares, book appointments and nudge you at the right moment. Want them on it?"},
+    {t:"chips",dots:2,opts:[
+      {label:"Yes, all of it",reply:"Yes, all of it."},
+      {label:"Let me pick",reply:"Let me pick which ones."}]},
+    {t:"agent",text:"Done. Everything stays in your <b>personal</b> memory - separate from anything work, if that ever joins."},
+    {t:"brain"},
+    {t:"cta",label:"Looks right, meet my Crew"}
+  ],
+  everything:[
+    {t:"agent",text:"A full plate, then. What should we call you?"},
+    {t:"name"},
+    {t:"agent",text:"Nice to meet you. What’s loudest right now?"},
+    {t:"chips",opts:[
+      {label:"Work things",reply:"Work, mostly. It spills into everything."},
+      {label:"Life things",reply:"Life things - trips, errands, the family calendar."}]},
+    {t:"agent",text:"Got it. Your Crew can spread out - some on work, some on life. Want them to start broad?"},
+    {t:"chips",dots:2,opts:[
+      {label:"Yes, start broad",reply:"Yes, start broad."},
+      {label:"Let me pick",reply:"Let me pick which ones."}]},
+    {t:"agent",text:"Noted. I’ll keep work and personal <b>strictly apart</b>: separate agents, separate memory."},
+    {t:"brain"},
+    {t:"cta",label:"Looks right, meet my Crew"}
+  ]
+};
+const OB_BRAIN={
+  work:{work:"Ships software · PRs, deploys<br>you review what matters",pers:"Flights and life admin<br>watched in the background"},
+  business:{work:"Sells online · DMs, invoices<br>promos wait for your nod",pers:"Trips and reminders<br>handled quietly"},
+  personal:{work:"Inbox and subscriptions<br>only what matters gets through",pers:"Trips, bookings, reminders<br>right time, every time"},
+  everything:{work:"Work and business busywork<br>asks before anything big",pers:"Trips, errands, reminders<br>quietly handled"}
+};
+/* Discovery list ("Here's what your crew can do") per intent */
+const DISC_BY_INTENT={
+  work:{work:[
+      ["ramy","Open review-ready PRs","keeps main green",1],
+      ["mara","Stage tonight’s deploy","ships when you say",1],
+      ["sufi","Prep your standup notes","ready by 8 AM",0]],
+    pers:[
+      ["talia","Watch flight fares","for the next trip",1],
+      ["iman","Guard your focus hours","calendar kept honest",0]]},
+  business:{work:[
+      ["sufi","Reply to order DMs","in your voice",1],
+      ["kee","Chase overdue invoices","politely",1],
+      ["mara","Draft the next promo","ready for your nod",0]],
+    pers:[
+      ["talia","Watch flight fares","for family visits",1],
+      ["iman","Book the recurring appointments","Tuesdays handled",0]]},
+  personal:{work:[
+      ["kee","Keep an eye on subscriptions","flags the creep",1],
+      ["sufi","Tidy the inbox each morning","only what matters",0]],
+    pers:[
+      ["talia","Plan the next trip","fares, holds, bookings",1],
+      ["iman","Run reminders and errands","right time, every time",1],
+      ["mara","Book tables and tickets","one line from you",0]]},
+  everything:{work:[
+      ["ramy","Take the work busywork","quotes, follow-ups, drafts",1],
+      ["kee","Watch the money","invoices and subscriptions",1]],
+    pers:[
+      ["talia","Watch trips and fares","books when you nod",1],
+      ["iman","Reminders and errands","quietly handled",1]]}
+};
+function renderDisc(){
+  var d=DISC_BY_INTENT[crewIntentGet()]||DISC_BY_INTENT[CREW_INTENT_DEFAULT];
+  function rows(arr){
+    var h="";
+    arr.forEach(function(r){
+      var a=AGENTS[r[0]];if(!a)return;
+      h+='<div class="lrow" style="padding:12px 15px;"><span class="av '+a.av+' sm">'+a.mark+'</span>'
+        +'<div style="flex:1;"><div class="tit" style="font-size:13.5px;">'+r[1]+'</div><div class="sub">'+a.name+' · '+r[2]+'</div></div>'
+        +'<span class="tgl'+(r[3]?" on":"")+'" onclick="this.classList.toggle(\'on\')"></span></div>';
+    });
+    return h;
+  }
+  var w=$("disc-work-rows");if(w)w.innerHTML=rows(d.work);
+  var p=$("disc-pers-rows");if(p)p.innerHTML=rows(d.pers);
+}
 const OB=[
-  {t:"agent",text:"Hi Fares. Before we hire anyone, what do you do?"},
-  {t:"chips",opts:[
-    {label:"I build software and ship apps",reply:"I build software, mostly shipping apps and web."},
-    {label:"Something else",reply:"A bit of everything, but mostly building product."}]},
-  {t:"agent",text:"Got it. So PRs, builds, deploys and the bug inbox probably eat your focus. Want your Crew to take those first?"},
-  {t:"chips",dots:2,opts:[
-    {label:"Yes, take them",reply:"Yes, take them."},
-    {label:"Let me pick",reply:"Let me pick which ones."}]},
-  {t:"agent",text:"And outside work, anything you’d quietly hand off?"},
-  {t:"chips",opts:[
-    {label:"Travel and life admin",reply:"Flights, reminders, the odd booking."},
-    {label:"Not much, keep it work",reply:"Not much for now, keep it to work."}]},
-  {t:"agent",text:"Noted. I’ll keep work and personal <b>strictly apart</b>: separate agents, separate memory."},
-  {t:"brain"},
-  {t:"cta",label:"Looks right, meet my Crew"}
+  {t:"agent",text:"Hi, we’re your Crew. First things first - what do you want us for?"},
+  {t:"intent"}
 ];
 
 let obi=0;
@@ -1386,6 +1505,71 @@ function obNext(){
       obScroll();
       setTimeout(obNext,420);
     },620);
+  }else if(step.t==="intent"){
+    const row=document.createElement("div");
+    row.className="chiprow";
+    CREW_INTENTS.forEach(o=>{
+      const b=document.createElement("button");
+      b.className="qchip";b.textContent=o.label;
+      b.onclick=()=>{
+        row.remove();
+        try{localStorage.setItem("crew_intent",o.id);}catch(e){}
+        const u=document.createElement("div");
+        u.className="chatrow";
+        u.innerHTML='<div class="bub user"></div>';
+        u.querySelector(".bub").textContent=o.reply;
+        log.appendChild(u);
+        OB.length=obi+1;
+        (OB_FLOWS[o.id]||OB_FLOWS[CREW_INTENT_DEFAULT]).forEach(s=>OB.push(s));
+        obi++;
+        obScroll();
+        setTimeout(obNext,460);
+      };
+      row.appendChild(b);
+    });
+    log.appendChild(row);
+    obScroll();
+  }else if(step.t==="name"){
+    const known=crewUserFirst();
+    if(known){
+      obi++;
+      const u=document.createElement("div");
+      u.className="chatrow";
+      u.innerHTML='<div class="bub user"></div>';
+      u.querySelector(".bub").textContent=known;
+      log.appendChild(u);
+      obScroll();
+      setTimeout(obNext,460);
+    }else{
+      const row=document.createElement("div");
+      row.className="chiprow";
+      row.style.flexWrap="nowrap";
+      row.innerHTML='<input id="obnamefield" type="text" placeholder="Your first name" autocomplete="given-name" style="flex:1;background:#fff;border:1.5px solid var(--hair2);border-radius:999px;padding:11px 16px;font-size:16px;color:var(--ink);outline:none;min-width:0;">'
+        +'<button class="sendbtn" style="width:44px;height:44px;" aria-label="Send name"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F3EFE5" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg></button>';
+      const fld=row.querySelector("input");
+      const go=()=>{
+        const v=fld.value.trim();
+        if(!v)return;
+        const first=v.split(/\s+/)[0];
+        try{localStorage.setItem("crew_username",first);}catch(e){}
+        row.remove();
+        const u=document.createElement("div");
+        u.className="chatrow";
+        u.innerHTML='<div class="bub user"></div>';
+        u.querySelector(".bub").textContent=first;
+        log.appendChild(u);
+        crewApplyUserName(first);
+        applyCrewNames();
+        obi++;
+        obScroll();
+        setTimeout(obNext,460);
+      };
+      fld.addEventListener("keydown",e=>{if(e.key==="Enter")go();});
+      row.querySelector("button").onclick=go;
+      log.appendChild(row);
+      obScroll();
+      setTimeout(()=>{try{fld.focus({preventScroll:true});}catch(e){}},380);
+    }
   }else if(step.t==="chips"){
     const row=document.createElement("div");
     row.className="chiprow";
@@ -1409,6 +1593,7 @@ function obNext(){
     obScroll();
   }else if(step.t==="brain"){
     obi++;
+    const bi=OB_BRAIN[crewIntentGet()]||OB_BRAIN[CREW_INTENT_DEFAULT];
     const c=document.createElement("div");
     c.className="card chatrow";
     c.style.cssText="margin-top:12px;padding:15px 17px 13px;display:block;";
@@ -1416,9 +1601,9 @@ function obNext(){
       +'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.2C10 4.6 6.4 4.6 4 5.6V19c2.4-1 6-1 8 .6 2-1.6 5.6-1.6 8-.6V5.6c-2.4-1-6-1-8 .6Z"/><path d="M12 6.2v13.4"/></svg>'
       +'<span class="eyebrow grn">What I’ve learned so far</span></div>'
       +'<div style="display:flex;align-items:center;gap:8px;margin:13px 0 7px;"><span class="ztag work">Work</span><span style="flex:1;height:1px;background:var(--hair);"></span></div>'
-      +'<div style="font-size:13px;line-height:1.7;color:var(--ink);">Builds web and apps · ships weekly<br>small team · you review releases</div>'
+      +'<div style="font-size:13px;line-height:1.7;color:var(--ink);">'+bi.work+'</div>'
       +'<div style="display:flex;align-items:center;gap:8px;margin:13px 0 7px;"><span class="ztag pers">Personal</span><span style="flex:1;height:1px;background:var(--hair);"></span></div>'
-      +'<div style="font-size:13px;line-height:1.7;color:var(--ink);">School run 7:15 · BKK trips<br>Atok’s clinic, Tuesdays</div>';
+      +'<div style="font-size:13px;line-height:1.7;color:var(--ink);">'+bi.pers+'</div>';
     log.appendChild(c);
     obScroll();
     setTimeout(obNext,650);
@@ -1430,7 +1615,7 @@ function obNext(){
     w.style.display="block";
     w.innerHTML='<button class="btn btn-approve" style="margin-top:16px;">'+step.label+'</button>'
       +'<button class="obfix" onclick="restartOnb()">Not quite - let me fix something</button>';
-    w.querySelector("button").onclick=()=>{push("v-disc");};
+    w.querySelector("button").onclick=()=>{renderDisc();push("v-disc");};
     log.appendChild(w);
     obScroll();
   }
@@ -1448,11 +1633,13 @@ function obScroll(){
 }
 function restartOnb(){
   $("chatlog").innerHTML="";
+  OB.length=2;
   obi=0;setDots(1);
   setTimeout(obNext,420);
 }
 function startOnb(){
   document.getElementById("app").classList.add("onb");
+  OB.length=2;
   $("chatlog").innerHTML="";obi=0;setDots(1);
   $("v-onb").classList.add("on");
   setTimeout(obNext,500);
@@ -1514,10 +1701,15 @@ function crewApplyAccount(acct){
       if(acct.avatar){av.innerHTML='<img src="'+acct.avatar+'" class="acctav" alt="" style="width:38px;height:38px;border-radius:50%;object-fit:cover;">';}
       else{av.textContent=(acct.name||acct.email||"?").charAt(0).toUpperCase();}
     }
-    if(acct.firstName){var hn=$("homename");if(hn)hn.textContent=acct.firstName;}
+    if(acct.firstName){
+      crewApplyUserName(acct.firstName);
+      applyCrewNames();
+      if(!document.getElementById("app").classList.contains("onb")){renderHome();renderCrew();}
+    }
   }else{
     if(so)so.style.display="flex";
     if(si)si.style.display="none";
+    applyCrewNames();
   }
 }
 function crewHandleSession(session){
@@ -1546,12 +1738,98 @@ function crewInitAuth(){
   sbClient.auth.onAuthStateChange(function(_evt,session){crewHandleSession(session);});
 }
 
+/* ============ CREW NAMES (culturally matched · additive) ============ */
+/* Display names only. Agent KEYS (ramy/mara/sufi/kee/talia/iman),
+   ids and handlers never change. The orchestrator stays "Main agent". */
+const CREW_DEFAULT_NAMES={};
+Object.keys(AGENTS).forEach(function(k){CREW_DEFAULT_NAMES[k]=AGENTS[k].name;});
+const CREW_NAME_SETS={
+  arabic:{ramy:"Omar",mara:"Layla",sufi:"Sana",kee:"Yusuf",talia:"Amira",iman:"Zaid"},
+  western:{ramy:"Jack",mara:"Emma",sufi:"Grace",kee:"John",talia:"Olivia",iman:"Henry"},
+  chinese:{ramy:"Wei",mara:"Mei",sufi:"Hui",kee:"Jun",talia:"Ling",iman:"Chen"},
+  indian:{ramy:"Arjun",mara:"Priya",sufi:"Anika",kee:"Ravi",talia:"Meera",iman:"Dev"},
+  malay:{ramy:"Aiman",mara:"Aina",sufi:"Syafiqah",kee:"Haziq",talia:"Alia",iman:"Iman"}
+};
+const CREW_NAME_HINTS={
+  arabic:["fares","ahmad","ahmed","mohamed","mohammed","muhammad","omar","umar","ali","aisha","fatima","fatimah","hassan","hussein","ibrahim","khalid","layla","laila","mariam","maryam","mustafa","nadia","rania","salma","tariq","yusuf","yousef","zainab","amir","sami","huda","yasmin","yasmine","abdul","abdullah","hamza","bilal","khadija","karim","kareem","said","walid","rami","ramy","samir","nour","zaid","zayd","mahmoud","mahmud","osama","tarek","hany","hani","amr","khaled","dina","heba","mona","aya","sara","sarah_a","reem","lina_a","jamal","adel","fadi","nabil","rashid","saleh","salman","faisal","majid","hadi","imad","issam","wael","ziad"],
+  western:["john","emma","jack","grace","james","mary","michael","sarah","david","emily","tom","thomas","kate","katie","chris","christopher","anna","mark","lucy","peter","alice","paul","claire","matt","matthew","ben","benjamin","sam","laura","mike","steve","steven","dan","daniel","amy","josh","joshua","megan","ryan","jess","jessica","luke","sophie","george","charlotte","henry","olivia","will","william","ella","oliver","noah","liam","mason","ethan","jacob","logan","jackson","sebastian","carter","owen","dylan","aiden","robert","richard","charles","joseph","andrew","brian","kevin","jason","tim","timothy","nick","nicholas","tony","anthony","eric","adam","scott","greg","gregory","frank","patrick","dennis","jerry","tyler","aaron","jose","nathan","zach","zachary","kyle","alex","alexander","max","leo","oscar","felix","hugo","arthur","theo"],
+  chinese:["wei","li","ming","mei","jun","ling","hui","chen","xin","yan","hao","jia","lei","ying","feng","tao","jing","yu","kai","fang","wen","ping","bo","cheng","chun","gang","guo","hong","hua","jian","jie","juan","kun","lan","liang","lin","long","na","ning","peng","qiang","qing","rong","rui","shan","shen","song","ting","xia","xiang","xiao","xue","yang","yi","yong","yuan","yun","zhen","zhi","zhong","ziyi","jiahao","yichen","junjie"],
+  indian:["arjun","priya","ravi","anika","raj","rajesh","anita","vikram","deepa","deepak","sanjay","kavya","rahul","neha","amit","pooja","rohan","divya","karan","sneha","arun","anjali","vijay","meera","suresh","lakshmi","ramesh","sunita","anil","rekha","kiran","sita","gita","geeta","manoj","shilpa","vinod","asha","prakash","usha","dinesh","radha","mahesh","sarita","naveen","swati","nikhil","shreya","aditya","ananya","ishaan","aarav","vivaan","diya","saanvi","krishna","ganesh","hari","dev","tara"],
+  malay:["siti","nur","nurul","aiman","syafiq","aina","hafiz","izzah","danial","aqilah","haziq","puteri","amirul","alia","aliah","faiz","intan","zul","zulkifli","azlan","azman","rosli","kamal","halim","rashidah","zarina","norazlina","shahrul","syahir","afiq","arif","ariff","irfan","iqbal","akmal","hakim","azim","adib","amin","fitri","fauzi","ezzat","megat","wan","che","daud","ismail","yusof","zainal","aziz","hamid","mansor","othman","ramlan","saiful","tengku"]
+};
+function inferNameRegister(first){
+  if(!first)return "";
+  var f=String(first).toLowerCase().replace(/[^a-z]/g,"");
+  if(!f)return "";
+  for(var reg in CREW_NAME_HINTS){
+    if(CREW_NAME_HINTS[reg].indexOf(f)>-1)return reg;
+  }
+  return "";
+}
+function crewUserFirst(){
+  try{
+    var a=localStorage.getItem("crew_account");
+    if(a){a=JSON.parse(a);if(a&&a.firstName)return a.firstName;}
+  }catch(e){}
+  try{var n=localStorage.getItem("crew_username");if(n)return n;}catch(e){}
+  return "";
+}
+function crewApplyUserName(first){
+  if(!first)return;
+  var letter=first.charAt(0).toUpperCase();
+  var hn=$("homename");if(hn)hn.textContent=first;
+  var sn=$("setname");if(sn)sn.textContent=first;
+  var co=$("crewowner");if(co)co.textContent=first+"’s Crew";
+  var ha=$("homeav");if(ha)ha.textContent=letter;
+  var sa=$("setav");if(sa)sa.textContent=letter;
+}
+function crewRenameStrings(pairs){
+  function fix(s){
+    if(typeof s!=="string")return s;
+    pairs.forEach(function(p){s=s.replace(new RegExp("\\b"+p[0]+"\\b","g"),p[1]);});
+    pairs.forEach(function(p){s=s.replace(new RegExp(p[1],"g"),p[2]);});
+    return s;
+  }
+  decisions.forEach(function(d){
+    ["ask","fact","quote","foot","cardTitle","cardSub","confirmT","confirmS"].forEach(function(f){if(d[f])d[f]=fix(d[f]);});
+    if(d.chips)d.chips=d.chips.map(fix);
+  });
+  for(var i=0;i<NOOR_REPLIES.length;i++)NOOR_REPLIES[i]=fix(NOOR_REPLIES[i]);
+  var roots=["v-home"];
+  if(!talkLoaded)roots.push("v-talk");
+  roots.forEach(function(id){
+    var root=document.getElementById(id);if(!root)return;
+    var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+    var n;
+    while((n=w.nextNode())){
+      var t=fix(n.nodeValue);
+      if(t!==n.nodeValue)n.nodeValue=t;
+    }
+  });
+}
+function applyCrewNames(){
+  var reg=inferNameRegister(crewUserFirst());
+  var set=(reg&&CREW_NAME_SETS[reg])||null;
+  var pairs=[];
+  Object.keys(AGENTS).forEach(function(k,i){
+    var target=(set&&set[k])||CREW_DEFAULT_NAMES[k];
+    var cur=AGENTS[k].name;
+    if(cur===target)return;
+    AGENTS[k].name=target;
+    AGENTS[k].mark=target.charAt(0).toUpperCase();
+    pairs.push([cur,"«"+i+"»",target]);
+  });
+  if(pairs.length)crewRenameStrings(pairs);
+}
+
 /* ============ BOOT ============ */
 (function boot(){
   let onboarded=false;
   try{onboarded=localStorage.getItem("crew_onboarded")==="1";}catch(e){}
   if(location.search.indexOf("skiponb")>-1)onboarded=true;
   if(location.search.indexOf("forceonb")>-1)onboarded=false;
+  crewApplyUserName(crewUserFirst());
+  applyCrewNames();
   renderHome();renderCrew();
   if(onboarded){document.getElementById("app").classList.remove("onb");showTab("home");}
   else startOnb();
