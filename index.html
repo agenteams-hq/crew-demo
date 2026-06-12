@@ -245,7 +245,7 @@ input{font-family:inherit;}
 .obfix{display:block;width:100%;text-align:center;margin-top:15px;font-size:13px;font-weight:500;color:var(--ink2);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--hair2);padding:6px 0;}
 .obfix:active{opacity:.6;}
 
-/* ---------- orchestrator (Noor) ---------- */
+/* ---------- orchestrator (main agent) ---------- */
 .av-noor{background:linear-gradient(135deg,#1C3A2A,#33604A);color:#E9F2E6;}
 .renamehint{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);border:1px solid var(--hair2);border-radius:999px;padding:5px 10px;background:#fff;flex:none;}
 .renamehint:active{transform:scale(.95);}
@@ -358,7 +358,7 @@ input{font-family:inherit;}
         <span class="eyebrow" id="homedate">Friday · 12 June</span>
         <span style="display:flex;align-items:center;gap:10px;">
         <button class="talkpill" onclick="openTalk()">
-          <span class="dot" style="width:6px;height:6px;border-radius:50%;background:var(--green);"></span>Talk to Noor
+          <span class="dot" style="width:6px;height:6px;border-radius:50%;background:var(--green);"></span>Talk to your agent
         </button>
         <button style="position:relative;display:inline-flex;" onclick="push('v-settings')" aria-label="Settings">
           <span class="av av-crew sm" style="font-size:13px;">F</span>
@@ -407,12 +407,12 @@ input{font-family:inherit;}
         <div style="padding:15px 17px 13px;">
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <span class="eyebrow grn">Your right hand</span>
-            <button class="renamehint" onclick="event.stopPropagation();toast('Rename Noor anytime · coming soon')">Rename</button>
+            <button class="renamehint" onclick="event.stopPropagation();toast('Name your agent · coming soon')">Rename</button>
           </div>
           <div style="display:flex;align-items:center;gap:14px;margin-top:12px;">
-            <span class="av lg av-noor">N<span class="st grn" style="width:16px;height:16px;"></span></span>
+            <span class="av lg av-noor">★<span class="st grn" style="width:16px;height:16px;"></span></span>
             <div style="flex:1;min-width:0;">
-              <div style="font-family:var(--serif);font-size:24px;font-weight:520;letter-spacing:-.01em;">Noor</div>
+              <div style="font-family:var(--serif);font-size:24px;font-weight:520;letter-spacing:-.01em;">Main agent</div>
               <div class="sub" style="margin-top:3px;">Runs the crew, talks to the others for you</div>
             </div>
             <svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none"><path d="M1.5 1.5 7.5 7.5 1.5 13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -694,29 +694,29 @@ input{font-family:inherit;}
   <div class="view pushview" id="v-talk">
     <div class="navrow">
       <button class="backbtn" onclick="pop()"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1 1.5 6 6 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Back</button>
-      <span class="eyebrow">Noor &middot; Your right hand</span>
-      <button class="callbtn" onclick="openCall()" aria-label="Call Noor">
+      <span class="eyebrow">Your main agent</span>
+      <button class="callbtn" onclick="openCall()" aria-label="Call your main agent">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16.5v2.6a1.9 1.9 0 0 1-2.1 1.9c-3.3-.36-6.4-1.7-8.9-3.8a18.6 18.6 0 0 1-5.2-5.2C2.7 9.5 1.36 6.4 1 3.1A1.9 1.9 0 0 1 2.9 1h2.6a1.9 1.9 0 0 1 1.9 1.63c.12.9.34 1.78.66 2.62a1.9 1.9 0 0 1-.43 2L6.5 8.4a15.2 15.2 0 0 0 5.1 5.1l1.15-1.13a1.9 1.9 0 0 1 2-.43c.84.32 1.72.54 2.62.66A1.9 1.9 0 0 1 21 16.5Z"/></svg>
       </button>
     </div>
     <div class="vbody" id="talkbody" style="padding-top:6px;">
       <div style="display:flex;align-items:center;gap:11px;margin-top:4px;">
-        <span class="av av-noor sm">N<span class="st grn"></span></span>
+        <span class="av av-noor sm">★<span class="st grn"></span></span>
         <div>
-          <div class="tit" style="font-size:15px;font-weight:600;">Noor</div>
-          <div class="sub" style="font-size:12px;color:var(--mute);">Tell Noor once. The crew handles the rest.</div>
+          <div class="tit" style="font-size:15px;font-weight:600;">Main agent</div>
+          <div class="sub" style="font-size:12px;color:var(--mute);">Tell it once. The crew handles the rest.</div>
         </div>
       </div>
       <div id="talklog" style="padding-bottom:18px;">
-        <div class="chatrow"><div class="bub user">Noor, the Raya promo replies are piling up.</div></div>
-        <div class="chatrow"><span class="av av-noor sm" style="font-size:12px;">N</span><div class="bub agent">On it. I&rsquo;ll get Ramy to draft those replies and check with you before sending.</div></div>
-        <div class="chatrow"><span class="av av-noor sm" style="font-size:12px;">N</span><div class="bub agent">While you&rsquo;re here - Talia is holding two KUL&rarr;BKK fares till 6 PM. Say the word and I&rsquo;ll have her book the 7:05.</div></div>
+        <div class="chatrow"><div class="bub user">The promo replies are piling up.</div></div>
+        <div class="chatrow"><span class="av av-noor sm" style="font-size:12px;">★</span><div class="bub agent">On it. I&rsquo;ll get Ramy to draft those replies and check with you before sending.</div></div>
+        <div class="chatrow"><span class="av av-noor sm" style="font-size:12px;">★</span><div class="bub agent">While you&rsquo;re here - Talia is holding two KUL&rarr;BKK fares till 6 PM. Say the word and I&rsquo;ll have her book the 7:05.</div></div>
       </div>
       <div style="flex:1;"></div>
     </div>
     <div class="talkcomposer">
       <div class="talkwrap">
-        <input id="talkfield" type="text" placeholder="Ask Noor anything&hellip;" autocomplete="off">
+        <input id="talkfield" type="text" placeholder="Ask your main agent&hellip;" autocomplete="off">
         <button class="micbtn" onclick="toast('Dictation arrives with voice · soon')" aria-label="Dictate">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="11.5" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3.5"/></svg>
         </button>
@@ -733,11 +733,11 @@ input{font-family:inherit;}
     <div class="vbody" style="align-items:center;justify-content:center;text-align:center;padding-bottom:calc(28px + var(--sab));">
       <div style="flex:1;"></div>
       <span class="eyebrow grn" style="letter-spacing:.22em;">Voice &middot; Live</span>
-      <span class="orb av-noor" style="margin-top:26px;">N</span>
-      <h2 class="display" style="font-size:30px;margin-top:28px;">Call with <em>Noor</em>.</h2>
+      <span class="orb av-noor" style="margin-top:26px;">★</span>
+      <h2 class="display" style="font-size:30px;margin-top:28px;">Call with your <em>main agent</em>.</h2>
       <div class="mono-num" style="font-size:13px;letter-spacing:.14em;color:var(--ink2);margin-top:10px;" id="callclock">00:00</div>
       <div class="wave" style="margin-top:22px;"><i></i><i></i><i></i><i></i><i></i></div>
-      <div style="font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-top:14px;" id="callhint">Noor is listening</div>
+      <div style="font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-top:14px;" id="callhint">Listening</div>
       <div style="flex:1.2;"></div>
       <div style="display:flex;gap:40px;align-items:flex-start;">
         <div>
@@ -1233,7 +1233,7 @@ function sendTalk(){
   TALK_HISTORY.push({role:"user",content:txt});
   const r=document.createElement("div");
   r.className="chatrow";
-  r.innerHTML='<span class="av av-noor sm" style="font-size:12px;">N</span><div class="bub agent"><span class="typing"><i></i><i></i><i></i></span></div>';
+  r.innerHTML='<span class="av av-noor sm" style="font-size:12px;">★</span><div class="bub agent"><span class="typing"><i></i><i></i><i></i></span></div>';
   log.appendChild(r);
   talkScroll();
   fetch(CREW_API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:TALK_HISTORY})})
@@ -1262,7 +1262,7 @@ function openCall(){
   $("v-call").classList.remove("muted");
   $("mutebtn").classList.remove("on");
   $("mutelabel").textContent="Mute";
-  $("callhint").textContent="Noor is listening";
+  $("callhint").textContent="Listening";
   push("v-call");
   clearInterval(callTimer);
   callTimer=setInterval(()=>{callSec++;$("callclock").textContent=fmtCall(callSec);},1000);
@@ -1272,12 +1272,12 @@ function toggleMute(){
   $("v-call").classList.toggle("muted",callMuted);
   $("mutebtn").classList.toggle("on",callMuted);
   $("mutelabel").textContent=callMuted?"Muted":"Mute";
-  $("callhint").textContent=callMuted?"Muted · Noor can’t hear you":"Noor is listening";
+  $("callhint").textContent=callMuted?"Muted · it can’t hear you":"Listening";
 }
 function endCall(){
   clearInterval(callTimer);callTimer=null;
   pop();
-  toast("Call ended · Noor keeps the notes");
+  toast("Call ended · your main agent keeps the notes");
 }
 
 /* ============ ONBOARDING ============ */
