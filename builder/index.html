@@ -1215,6 +1215,8 @@ function talkScroll(){
   const v=$("talkbody");
   requestAnimationFrame(()=>{v.scrollTop=v.scrollHeight;});
 }
+const CREW_API="https://crew-api-two.vercel.app/api/noor";
+let TALK_HISTORY=[];
 function sendTalk(){
   const f=$("talkfield");
   const txt=f.value.trim();
@@ -1228,18 +1230,24 @@ function sendTalk(){
   u.appendChild(ub);
   log.appendChild(u);
   talkScroll();
+  TALK_HISTORY.push({role:"user",content:txt});
   const r=document.createElement("div");
   r.className="chatrow";
   r.innerHTML='<span class="av av-noor sm" style="font-size:12px;">N</span><div class="bub agent"><span class="typing"><i></i><i></i><i></i></span></div>';
-  setTimeout(()=>{
-    log.appendChild(r);
-    talkScroll();
-    setTimeout(()=>{
-      r.querySelector(".bub").innerHTML=NOOR_REPLIES[noorIdx%NOOR_REPLIES.length];
-      noorIdx++;
+  log.appendChild(r);
+  talkScroll();
+  fetch(CREW_API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:TALK_HISTORY})})
+    .then(x=>x.json())
+    .then(d=>{
+      const reply=(d&&d.reply)?d.reply:NOOR_REPLIES[noorIdx++%NOOR_REPLIES.length];
+      TALK_HISTORY.push({role:"assistant",content:reply});
+      r.querySelector(".bub").textContent=reply;
       talkScroll();
-    },900);
-  },380);
+    })
+    .catch(()=>{
+      r.querySelector(".bub").innerHTML=NOOR_REPLIES[noorIdx++%NOOR_REPLIES.length];
+      talkScroll();
+    });
 }
 
 /* ============ CALL WITH NOOR (mocked voice) ============ */
