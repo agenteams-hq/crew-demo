@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>Crew</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Crew">
+<meta name="theme-color" content="#FBF8F1">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><rect width="512" height="512" rx="116" fill="%23FBF8F1"/><rect x="14" y="14" width="484" height="484" rx="102" fill="none" stroke="%23E7E2D4" stroke-width="6"/><text x="246" y="338" font-family="Georgia,serif" font-style="italic" font-size="300" font-weight="600" fill="%2320241E" text-anchor="middle">C</text><circle cx="352" cy="332" r="30" fill="%2300B14F"/></svg>'>
+<link rel="apple-touch-icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><rect width="512" height="512" fill="%23FBF8F1"/><text x="246" y="338" font-family="Georgia,serif" font-style="italic" font-size="300" font-weight="600" fill="%2320241E" text-anchor="middle">C</text><circle cx="352" cy="332" r="30" fill="%2300B14F"/></svg>'>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..650;1,9..144,300..650&family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   CREW · DESIGN SYSTEM (locked) · v2 · interactive MVP shell
+   ============================================================ */
+:root{
+  --paper:#FBF8F1; --bone:#F3EFE5;
+  --ink:#20241E; --ink2:#565B4E; --mute:#8B8F7E;
+  --hair:#E7E2D4; --hair2:#DDD7C5;
+  --green:#00B14F; --green-deep:#00813B; --green-tint:#E3F3E8;
+  --amber:#B45309; --amber-tint:#FBF0DC; --amber-line:#EFDCBA;
+  --serif:"Fraunces",Georgia,serif;
+  --grot:"Schibsted Grotesk",-apple-system,sans-serif;
+  --mono:"Schibsted Grotesk",-apple-system,sans-serif;
+  --sat:env(safe-area-inset-top,0px);
+  --sab:env(safe-area-inset-bottom,0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{-webkit-font-smoothing:antialiased;height:100%;}
+body{font-family:var(--grot);color:var(--ink);background:var(--paper);height:100dvh;overflow:hidden;overscroll-behavior:none;}
+button{font-family:inherit;color:inherit;background:none;border:none;cursor:pointer;text-align:inherit;}
+input{font-family:inherit;}
+
+#app{position:relative;height:100dvh;max-width:520px;margin:0 auto;overflow:hidden;background:var(--paper);}
+#app::after{ /* grain on every screen */
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:60;
+  background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter><rect width="120" height="120" filter="url(%23g)" opacity="0.03"/></svg>');
+}
+
+/* ---------- views ---------- */
+.view{position:absolute;inset:0;background:var(--paper);display:flex;flex-direction:column;}
+.tabview{opacity:0;transform:translateY(8px);visibility:hidden;transition:opacity .24s ease,transform .24s ease,visibility 0s linear .24s;z-index:1;}
+.tabview.on{opacity:1;transform:none;visibility:visible;transition:opacity .24s ease,transform .24s ease,visibility 0s;z-index:2;}
+.pushview{transform:translateX(103%);visibility:hidden;z-index:7;box-shadow:-24px 0 48px rgba(32,36,30,.14);transition:transform .38s cubic-bezier(.32,.72,0,1),visibility 0s linear .38s;}
+.pushview.on{transform:none;visibility:visible;transition:transform .38s cubic-bezier(.32,.72,0,1),visibility 0s;}
+.pushview.on.under{transform:translateX(-18%);}
+.vbody{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 22px;display:flex;flex-direction:column;min-height:0;}
+.vbody.tabpad{padding-bottom:calc(112px + var(--sab));}
+.vtop{padding-top:calc(var(--sat) + 18px);}
+
+/* ---------- shared type ---------- */
+.eyebrow{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);}
+.needlbl{font-family:var(--grot);font-size:11.5px;font-weight:700;letter-spacing:-.005em;color:var(--amber);}
+.glancecard{background:#fff;border:1px solid var(--hair);border-radius:16px;padding:2px 16px;box-shadow:0 1px 2px rgba(32,36,30,.04);}
+.grow{display:flex;align-items:center;justify-content:space-between;padding:13px 0;}
+.grow.brd{border-top:1px solid var(--hair);}
+.gk{font-family:var(--grot);font-size:13.5px;color:var(--ink2);}
+.gv{font-family:var(--grot);font-size:13.5px;font-weight:600;color:var(--ink);}
+.quoteline{margin-top:16px;font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.5;color:var(--ink2);padding-left:14px;border-left:2px solid var(--amber-line);}
+.eyebrow.grn{color:var(--green-deep);}
+.eyebrow.amb{color:var(--amber);}
+.display{font-family:var(--serif);font-weight:480;letter-spacing:-.015em;line-height:1.08;font-variation-settings:"opsz" 60;}
+.display em{font-style:italic;font-weight:430;}
+.body-t{font-size:14px;line-height:1.55;color:var(--ink2);}
+.mono-num{font-family:var(--mono);font-weight:600;}
+
+/* ---------- nav row (pushed screens) ---------- */
+.navrow{display:flex;align-items:center;justify-content:space-between;padding:calc(var(--sat) + 12px) 18px 6px;position:relative;z-index:5;flex:none;}
+.backbtn{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);background:#fff;border:1px solid var(--hair);border-radius:999px;padding:9px 15px 9px 11px;box-shadow:0 1px 2px rgba(32,36,30,.05);}
+.backbtn:active{transform:scale(.96);}
+.navrow .eyebrow{position:absolute;left:50%;transform:translateX(-50%);top:calc(var(--sat) + 24px);}
+
+/* ---------- cards & rows ---------- */
+.card{background:#fff;border:1px solid var(--hair);border-radius:24px;box-shadow:0 1px 2px rgba(32,36,30,.04), 0 10px 24px -18px rgba(32,36,30,.18);}
+.card.soft{background:rgba(255,255,255,.66);}
+.sect-label{display:flex;align-items:center;justify-content:space-between;margin:22px 2px 10px;}
+.lrow{display:flex;align-items:center;gap:13px;padding:13px 16px;}
+.lrow + .lrow{border-top:1px solid var(--hair);}
+.lrow .tit{font-weight:600;font-size:14.5px;letter-spacing:-.005em;}
+.lrow .sub{font-size:12px;color:var(--mute);margin-top:2px;line-height:1.4;}
+.lrow .time{font-family:var(--mono);font-size:10px;font-weight:500;color:var(--mute);letter-spacing:.06em;margin-left:auto;flex:none;}
+.tick{width:20px;height:20px;border-radius:50%;background:var(--green-tint);display:flex;align-items:center;justify-content:center;flex:none;}
+.chev{margin-left:auto;flex:none;color:#C5C1B0;}
+.tappable{transition:transform .12s ease;cursor:pointer;}
+.tappable:active{transform:scale(.98);}
+
+/* ---------- WORK / PERSONAL zones ---------- */
+.zonehead{display:flex;align-items:center;gap:10px;margin:24px 2px 10px;}
+.zonehead .zicon{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:none;}
+.zonehead .zicon.work{background:var(--ink);color:var(--paper);}
+.zonehead .zicon.pers{background:#fff;border:1px solid var(--hair2);color:var(--ink2);}
+.zonehead .zt{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ink);}
+.zonehead .zt.pers{color:var(--ink2);}
+.zonehead .zl{flex:1;height:1px;background:var(--hair2);}
+.zonehead .zc{font-family:var(--mono);font-size:9.5px;font-weight:500;letter-spacing:.08em;color:var(--mute);text-transform:uppercase;}
+.ztag{font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;border-radius:5px;padding:2.5px 6px;flex:none;display:inline-block;vertical-align:1px;white-space:nowrap;}
+.ztag.work{background:var(--ink);color:var(--paper);}
+.ztag.pers{background:transparent;border:1px solid var(--hair2);color:var(--ink2);}
+
+/* ---------- status pills ---------- */
+.pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;border-radius:999px;padding:5px 10px;white-space:nowrap;}
+.pill .dot{width:6px;height:6px;border-radius:50%;}
+.pill.working{background:var(--green-tint);color:var(--green-deep);}
+.pill.working .dot{background:var(--green);}
+.pill.needs{background:var(--amber-tint);color:var(--amber);}
+.pill.needs .dot{background:var(--amber);}
+.pill.quiet{background:var(--bone);color:var(--mute);}
+.pill.quiet .dot{background:var(--mute);}
+.pill.done{background:var(--bone);color:var(--ink2);}
+.pill.done .dot{background:var(--ink2);}
+.pill.linked{background:var(--green-tint);color:var(--green-deep);}
+
+@keyframes breathe{0%,100%{box-shadow:0 0 0 0 rgba(0,177,79,.32);}50%{box-shadow:0 0 0 7px rgba(0,177,79,0);}}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:breathe 2.8s ease-in-out infinite;flex:none;}
+@keyframes halo{0%,100%{transform:translateX(-50%) scale(1);opacity:.55;}50%{transform:translateX(-50%) scale(1.08);opacity:.85;}}
+.halo{position:absolute;top:-130px;left:50%;width:520px;height:380px;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(0,177,79,.10),rgba(0,177,79,0));animation:halo 6s ease-in-out infinite;pointer-events:none;}
+
+/* ---------- buttons ---------- */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;font-weight:700;font-size:15px;letter-spacing:.01em;height:54px;border:none;width:100%;transition:transform .12s ease;}
+.btn:active{transform:scale(.97);}
+.btn-approve{background:var(--green);color:#fff;box-shadow:0 10px 20px -10px rgba(0,129,59,.55), 0 1px 0 rgba(255,255,255,.25) inset;}
+.btn-secondary{background:#fff;color:var(--ink);border:1px solid var(--hair2);box-shadow:0 1px 2px rgba(32,36,30,.05);}
+.btn-ghost{background:transparent;color:var(--ink2);border:1px dashed var(--hair2);}
+
+/* ---------- avatars ---------- */
+.av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;flex:none;
+  font-family:var(--serif);font-style:italic;font-weight:560;font-size:18px;letter-spacing:-.02em;
+  box-shadow:0 0 0 1px rgba(32,36,30,.08) inset, 0 1px 2px rgba(32,36,30,.08);}
+.av::before{content:"";position:absolute;inset:3px;border-radius:50%;border:1px solid rgba(255,255,255,.55);}
+.av.sm{width:34px;height:34px;font-size:14px;}
+.av.lg{width:62px;height:62px;font-size:26px;}
+.av .st{position:absolute;right:-1px;bottom:-1px;width:13px;height:13px;border-radius:50%;border:2.5px solid var(--paper);}
+.av .st.grn{background:var(--green);}
+.av .st.amb{background:var(--amber);}
+.av .st.gry{background:#B7B4A5;}
+.av-ramy {background:linear-gradient(135deg,#DDEDE0,#C9E2D1);color:#23513C;}
+.av-mara {background:linear-gradient(135deg,#F4E3D1,#EAD0B6);color:#7A4A22;}
+.av-sufi {background:linear-gradient(135deg,#DCE8EE,#C8DAE4);color:#2E4B5C;}
+.av-kee  {background:linear-gradient(135deg,#F2E8C9,#E8DAAE);color:#73591A;}
+.av-talia{background:linear-gradient(135deg,#E8E1F0,#D8CEE6);color:#54456B;}
+.av-iman {background:linear-gradient(135deg,#E7EBD3,#D8DFB9);color:#4D5827;}
+.av-niko {background:linear-gradient(135deg,#D7E8E6,#C2DCD9);color:#1E5A56;}
+.av-crew {background:linear-gradient(135deg,#20241E,#3A4034);color:#F3EFE5;}
+
+/* ---------- tab bar ---------- */
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:calc(86px + var(--sab));border-top:1px solid var(--hair);background:rgba(251,248,241,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:flex-start;padding:10px 34px 0;z-index:4;transition:transform .3s ease;}
+#app.onb .tabbar{transform:translateY(110%);}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;color:#A6A392;position:relative;transition:color .2s;}
+.tab span{font-family:var(--mono);font-size:8.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;}
+.tab.on{color:var(--ink);}
+.tab.on svg{color:var(--green-deep);}
+.tab .bdg{position:absolute;left:50%;margin-left:9px;top:-3px;width:7px;height:7px;border-radius:50%;background:var(--amber);border:1.5px solid var(--paper);display:none;}
+.tab .bdg.show{display:block;}
+
+/* ---------- toggle ---------- */
+.tgl{width:46px;height:28px;border-radius:999px;background:#DCD8C8;position:relative;flex:none;transition:background .2s;cursor:pointer;}
+.tgl::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(32,36,30,.25);transition:left .2s;}
+.tgl.on{background:var(--green);}
+.tgl.on::after{left:21px;}
+
+/* ---------- connection tiles ---------- */
+.tile{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex:none;font-family:var(--mono);font-weight:700;font-size:13px;box-shadow:0 0 0 1px rgba(32,36,30,.07) inset;}
+
+/* ---------- facts ---------- */
+.fact{display:flex;align-items:baseline;justify-content:space-between;padding:11px 0;}
+.fact + .fact{border-top:1px solid var(--hair);}
+
+/* ---------- chat (onboarding) ---------- */
+.chatrow{display:flex;gap:9px;align-items:flex-end;margin-top:13px;animation:bubin .32s ease both;}
+@keyframes bubin{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.bub{max-width:78%;padding:12px 15px;border-radius:20px;font-size:14px;line-height:1.5;}
+.bub.agent{background:#fff;border:1px solid var(--hair);border-bottom-left-radius:7px;color:var(--ink);box-shadow:0 1px 2px rgba(32,36,30,.04), 0 8px 18px -14px rgba(32,36,30,.2);}
+.bub.user{background:var(--ink);color:#F3EFE5;border-bottom-right-radius:7px;margin-left:auto;box-shadow:0 8px 18px -12px rgba(32,36,30,.45);}
+.qchip{font-family:var(--grot);font-size:13px;font-weight:600;color:var(--ink2);background:#fff;border:1px solid var(--hair2);border-radius:999px;padding:10px 15px;box-shadow:0 1px 2px rgba(32,36,30,.05);transition:transform .12s;}
+.qchip:active{transform:scale(.95);}
+.chiprow{display:flex;gap:8px;justify-content:flex-end;margin-top:13px;flex-wrap:wrap;animation:bubin .32s ease both;}
+.typing{display:inline-flex;gap:4px;padding:14px 16px;}
+.typing i{width:6px;height:6px;border-radius:50%;background:#C5C1B0;animation:tp 1.1s infinite;}
+.typing i:nth-child(2){animation-delay:.15s;}
+.typing i:nth-child(3){animation-delay:.3s;}
+@keyframes tp{0%,60%,100%{opacity:.35;transform:none;}30%{opacity:1;transform:translateY(-3px);}}
+
+/* timeline */
+.tl{position:relative;padding-left:24px;}
+.tl::before{content:"";position:absolute;left:7px;top:8px;bottom:8px;width:1.5px;background:var(--hair2);}
+.tl-item{position:relative;padding:9px 0;}
+.tl-item::before{content:"";position:absolute;left:-21.5px;top:15px;width:8px;height:8px;border-radius:50%;background:#fff;border:2px solid #BBB7A4;}
+.tl-item.grn::before{border-color:var(--green);background:var(--green-tint);}
+.tl-item .t{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.1em;color:var(--mute);text-transform:uppercase;}
+.tl-item .d{font-size:13.5px;line-height:1.45;color:var(--ink);margin-top:2px;}
+.tl-item .d b{font-weight:700;}
+
+/* ---------- sheets & overlays ---------- */
+#dim{position:absolute;inset:0;background:rgba(32,36,30,.34);z-index:20;opacity:0;visibility:hidden;transition:opacity .28s ease,visibility 0s linear .28s;}
+#dim.on{opacity:1;visibility:visible;transition:opacity .28s ease,visibility 0s;}
+.sheet{position:absolute;left:10px;right:10px;bottom:calc(10px + var(--sab));background:#fff;border-radius:34px;z-index:24;box-shadow:0 -18px 50px -20px rgba(32,36,30,.45);transform:translateY(115%);transition:transform .36s cubic-bezier(.32,.72,0,1);}
+.sheet.on{transform:none;}
+.grab{width:40px;height:4.5px;border-radius:3px;background:var(--hair2);margin:0 auto 18px;}
+
+/* redirect composer */
+#redfield{flex:1;background:var(--paper);border:1.5px solid var(--ink);border-radius:999px;padding:14px 18px;font-size:14px;color:var(--ink);outline:none;min-width:0;}
+#redfield::placeholder{color:var(--mute);}
+.sendbtn{width:50px;height:50px;border-radius:50%;background:var(--ink);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 8px 16px -8px rgba(32,36,30,.6);transition:transform .12s;}
+.sendbtn:active{transform:scale(.92);}
+.redchip{font-family:var(--grot);font-size:12.5px;font-weight:600;color:var(--ink2);background:var(--bone);border:1px solid var(--hair2);border-radius:999px;padding:9px 14px;}
+
+/* apple pay processing */
+@keyframes spin{to{transform:rotate(360deg);}}
+.payspin{width:34px;height:34px;border-radius:50%;border:3px solid #E5E5EA;border-top-color:#0A84FF;animation:spin .8s linear infinite;}
+.paytick{width:44px;height:44px;border-radius:50%;background:#34C759;display:flex;align-items:center;justify-content:center;animation:pop .35s cubic-bezier(.2,1.6,.4,1) both;}
+@keyframes pop{from{transform:scale(.3);opacity:0;}to{transform:scale(1);opacity:1;}}
+.sidebtn{position:absolute;right:0;top:38%;width:5px;height:74px;border-radius:4px 0 0 4px;background:#0A84FF;box-shadow:0 0 14px rgba(10,132,255,.55);z-index:26;animation:breathe 2s ease-in-out infinite;}
+
+/* confirm overlay */
+#confirm{position:absolute;inset:0;z-index:28;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:rgba(251,248,241,.94);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;visibility:hidden;transition:opacity .25s ease,visibility 0s linear .25s;}
+#confirm.on{opacity:1;visibility:visible;transition:opacity .25s ease,visibility 0s;}
+.bigtick{width:74px;height:74px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;box-shadow:0 16px 36px -14px rgba(0,129,59,.55);}
+#confirm.on .bigtick{animation:pop .4s cubic-bezier(.2,1.6,.4,1) both;}
+#confirm .display{font-size:25px;text-align:center;padding:0 40px;}
+#confirm .sub2{font-size:13px;color:var(--mute);text-align:center;padding:0 40px;}
+
+/* toast */
+#toast{position:absolute;left:50%;bottom:calc(110px + var(--sab));transform:translateX(-50%) translateY(16px);background:var(--ink);color:#F3EFE5;font-size:13px;font-weight:600;border-radius:999px;padding:11px 20px;z-index:32;opacity:0;visibility:hidden;transition:all .3s ease;white-space:nowrap;box-shadow:0 12px 26px -10px rgba(32,36,30,.5);display:flex;align-items:center;gap:8px;}
+#toast.on{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);}
+
+/* onboarding dots */
+.obdots{display:flex;gap:6px;margin-bottom:18px;}
+.obdots span{width:5px;height:5px;border-radius:3px;background:var(--hair2);transition:all .3s;}
+.obdots span.on{width:22px;background:var(--green);}
+.skipbtn{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-left:auto;padding:6px 2px;}
+.sparkline{display:flex;align-items:center;gap:8px;padding:0 4px;}
+.sparkline span{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);}
+
+.holdred{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);padding:8px 6px;}
+.stepbtn{width:26px;height:26px;border-radius:50%;border:1px solid var(--hair2);display:flex;align-items:center;justify-content:center;color:var(--ink2);font-weight:700;flex:none;}
+.connectbtn{margin-left:auto;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green-deep);border:1px solid #BFE3CC;border-radius:999px;padding:7px 13px;background:#fff;flex:none;}
+
+/* ---------- onboarding escape hatch ---------- */
+.obfix{display:block;width:100%;text-align:center;margin-top:15px;font-size:13px;font-weight:500;color:var(--ink2);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--hair2);padding:6px 0;}
+.obfix:active{opacity:.6;}
+
+/* ---------- orchestrator (Noor) ---------- */
+.av-noor{background:linear-gradient(135deg,#1C3A2A,#33604A);color:#E9F2E6;}
+.renamehint{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);border:1px solid var(--hair2);border-radius:999px;padding:5px 10px;background:#fff;flex:none;}
+.renamehint:active{transform:scale(.95);}
+.talkpill{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;background:var(--green-tint);color:var(--green-deep);border:1px solid #BFE3CC;border-radius:999px;padding:8px 13px;white-space:nowrap;transition:transform .12s;}
+.talkpill:active{transform:scale(.95);}
+
+/* ---------- talk surface ---------- */
+.callbtn{width:38px;height:38px;border-radius:50%;background:var(--green-tint);border:1px solid #BFE3CC;color:var(--green-deep);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 1px 2px rgba(32,36,30,.05);transition:transform .12s;}
+.callbtn:active{transform:scale(.92);}
+.talkcomposer{flex:none;display:flex;align-items:center;gap:9px;padding:10px 18px calc(14px + var(--sab));border-top:1px solid var(--hair);background:rgba(251,248,241,.94);}
+.talkwrap{flex:1;position:relative;min-width:0;}
+#talkfield{width:100%;background:#fff;border:1.5px solid var(--hair2);border-radius:999px;padding:14px 46px 14px 18px;font-size:14px;color:var(--ink);outline:none;}
+#talkfield::placeholder{color:var(--mute);}
+#talkfield:focus{border-color:var(--ink);}
+.micbtn{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--ink2);transition:transform .12s;}
+.micbtn:active{transform:translateY(-50%) scale(.9);}
+
+/* ---------- call view ---------- */
+#v-call{background:linear-gradient(180deg,#FBF8F1 0%,#F1EEE0 100%);}
+@keyframes orbb{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(0,177,79,.20),0 30px 60px -24px rgba(28,58,42,.45);}50%{transform:scale(1.045);box-shadow:0 0 0 26px rgba(0,177,79,0),0 30px 60px -24px rgba(28,58,42,.45);}}
+.orb{width:138px;height:138px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-style:italic;font-weight:560;font-size:54px;animation:orbb 3.4s ease-in-out infinite;position:relative;}
+.orb::before{content:"";position:absolute;inset:7px;border-radius:50%;border:1px solid rgba(255,255,255,.35);}
+.wave{display:flex;gap:5px;align-items:center;height:26px;justify-content:center;}
+.wave i{width:3.5px;height:100%;border-radius:2px;background:var(--green);transform-origin:center;animation:eq 1.25s ease-in-out infinite;}
+.wave i:nth-child(1){animation-delay:0s;height:46%;}
+.wave i:nth-child(2){animation-delay:.18s;height:80%;}
+.wave i:nth-child(3){animation-delay:.36s;height:100%;}
+.wave i:nth-child(4){animation-delay:.5s;height:70%;}
+.wave i:nth-child(5){animation-delay:.66s;height:52%;}
+@keyframes eq{0%,100%{transform:scaleY(.3);opacity:.55;}50%{transform:scaleY(1);opacity:1;}}
+#v-call.muted .wave i{animation-play-state:paused;transform:scaleY(.22);opacity:.35;}
+.callctl{width:62px;height:62px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform .12s;}
+.callctl:active{transform:scale(.93);}
+.callctl.mute{background:#fff;border:1px solid var(--hair2);color:var(--ink2);box-shadow:0 1px 2px rgba(32,36,30,.06),0 10px 22px -14px rgba(32,36,30,.25);}
+.callctl.mute.on{background:var(--ink);border-color:var(--ink);color:#F3EFE5;}
+.callctl.end{background:#D6453D;color:#fff;box-shadow:0 16px 30px -12px rgba(214,69,61,.65);}
+.callctl-label{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-top:9px;text-align:center;}
+</style>
+</head>
+<body>
+<div id="app" class="onb">
+
+  <!-- ================= ONBOARDING · CHAT ================= -->
+  <div class="view tabview" id="v-onb">
+    <div class="vbody vtop">
+      <div style="display:flex;align-items:center;">
+        <div class="obdots" id="obdots" style="margin-bottom:0;"><span class="on"></span><span></span><span></span></div>
+        <button class="skipbtn" onclick="finishOnb()">Skip</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:11px;margin-top:18px;">
+        <span class="av av-crew sm">C</span>
+        <div>
+          <div class="eyebrow grn">Your Crew</div>
+          <div style="font-family:var(--serif);font-size:19px;font-weight:520;margin-top:2px;" id="obtitle">Getting to know you</div>
+        </div>
+      </div>
+      <div id="chatlog" style="margin-top:8px;padding-bottom:18px;"></div>
+      <div style="flex:1;"></div>
+      <div class="sparkline" style="margin-bottom:10px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 14 9l6.5 2-6.5 2-2 6.5L10 13l-6.5-2L10 9l2-6.5Z" stroke="#565B4E" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        <span>Filled in on-device · nothing leaves your phone</span>
+      </div>
+      <div style="height:calc(18px + var(--sab));"></div>
+    </div>
+  </div>
+
+  <!-- ================= ONBOARDING · DISCOVERY ================= -->
+  <div class="view pushview" id="v-disc">
+    <div class="vbody vtop">
+      <div class="obdots"><span class="on" style="width:5px;"></span><span class="on" style="width:5px;"></span><span class="on"></span></div>
+      <div class="eyebrow grn">Last step</div>
+      <h2 class="display" style="font-size:30px;margin:12px 0 8px;">Here&rsquo;s what your crew <em>can do</em>.</h2>
+      <p class="body-t" style="font-size:13.5px;">Tap what sounds useful. They start tonight.</p>
+
+      <div class="zonehead" style="margin-top:18px;">
+        <span class="zicon work"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2.5"/><path d="M9 8V6.5A2.5 2.5 0 0 1 11.5 4h1A2.5 2.5 0 0 1 15 6.5V8"/></svg></span>
+        <span class="zt">Work</span><span class="zl"></span>
+      </div>
+      <div class="card">
+        <div class="lrow" style="padding:12px 15px;"><span class="av av-sufi sm">S</span>
+          <div style="flex:1;"><div class="tit" style="font-size:13.5px;">Reply to order DMs</div><div class="sub">Sufi · Support · in your voice</div></div><span class="tgl on" onclick="this.classList.toggle('on')"></span></div>
+        <div class="lrow" style="padding:12px 15px;"><span class="av av-kee sm">K</span>
+          <div style="flex:1;"><div class="tit" style="font-size:13.5px;">Chase overdue invoices</div><div class="sub">Kee · Books · politely</div></div><span class="tgl on" onclick="this.classList.toggle('on')"></span></div>
+        <div class="lrow" style="padding:12px 15px;"><span class="av av-mara sm">M</span>
+          <div style="flex:1;"><div class="tit" style="font-size:13.5px;">Draft the Raya promo</div><div class="sub">Mara · Marketing</div></div><span class="tgl" onclick="this.classList.toggle('on')"></span></div>
+      </div>
+
+      <div class="zonehead" style="margin-top:16px;">
+        <span class="zicon pers"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5 12 3.8l8.5 6.7V20a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1v-9.5Z"/></svg></span>
+        <span class="zt pers">Personal</span><span class="zl"></span>
+      </div>
+      <div class="card">
+        <div class="lrow" style="padding:12px 15px;"><span class="av av-talia sm">T</span>
+          <div style="flex:1;"><div class="tit" style="font-size:13.5px;">Watch KUL&rarr;BKK fares</div><div class="sub">Talia · Travel · for Mak visits</div></div><span class="tgl on" onclick="this.classList.toggle('on')"></span></div>
+        <div class="lrow" style="padding:12px 15px;"><span class="av av-iman sm">I</span>
+          <div style="flex:1;"><div class="tit" style="font-size:13.5px;">Book Atok&rsquo;s clinic, Tuesdays</div><div class="sub">Iman · Errands</div></div><span class="tgl" onclick="this.classList.toggle('on')"></span></div>
+      </div>
+
+      <div style="flex:1;min-height:22px;"></div>
+      <button class="btn btn-approve" style="margin-bottom:8px;" onclick="finishOnb()">Start my Crew</button>
+      <div style="text-align:center;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:calc(18px + var(--sab));">Change everything later</div>
+    </div>
+  </div>
+
+  <!-- ================= HOME ================= -->
+  <div class="view tabview" id="v-home">
+    <div class="halo"></div>
+    <div class="vbody vtop tabpad">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span class="eyebrow" id="homedate">Friday · 12 June</span>
+        <span style="display:flex;align-items:center;gap:10px;">
+        <button class="talkpill" onclick="openTalk()">
+          <span class="dot" style="width:6px;height:6px;border-radius:50%;background:var(--green);"></span>Talk to Noor
+        </button>
+        <button style="position:relative;display:inline-flex;" onclick="push('v-settings')" aria-label="Settings">
+          <span class="av av-crew sm" style="font-size:13px;">F</span>
+          <span style="position:absolute;right:-4px;bottom:-4px;width:17px;height:17px;border-radius:50%;background:#fff;border:1px solid var(--hair2);display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(32,36,30,.12);">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#565B4E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M18.5 5.5l-2.1 2.1M7.6 16.4l-2.1 2.1"/></svg>
+          </span>
+        </button>
+        </span>
+      </div>
+      <h2 class="display" style="font-size:42px;margin:32px 0 0;">All quiet,<br>Fares.</h2>
+      <div style="display:flex;align-items:center;gap:10px;margin:20px 0 0;">
+        <span class="live-dot"></span>
+        <span class="mono-num" style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);" id="homecount"></span>
+      </div>
+
+      <div id="homedecisions" style="margin-top:28px;display:flex;flex-direction:column;gap:12px;"></div>
+
+      <!-- ledger peek -->
+      <div class="card soft" style="margin-top:14px;">
+        <div class="lrow tappable" style="padding:14px 16px;" onclick="toast('Full ledger · coming soon')">
+          <span class="tick"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <div class="tit" style="font-size:14px;"><span class="mono-num" style="font-size:14px;">34</span> done while you slept</div>
+          <svg class="chev" width="8" height="13" viewBox="0 0 9 15" fill="none"><path d="M1.5 1.5 7.5 7.5 1.5 13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="lrow" style="padding:11px 16px;">
+          <div><div class="tit" style="font-size:13px;color:var(--ink2);font-weight:500;">Omar pulled 120 new signups overnight <span class="ztag work">Work</span></div></div>
+          <span class="time">6:58</span>
+        </div>
+        <div class="lrow" style="padding:11px 16px;">
+          <div><div class="tit" style="font-size:13px;color:var(--ink2);font-weight:500;">Talia held 2 BKK fares <span class="ztag pers">Personal</span></div></div>
+          <span class="time">0:47</span>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:18px;font-size:12px;color:var(--mute);" id="homefoot">That&rsquo;s everything. Go live your day.</div>
+    </div>
+  </div>
+
+  <!-- ================= CREW ================= -->
+  <div class="view tabview" id="v-crew">
+    <div class="vbody vtop tabpad">
+      <div class="eyebrow">Fares&rsquo;s Crew</div>
+      <h2 class="display" style="font-size:28px;margin:8px 0 0;">Four at work, two at home.</h2>
+
+      <!-- orchestrator hero -->
+      <div class="card tappable" id="orchhero" style="margin-top:16px;border-color:#CFE6D8;background:linear-gradient(180deg,#FFFFFF,#F3FAF5);box-shadow:0 1px 2px rgba(32,36,30,.05), 0 20px 40px -22px rgba(0,129,59,.32);" onclick="openTalk()">
+        <div style="padding:15px 17px 13px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span class="eyebrow grn">Your right hand</span>
+            <button class="renamehint" onclick="event.stopPropagation();toast('Rename Noor anytime · coming soon')">Rename</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;margin-top:12px;">
+            <span class="av lg av-noor">N<span class="st grn" style="width:16px;height:16px;"></span></span>
+            <div style="flex:1;min-width:0;">
+              <div style="font-family:var(--serif);font-size:24px;font-weight:520;letter-spacing:-.01em;">Noor</div>
+              <div class="sub" style="margin-top:3px;">Runs the crew, talks to the others for you</div>
+            </div>
+            <svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none"><path d="M1.5 1.5 7.5 7.5 1.5 13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:13px;padding-top:12px;border-top:1px solid var(--hair);">
+            <span class="live-dot"></span>
+            <span style="font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);">Briefing the six below</span>
+            <span style="margin-left:auto;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green-deep);">Talk &rsaquo;</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="zonehead" style="margin-top:16px;margin-bottom:8px;">
+        <span class="zicon work"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2.5"/><path d="M9 8V6.5A2.5 2.5 0 0 1 11.5 4h1A2.5 2.5 0 0 1 15 6.5V8"/></svg></span>
+        <span class="zt">Work</span><span class="zl"></span><span class="zc">Your product</span>
+      </div>
+      <div id="crew-work" style="display:flex;flex-direction:column;gap:7px;"></div>
+      <div class="zonehead" style="margin-top:16px;margin-bottom:8px;">
+        <span class="zicon pers"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5 12 3.8l8.5 6.7V20a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1v-9.5Z"/></svg></span>
+        <span class="zt pers">Personal</span><span class="zl"></span><span class="zc">Family &amp; home</span>
+      </div>
+      <div id="crew-pers" style="display:flex;flex-direction:column;gap:7px;"></div>
+    </div>
+  </div>
+
+  <!-- ================= BRAIN ================= -->
+  <div class="view tabview" id="v-brain">
+    <div class="vbody vtop tabpad">
+      <div class="eyebrow">Shared knowledge</div>
+      <h2 class="display" style="font-size:28px;margin:8px 0 3px;">What your crew knows.</h2>
+      <div class="body-t" style="font-size:13px;">Two memories, kept apart. Agents cite before they act.</div>
+
+      <div class="zonehead" style="margin-top:15px;margin-bottom:8px;">
+        <span class="zicon work"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2.5"/><path d="M9 8V6.5A2.5 2.5 0 0 1 11.5 4h1A2.5 2.5 0 0 1 15 6.5V8"/></svg></span>
+        <span class="zt">Work</span><span class="zl"></span><span class="zc">29 facts</span>
+      </div>
+      <div class="card">
+        <div class="lrow tappable" style="padding:10px 15px;" onclick="toast('Stack &amp; conventions · v4')">
+          <span class="tile" style="background:var(--green-tint);color:var(--green-deep);font-family:var(--serif);font-style:italic;font-size:16px;width:36px;height:36px;">P</span>
+          <div><div class="tit" style="font-size:14px;">Stack &amp; conventions</div><div class="sub">Web app, Swift shell, Vercel · v4</div></div>
+          <span class="time">2 May</span>
+        </div>
+        <div class="lrow tappable" style="padding:10px 15px;" onclick="toast('Ship checklist · 12 notes')">
+          <span class="tile" style="background:#F4E3D1;color:#7A4A22;font-family:var(--serif);font-style:italic;font-size:16px;width:36px;height:36px;">V</span>
+          <div><div class="tit" style="font-size:14px;">Ship checklist</div><div class="sub">CI green, signed, notes</div></div>
+          <span class="time">28 Apr</span>
+        </div>
+        <div class="lrow tappable" style="padding:10px 15px;" onclick="toast('How you ship · 42 facts')">
+          <span class="tile" style="background:#DCE8EE;color:#2E4B5C;font-family:var(--serif);font-style:italic;font-size:16px;width:36px;height:36px;">F</span>
+          <div><div class="tit" style="font-size:14px;">How you ship, 42 notes</div><div class="sub">How you like things shipped</div></div>
+          <span class="time">Today</span>
+        </div>
+      </div>
+
+      <div class="zonehead" style="margin-top:14px;margin-bottom:8px;">
+        <span class="zicon pers"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5 12 3.8l8.5 6.7V20a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1v-9.5Z"/></svg></span>
+        <span class="zt pers">Personal</span><span class="zl"></span><span class="zc">18 facts</span>
+      </div>
+      <div class="card">
+        <div class="lrow tappable" style="padding:10px 15px;" onclick="toast('Travel preferences · 6 notes')">
+          <span class="tile" style="background:#E8E1F0;color:#54456B;font-family:var(--serif);font-style:italic;font-size:16px;width:36px;height:36px;">T</span>
+          <div><div class="tit" style="font-size:14px;">Travel preferences</div><div class="sub">Aisle seat, halal meals</div></div>
+          <span class="time">11 May</span>
+        </div>
+        <div class="lrow tappable" style="padding:10px 15px;" onclick="toast('Weekly rhythm · 5 notes')">
+          <span class="tile" style="background:#E7EBD3;color:#4D5827;font-family:var(--serif);font-style:italic;font-size:16px;width:36px;height:36px;">H</span>
+          <div><div class="tit" style="font-size:14px;">Weekly rhythm</div><div class="sub">Ship Tue/Thu, review Fri</div></div>
+          <span class="time">9 Jun</span>
+        </div>
+      </div>
+
+      <div class="card tappable" style="margin-top:12px;background:var(--bone);border-style:dashed;box-shadow:none;" onclick="toast('Teach the crew · coming soon')">
+        <div class="lrow" style="padding:10px 15px;">
+          <span style="color:var(--green-deep);"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+          <div><div class="tit" style="color:var(--green-deep);font-size:14px;">Teach the crew something</div><div class="sub">Say it once, file it work or personal</div></div>
+        </div>
+      </div>
+      <div style="text-align:center;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-top:10px;">Work agents never read personal facts</div>
+    </div>
+  </div>
+
+  <!-- ================= DECISION (push) ================= -->
+  <div class="view pushview" id="v-decision">
+    <div class="navrow">
+      <button class="backbtn" onclick="pop()"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1 1.5 6 6 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Home</button>
+      <span class="eyebrow amb" id="dec-eyebrow">Decision · 1 of 1</span>
+    </div>
+    <div class="vbody" style="padding-top:34px;">
+      <div style="display:flex;align-items:center;gap:11px;">
+        <span class="av" id="dec-av">R<span class="st amb"></span></span>
+        <div>
+          <div class="tit" style="font-size:15px;font-weight:600;"><span id="dec-name">Ramy</span> <span class="ztag work" style="margin-left:4px;" id="dec-zone">Work</span></div>
+          <div class="sub" style="font-size:12px;color:var(--mute);" id="dec-role">Sales</div>
+        </div>
+      </div>
+      <h2 class="display" style="font-size:38px;margin:38px 0 0;" id="dec-ask"></h2>
+      <p class="body-t" style="font-size:16px;margin-top:16px;color:var(--ink2);" id="dec-fact"></p>
+      <div id="dec-glance" style="margin-top:24px;"></div>
+      <div style="flex:1;"></div>
+      <button class="btn btn-approve" style="font-size:17px;height:62px;" onclick="approveCurrent()">
+        <svg width="15" height="12" viewBox="0 0 14 11" fill="none"><path d="M1.5 5.5 5.2 9.2 12.5 1.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span id="dec-approve-label">Approve</span>
+      </button>
+      <div style="display:flex;justify-content:center;gap:24px;margin-top:14px;align-items:center;">
+        <button class="holdred" onclick="holdCurrent()">Hold</button>
+        <span style="width:1px;height:14px;background:var(--hair2);"></span>
+        <button class="holdred" onclick="openRedirect('decision')">Redirect&hellip;</button>
+      </div>
+      <div style="text-align:center;font-size:11.5px;color:var(--mute);margin:16px 0 calc(18px + var(--sab));" id="dec-foot"></div>
+    </div>
+  </div>
+
+  <!-- ================= AGENT DETAIL (push) ================= -->
+  <div class="view pushview" id="v-agent">
+    <div class="navrow">
+      <button class="backbtn" onclick="pop()"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1 1.5 6 6 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Crew</button>
+      <span class="eyebrow" id="ag-eyebrow">Sales · Work</span>
+    </div>
+    <div class="vbody" style="padding-top:14px;">
+      <div style="display:flex;align-items:center;gap:15px;">
+        <span class="av lg" id="ag-av">R<span class="st grn" style="width:16px;height:16px;"></span></span>
+        <div>
+          <div style="font-family:var(--serif);font-size:26px;font-weight:520;letter-spacing:-.01em;" id="ag-name">Ramy</div>
+          <span class="pill working" style="margin-top:5px;" id="ag-pill"><span class="dot"></span>Working</span>
+        </div>
+        <button class="backbtn" style="margin-left:auto;display:inline-flex;color:#1F8ACB;border-color:#D7E9F4;background:#F2F9FD;" onclick="toast('Opens the Telegram thread')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 4 3.6 10.9c-.9.36-.85 1.64.08 1.93l4.52 1.4 1.72 5.06c.3.86 1.4 1 1.93.27l2.1-2.94 4.3 3.15c.7.5 1.68.13 1.86-.72L22.9 5.4c.2-.95-.74-1.74-1.9-1.4Z" stroke="#1F8ACB" stroke-width="1.7" stroke-linejoin="round"/></svg>
+          Thread
+        </button>
+      </div>
+      <div class="eyebrow" style="margin:24px 0 9px;">Right now</div>
+      <div class="card" style="padding:15px 17px;border-left:3px solid var(--green);" id="ag-nowcard">
+        <div class="tit" style="font-size:14px;font-weight:600;" id="ag-now"></div>
+        <div class="sub" style="margin-top:4px;" id="ag-next"></div>
+      </div>
+      <div class="sect-label" style="margin-top:22px;">
+        <span class="eyebrow">Recent moves · autonomous</span>
+        <span style="font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--green-deep);">All</span>
+      </div>
+      <div class="card soft" style="padding:8px 18px 8px 16px;">
+        <div class="tl" id="ag-moves"></div>
+      </div>
+      <div style="flex:1;min-height:18px;"></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-secondary" style="flex:1.4;font-size:14px;height:50px;" onclick="openRedirect('agent')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#20241E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h13M13 6l6 6-6 6"/></svg>
+          <span id="ag-redirect-label">Redirect</span>
+        </button>
+        <button class="btn btn-ghost" style="flex:1;font-size:14px;height:50px;" id="ag-pausebtn" onclick="togglePause()">Pause</button>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:7px;margin:14px 0 calc(18px + var(--sab));">
+        <svg width="12" height="13" viewBox="0 0 24 24" fill="none" stroke="#8B8F7E" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5c0 4.4 3 8.4 7 9.5 4-1.1 7-5.1 7-9.5V6l-7-3Z"/></svg>
+        <span style="font-family:var(--mono);font-size:9.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);" id="ag-guard"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SETTINGS (push) ================= -->
+  <div class="view pushview" id="v-settings">
+    <div class="navrow">
+      <button class="backbtn" onclick="pop()"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1 1.5 6 6 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Home</button>
+      <span class="eyebrow">You</span>
+    </div>
+    <div class="vbody" style="padding-top:12px;">
+      <div style="display:flex;align-items:center;gap:13px;">
+        <span class="av av-crew lg" style="font-size:24px;">F</span>
+        <div>
+          <div style="font-family:var(--serif);font-size:24px;font-weight:520;letter-spacing:-.01em;">Fares</div>
+          <div class="sub" style="font-size:12px;color:var(--mute);">Your product · account, plan &amp; notifications &rsaquo;</div>
+        </div>
+      </div>
+      <div class="sect-label" style="margin-top:18px;"><span class="eyebrow">Money</span></div>
+      <div class="card">
+        <div class="lrow" style="padding:13px 16px;">
+          <div style="flex:1;"><div class="tit">Ask me above</div><div class="sub">Anything bigger waits for your tap</div></div>
+          <span style="display:flex;align-items:center;gap:10px;">
+            <button class="stepbtn" onclick="stepLimit(-500)">&minus;</button>
+            <span class="mono-num" style="font-size:15px;" id="limitval">RM 5,000</span>
+            <button class="stepbtn" onclick="stepLimit(500)">+</button>
+          </span>
+        </div>
+        <div class="lrow" style="padding:13px 16px;">
+          <div style="flex:1;"><div class="tit">Spends approved with Apple Pay</div><div class="sub">Face ID on every new subscription</div></div>
+          <span class="tgl on" onclick="this.classList.toggle('on')"></span>
+        </div>
+        <div class="lrow" style="padding:13px 16px;">
+          <div style="flex:1;"><div class="tit">Auto-approve small refunds</div><div class="sub">Under RM 200, Sufi just handles it</div></div>
+          <span class="tgl on" onclick="this.classList.toggle('on')"></span>
+        </div>
+      </div>
+      <div class="sect-label" style="margin-top:14px;"><span class="eyebrow">Always ask me first</span></div>
+      <div class="card">
+        <div class="lrow" style="padding:11px 16px;"><div style="flex:1;"><div class="tit">Discounts above 10% <span class="ztag work" style="margin-left:3px;">Work</span></div></div><span class="tgl on" onclick="this.classList.toggle('on')"></span></div>
+        <div class="lrow" style="padding:11px 16px;"><div style="flex:1;"><div class="tit">Paying a new vendor <span class="ztag work" style="margin-left:3px;">Work</span></div></div><span class="tgl on" onclick="this.classList.toggle('on')"></span></div>
+        <div class="lrow" style="padding:11px 16px;"><div style="flex:1;"><div class="tit">Posting about the family <span class="ztag pers" style="margin-left:3px;">Personal</span></div></div><span class="tgl on" onclick="this.classList.toggle('on')"></span></div>
+      </div>
+      <div class="sect-label" style="margin-top:14px;"><span class="eyebrow">Quiet hours</span></div>
+      <div class="card">
+        <div class="lrow" style="padding:13px 16px;">
+          <div style="flex:1;"><div class="tit">10 PM &ndash; 7 AM</div><div class="sub">Crew keeps working. Decisions wait for morning.</div></div>
+          <span class="tgl on" onclick="this.classList.toggle('on')"></span>
+        </div>
+      </div>
+      <button class="lrow tappable" style="padding:14px 4px 0;width:100%;" onclick="push('v-connections')">
+        <div style="flex:1;"><div class="tit" style="font-size:13.5px;color:var(--ink2);">Connections</div></div>
+        <svg class="chev" width="8" height="13" viewBox="0 0 9 15" fill="none"><path d="M1.5 1.5 7.5 7.5 1.5 13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="lrow tappable" style="padding:12px 4px 0;width:100%;" onclick="replayOnb()">
+        <div style="flex:1;"><div class="tit" style="font-size:13.5px;color:var(--ink2);">Replay intro</div></div>
+        <svg class="chev" width="8" height="13" viewBox="0 0 9 15" fill="none"><path d="M1.5 1.5 7.5 7.5 1.5 13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div style="height:calc(24px + var(--sab));flex:none;"></div>
+    </div>
+  </div>
+
+  <!-- ================= CONNECTIONS (push) ================= -->
+  <div class="view pushview" id="v-connections">
+    <div class="navrow">
+      <button class="backbtn" onclick="pop()"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1 1.5 6 6 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Settings</button>
+      <span class="eyebrow">Connections</span>
+    </div>
+    <div class="vbody" style="padding-top:12px;">
+      <h2 class="display" style="font-size:28px;margin:4px 0 4px;">Where the crew reaches.</h2>
+      <div class="body-t" style="font-size:13px;">Channels they talk in, tools they act through.</div>
+
+      <div class="sect-label" style="margin-top:16px;margin-bottom:8px;"><span class="eyebrow">Channels</span></div>
+      <div class="card" style="border-color:#CFE6D8;background:linear-gradient(180deg,#FFFFFF,#F3FAF5);">
+        <div class="lrow" style="padding:12px 15px;">
+          <span class="tile" style="background:#E7F3FB;color:#1F8ACB;width:38px;height:38px;">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M21 4 3.6 10.9c-.9.36-.85 1.64.08 1.93l4.52 1.4 1.72 5.06c.3.86 1.4 1 1.93.27l2.1-2.94 4.3 3.15c.7.5 1.68.13 1.86-.72L22.9 5.4c.2-.95-.74-1.74-1.9-1.4Z" stroke="#1F8ACB" stroke-width="1.7" stroke-linejoin="round"/></svg>
+          </span>
+          <div><div class="tit" style="font-size:14px;">Telegram</div><div class="sub">@farahcrew_bot · home base</div></div>
+          <span class="pill linked" style="margin-left:auto;"><span class="dot" style="background:var(--green);"></span>Linked</span>
+        </div>
+        <div style="border-top:1px solid var(--hair);display:flex;gap:18px;padding:10px 15px;">
+          <span style="font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--green-deep);">Open threads</span>
+          <span style="font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);">Manage link</span>
+        </div>
+      </div>
+      <div class="card" style="margin-top:8px;">
+        <div class="lrow" style="padding:11px 15px;">
+          <span class="tile" style="background:#EAF6EC;color:#1E9E54;width:38px;height:38px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3Z" stroke="#1E9E54" stroke-width="1.7"/><path d="M9 9.5c.3 2.4 2.8 5 5.4 5.5l1.1-1.4-2-1.2-1 .7c-.8-.5-1.6-1.3-2-2.2l.8-.9L10.2 8l-1.2 1.5Z" fill="#1E9E54"/></svg>
+          </span>
+          <div><div class="tit" style="font-size:14px;">WhatsApp</div><div class="sub">For customers, directly</div></div>
+          <span class="pill quiet" style="margin-left:auto;">Coming · July</span>
+        </div>
+      </div>
+
+      <div class="sect-label" style="margin-top:14px;margin-bottom:8px;"><span class="eyebrow">Tools</span></div>
+      <div class="card">
+        <div class="lrow" style="padding:11px 15px;">
+          <span class="tile" style="background:#FBEFE4;color:#B05A1F;width:38px;height:38px;font-size:12px;">Cal</span>
+          <div><div class="tit" style="font-size:14px;">Calendar <span class="ztag pers" style="margin-left:3px;">Personal</span></div><div class="sub">Talia &amp; Iman book</div></div>
+          <span class="pill linked" style="margin-left:auto;"><span class="dot" style="background:var(--green);"></span>Linked</span>
+        </div>
+        <div class="lrow" style="padding:11px 15px;">
+          <span class="tile" style="background:#F2E7F3;color:#8A3E8E;width:38px;height:38px;font-size:12px;">Ig</span>
+          <div><div class="tit" style="font-size:14px;">Instagram <span class="ztag work" style="margin-left:3px;">Work</span></div><div class="sub">Mara posts as your shop</div></div>
+          <span class="pill linked" style="margin-left:auto;"><span class="dot" style="background:var(--green);"></span>Linked</span>
+        </div>
+        <div class="lrow" style="padding:11px 15px;">
+          <span class="tile" style="background:#F2E8C9;color:#73591A;width:38px;height:38px;font-size:12px;">Bk</span>
+          <div><div class="tit" style="font-size:14px;">Books · Xero <span class="ztag work" style="margin-left:3px;">Work</span></div><div class="sub">Kee chases invoices</div></div>
+          <span class="pill linked" style="margin-left:auto;"><span class="dot" style="background:var(--green);"></span>Linked</span>
+        </div>
+        <div class="lrow" style="padding:11px 15px;" id="shopifyrow">
+          <span class="tile" style="background:#E5EFF5;color:#3A6B8C;width:38px;height:38px;font-size:12px;">Sh</span>
+          <div><div class="tit" style="font-size:14px;">Shopify <span class="ztag work" style="margin-left:3px;">Work</span></div><div class="sub">Orders &amp; refunds for Sufi</div></div>
+          <button class="connectbtn" id="shopifybtn" onclick="connectShopify()">Connect</button>
+        </div>
+      </div>
+      <div style="text-align:center;font-size:11.5px;color:var(--mute);margin-top:12px;">Agents create &amp; hold their own logins. You never manage a key.</div>
+      <div style="height:calc(24px + var(--sab));flex:none;"></div>
+    </div>
+  </div>
+
+  <!-- ================= TALK TO NOOR (push) ================= -->
+  <div class="view pushview" id="v-talk">
+    <div class="navrow">
+      <button class="backbtn" onclick="pop()"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1 1.5 6 6 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Back</button>
+      <span class="eyebrow">Noor &middot; Your right hand</span>
+      <button class="callbtn" onclick="openCall()" aria-label="Call Noor">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16.5v2.6a1.9 1.9 0 0 1-2.1 1.9c-3.3-.36-6.4-1.7-8.9-3.8a18.6 18.6 0 0 1-5.2-5.2C2.7 9.5 1.36 6.4 1 3.1A1.9 1.9 0 0 1 2.9 1h2.6a1.9 1.9 0 0 1 1.9 1.63c.12.9.34 1.78.66 2.62a1.9 1.9 0 0 1-.43 2L6.5 8.4a15.2 15.2 0 0 0 5.1 5.1l1.15-1.13a1.9 1.9 0 0 1 2-.43c.84.32 1.72.54 2.62.66A1.9 1.9 0 0 1 21 16.5Z"/></svg>
+      </button>
+    </div>
+    <div class="vbody" id="talkbody" style="padding-top:6px;">
+      <div style="display:flex;align-items:center;gap:11px;margin-top:4px;">
+        <span class="av av-noor sm">N<span class="st grn"></span></span>
+        <div>
+          <div class="tit" style="font-size:15px;font-weight:600;">Noor</div>
+          <div class="sub" style="font-size:12px;color:var(--mute);">Tell Noor once. The crew handles the rest.</div>
+        </div>
+      </div>
+      <div id="talklog" style="padding-bottom:18px;">
+        <div class="chatrow"><div class="bub user">Noor, CI is failing on the brain branch.</div></div>
+        <div class="chatrow"><span class="av av-noor sm" style="font-size:12px;">N</span><div class="bub agent">On it. I&rsquo;ll get Devon to look and report back before it blocks you.</div></div>
+        <div class="chatrow"><span class="av av-noor sm" style="font-size:12px;">N</span><div class="bub agent">While you&rsquo;re here - Rhys has build 1.4 staged for TestFlight. Say the word and I&rsquo;ll ship it.</div></div>
+      </div>
+      <div style="flex:1;"></div>
+    </div>
+    <div class="talkcomposer">
+      <div class="talkwrap">
+        <input id="talkfield" type="text" placeholder="Ask Noor anything&hellip;" autocomplete="off">
+        <button class="micbtn" onclick="toast('Dictation arrives with voice · soon')" aria-label="Dictate">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="11.5" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3.5"/></svg>
+        </button>
+      </div>
+      <button class="sendbtn" onclick="sendTalk()" aria-label="Send">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F3EFE5" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= CALL WITH NOOR (push) ================= -->
+  <div class="view pushview" id="v-call">
+    <div class="halo"></div>
+    <div class="vbody" style="align-items:center;justify-content:center;text-align:center;padding-bottom:calc(28px + var(--sab));">
+      <div style="flex:1;"></div>
+      <span class="eyebrow grn" style="letter-spacing:.22em;">Voice &middot; Live</span>
+      <span class="orb av-noor" style="margin-top:26px;">N</span>
+      <h2 class="display" style="font-size:30px;margin-top:28px;">Call with <em>Noor</em>.</h2>
+      <div class="mono-num" style="font-size:13px;letter-spacing:.14em;color:var(--ink2);margin-top:10px;" id="callclock">00:00</div>
+      <div class="wave" style="margin-top:22px;"><i></i><i></i><i></i><i></i><i></i></div>
+      <div style="font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-top:14px;" id="callhint">Noor is listening</div>
+      <div style="flex:1.2;"></div>
+      <div style="display:flex;gap:40px;align-items:flex-start;">
+        <div>
+          <button class="callctl mute" id="mutebtn" onclick="toggleMute()" aria-label="Mute">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="11.5" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3.5"/></svg>
+          </button>
+          <div class="callctl-label" id="mutelabel">Mute</div>
+        </div>
+        <div>
+          <button class="callctl end" onclick="endCall()" aria-label="End call">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14.5c5.3-5 12.7-5 18 0l-2.5 2.7a1.8 1.8 0 0 1-2.3.3l-1.9-1.2a1.8 1.8 0 0 1-.8-1.7l.1-1.3a13.4 13.4 0 0 0-3.2 0l.1 1.3a1.8 1.8 0 0 1-.8 1.7l-1.9 1.2a1.8 1.8 0 0 1-2.3-.3L3 14.5Z"/></svg>
+          </button>
+          <div class="callctl-label">End</div>
+        </div>
+      </div>
+      <div style="font-family:var(--mono);font-size:8.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-top:26px;">Early preview &middot; real voice is coming</div>
+    </div>
+  </div>
+
+  <!-- ================= TAB BAR ================= -->
+  <div class="tabbar">
+    <button class="tab on" id="tab-home" onclick="showTab('home')">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5 12 3.8l8.5 6.7V20a1 1 0 0 1-1 1h-5v-6h-5v6h-5a1 1 0 0 1-1-1v-9.5Z"/></svg>
+      <span>Home</span><span class="bdg" id="homebdg"></span>
+    </button>
+    <button class="tab" id="tab-crew" onclick="showTab('crew')">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19.5c.6-3 2.8-4.8 5.5-4.8s4.9 1.8 5.5 4.8"/><circle cx="17" cy="9.5" r="2.4"/><path d="M16 14.9c2.4.1 4 1.6 4.5 4"/></svg>
+      <span>Crew</span>
+    </button>
+    <button class="tab" id="tab-brain" onclick="showTab('brain')">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.2C10 4.6 6.4 4.6 4 5.6V19c2.4-1 6-1 8 .6 2-1.6 5.6-1.6 8-.6V5.6c-2.4-1-6-1-8 .6Z"/><path d="M12 6.2v13.4"/></svg>
+      <span>Memory</span>
+    </button>
+  </div>
+
+  <!-- ================= OVERLAYS ================= -->
+  <div id="dim" onclick="closeSheets()"></div>
+
+  <!-- redirect composer sheet -->
+  <div class="sheet" id="sheet-redirect" style="padding:24px 22px 20px;">
+    <div class="grab"></div>
+    <div class="eyebrow">Redirect</div>
+    <div style="font-family:var(--serif);font-size:24px;font-weight:500;letter-spacing:-.012em;margin:9px 0 16px;" id="red-title">Tell Ramy what to do <em style="font-weight:430;">instead</em>.</div>
+    <div style="display:flex;align-items:center;gap:9px;">
+      <input id="redfield" type="text" placeholder="One line is enough&hellip;" autocomplete="off">
+      <button class="sendbtn" onclick="sendRedirect()" aria-label="Send">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F3EFE5" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg>
+      </button>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;" id="redchips"></div>
+    <div style="text-align:center;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-top:18px;">One line · in app · back to calm</div>
+  </div>
+
+  <!-- Apple Pay sheet -->
+  <div class="sheet" id="sheet-pay" style="padding:20px 22px 22px;border-radius:38px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <span style="font-family:-apple-system,'Helvetica Neue',sans-serif;font-size:20px;font-weight:600;color:#111;letter-spacing:-.01em;">&#63743; Pay</span>
+      <button style="width:28px;height:28px;border-radius:50%;background:#EFEFF1;display:flex;align-items:center;justify-content:center;" onclick="closeSheets()" aria-label="Close">
+        <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="#7A7A80" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div style="border:1px solid #E8E8EA;border-radius:16px;padding:4px 16px;">
+      <div class="fact" style="border:none;">
+        <span style="display:flex;align-items:center;gap:10px;">
+          <span style="width:40px;height:27px;border-radius:5px;background:linear-gradient(135deg,#1A1F71,#2E3A9E);display:flex;align-items:center;justify-content:center;font-family:var(--grot);font-style:italic;font-weight:800;font-size:9px;color:#fff;letter-spacing:.04em;">VISA</span>
+          <span style="font-family:-apple-system,sans-serif;font-size:13.5px;color:#111;">Maybank Visa &middot;&middot;&middot;&middot; 4821</span>
+        </span>
+        <svg width="7" height="12" viewBox="0 0 9 15" fill="none"><path d="M1.5 1.5 7.5 7.5 1.5 13.5" stroke="#B9B9C0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="fact" style="border-top:1px solid #F0F0F2;">
+        <span style="font-family:-apple-system,sans-serif;font-size:11px;color:#8E8E93;">Merchant</span>
+        <span style="font-family:-apple-system,sans-serif;font-size:13.5px;color:#111;">Canva Pty Ltd</span>
+      </div>
+      <div class="fact" style="border-top:1px solid #F0F0F2;">
+        <span style="font-family:-apple-system,sans-serif;font-size:11px;color:#8E8E93;">Pay Canva, monthly</span>
+        <span style="font-family:-apple-system,sans-serif;font-size:16px;font-weight:700;color:#111;">RM 60.00</span>
+      </div>
+    </div>
+    <button id="paystate" style="display:flex;align-items:center;justify-content:center;gap:12px;margin:18px auto 0;width:100%;" onclick="confirmPay()">
+      <svg width="30" height="30" viewBox="0 0 36 36" fill="none" stroke="#0A84FF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 11V8a5 5 0 0 1 5-5h3M25 3h3a5 5 0 0 1 5 5v3M33 25v3a5 5 0 0 1-5 5h-3M11 33H8a5 5 0 0 1-5-5v-3"/>
+        <path d="M12 14v2.4M24 14v2.4M18 14.5v5a1.6 1.6 0 0 1-1.6 1.6M12.6 25.4c2.9 2.6 7.9 2.6 10.8 0"/>
+      </svg>
+      <span style="text-align:left;">
+        <span style="display:block;font-family:-apple-system,sans-serif;font-size:14px;font-weight:600;color:#111;">Double-Click to Pay</span>
+        <span style="display:block;font-family:-apple-system,sans-serif;font-size:11px;color:#8E8E93;margin-top:1px;">Confirm with side button</span>
+      </span>
+      <svg width="14" height="22" viewBox="0 0 14 24" fill="none"><path d="M3 2l8 10-8 10" stroke="#0A84FF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div style="text-align:center;font-family:var(--mono);font-size:8.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-top:14px;">You approve the spend · Ramy handles account, login &amp; keys</div>
+  </div>
+  <button class="sidebtn" id="sidebtn" style="display:none;" onclick="confirmPay()" aria-label="Side button"></button>
+
+  <!-- confirm overlay -->
+  <div id="confirm">
+    <span class="bigtick"><svg width="30" height="24" viewBox="0 0 14 11" fill="none"><path d="M1.5 5.5 5.2 9.2 12.5 1.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    <div class="display" id="confirm-t">Done.</div>
+    <div class="sub2" id="confirm-s"></div>
+  </div>
+
+  <!-- toast -->
+  <div id="toast"></div>
+
+</div>
+
+<script>
+"use strict";
+/* ============ MOCK DATA ============ */
+const AGENTS = {
+  ramy:{name:"Devon",role:"Engineering",zone:"work",av:"av-ramy",mark:"D",
+    sub:"PR #142 waiting on you",subCalm:"Refactoring the deploy step",
+    now:"Opened PR #142, the decision screen, waiting on your review",
+    nowCalm:"Refactoring the deploy step on the build branch",
+    next:"Then picks up the onboarding-intent branch, due today",
+    guard:"Guardrail · never force-pushes or touches main without you",
+    moves:[["9:29 · Today","Opened <b>PR #142</b>, the decision-screen fill, ready for review",1],
+           ["8:02 · Today","Fixed the failing CI check on the brain branch",1],
+           ["22:47 · Yesterday","Merged 3 PRs, tagged build <b>1.3.2</b>",0],
+           ["18:15 · Yesterday","Cleared 4 lint errors, all green",0]]},
+  mara:{name:"Rhys",role:"Releases",zone:"work",av:"av-mara",mark:"R",status:"working",
+    sub:"Build 1.4 ready to ship",
+    now:"Build 1.4 passed CI and is staged for TestFlight, waiting on your ship",
+    next:"Then drafts the release notes from the merged PRs",
+    guard:"Guardrail · never ships to users without your approval",
+    moves:[["9:05 · Today","Built and signed <b>1.4</b>, all checks green",1],
+           ["7:40 · Today","Cut a staging build for the new Home",1],
+           ["21:30 · Yesterday","Rolled back a flaky deploy, restored 1.3.2",0]]},
+  sufi:{name:"Sana",role:"QA",zone:"work",av:"av-sufi",mark:"S",status:"working",
+    sub:"3 bugs triaged, 1 for you",
+    now:"Triaging the bug inbox, 3 sorted, 1 needs your call",
+    next:"Regression pass on the decision flow queued next",
+    guard:"Guardrail · flags anything user-facing before it ships",
+    moves:[["9:12 · Today","Reproduced the redirect-sheet glitch, wrote a repro",1],
+           ["6:31 · Today","Cleared 11 overnight crash reports, none real",1],
+           ["23:02 · Yesterday","Filed 2 issues from the TestFlight feedback",0]]},
+  kee:{name:"Omar",role:"Growth",zone:"work",av:"av-kee",mark:"O",status:"done",
+    sub:"Waitlist synced for today",
+    now:"Done for today. Next growth digest at 6 AM",
+    next:"Weekly numbers ready Monday morning",
+    guard:"Guardrail · never emails the list without you",
+    moves:[["6:58 · Today","Pulled <b>120</b> new waitlist signups overnight",1],
+           ["6:45 · Today","Synced analytics, 7-day retention up 4 points",1],
+           ["19:20 · Yesterday","Drafted 3 launch-tweet options for you",0]]},
+  talia:{name:"Talia",role:"Travel",zone:"pers",av:"av-talia",mark:"T",status:"working",
+    sub:"Holding 2 BKK fares",
+    now:"Holding 2 KUL→BKK fares under RM 480, expires 6 PM",
+    next:"Watching the week prices for the trip",
+    guard:"Guardrail · books nothing above RM 600 without you",
+    moves:[["0:47 · Today","Held AirAsia 7:05 AM, <b>RM 412</b> return",1],
+           ["0:46 · Today","Held Batik Air 9:30 AM, <b>RM 468</b> return",1],
+           ["14:10 · Yesterday","Set a fare alert for the trip week",0]]},
+  iman:{name:"Iman",role:"Life",zone:"pers",av:"av-iman",mark:"I",status:"quiet",
+    sub:"Quiet until the morning",
+    now:"Quiet until the 7:15 reminder tomorrow",
+    next:"Dentist booking confirmed for Tuesday 10 AM",
+    guard:"Guardrail · personal matters stay personal, never shared with work",
+    moves:[["8:00 · Today","Confirmed the dentist, Tuesday 10 AM",1],
+           ["17:45 · Yesterday","Reordered the coffee, arrives Thursday",0],
+           ["7:10 · Yesterday","Morning reminder sent, on time",0]]}
+};
+
+let decisions = [
+  {id:"pr142",agent:"ramy",type:"choice",
+   ask:'Merge <em>PR #142</em>, the decision screen?',
+   fact:"All checks green, one reviewer approved.",
+   glance:[["Branch","feat/decision-fill → main"],["Diff","+184 / -36 · 6 files"],["CI","All green · 2m ago"]],
+   quote:"Devon: Ready to merge. Want me to squash and tag 1.3.3?",
+   foot:"Devon merges, tags the build, kicks CI.",
+   cardTitle:"Merge PR #142?",cardSub:"Devon · Engineering · ready to merge",
+   confirmT:"Merged.",confirmS:"Devon tags 1.3.3 and starts the build.",
+   chips:["Squash and merge","Request a change","Review it first"]},
+  {id:"talia-bkk",agent:"talia",type:"choice",
+   ask:'Book the 7:05 to <em>BKK</em>?',
+   fact:"Your usual morning flight.",
+   glance:[["Trip","KUL → BKK · 14-17 Jun"],["Fare","RM 1,840 return"],["Hold","Locked till 6 PM today"]],
+   quote:"Talia: Found 2 seats on your 7:05. The hold expires tonight.",
+   foot:"Talia books it and adds it to your calendar.",
+   cardTitle:"Book the 7:05 to BKK?",cardSub:"Talia · Travel · hold till 6 PM",
+   confirmT:"Booked.",confirmS:"Talia adds it to your calendar.",
+   chips:["Find an evening flight","Check the calendar","Wait for a better fare"]},
+  {id:"ship14",agent:"mara",type:"spend",
+   ask:'Ship <em>build 1.4</em> to TestFlight?',
+   fact:"Passed CI and signed, staged for your testers.",
+   glance:[["Build","1.4 (216)"],["Goes to","Internal testers · 4 people"],["Risk","Low · no schema changes"]],
+   quote:"Rhys: Staged and ready. One tap and it is live for the testers.",
+   foot:"Rhys ships it and posts the release notes.",
+   cardTitle:"Ship 1.4 to TestFlight?",cardSub:"Rhys · Releases · staged",
+   confirmT:"Shipping.",confirmS:"Rhys pushes 1.4 to your testers now.",
+   chips:["Ship to just me first","Hold for the morning","Add a note"]}
+];
+
+let curDecision=null, curAgent=null, redirectFrom=null, askLimit=5000;
+const $=id=>document.getElementById(id);
+
+/* ============ NAVIGATION ============ */
+const TABS=["home","crew","brain"];
+let curTab="home", stack=[];
+function showTab(name){
+  curTab=name; stack=[];
+  TABS.forEach(t=>{
+    $("v-"+t).classList.toggle("on",t===name);
+    $("tab-"+t).classList.toggle("on",t===name);
+  });
+  document.querySelectorAll(".pushview").forEach(v=>v.classList.remove("on","under"));
+  $("v-onb").classList.remove("on");
+  if(name==="home")renderHome();
+  if(name==="crew")renderCrew();
+}
+function push(id){
+  if(stack.length){$(stack[stack.length-1]).classList.add("under");}
+  stack.push(id);
+  requestAnimationFrame(()=>$(id).classList.add("on"));
+}
+function pop(){
+  if(!stack.length)return;
+  const id=stack.pop();
+  $(id).classList.remove("on");
+  if(stack.length){$(stack[stack.length-1]).classList.remove("under");}
+  renderHome();renderCrew();
+}
+function popAll(){
+  while(stack.length){const id=stack.pop();$(id).classList.remove("on","under");}
+  renderHome();renderCrew();
+}
+
+/* ============ HOME ============ */
+function renderHome(){
+  const n=decisions.length, w=12;
+  $("homecount").innerHTML=w+" working &nbsp;·&nbsp; "+(n>0
+    ?'<span style="color:var(--amber);">'+n+(n===1?" needs you":" need you")+"</span>"
+    :'<span style="color:var(--mute);">0 need you</span>');
+  $("homebdg").classList.toggle("show",n>0);
+  const wrap=$("homedecisions");
+  wrap.innerHTML="";
+  decisions.forEach(d=>{
+    const a=AGENTS[d.agent];
+    const el=document.createElement("div");
+    el.className="card tappable";
+    el.style.cssText="border-color:var(--amber-line);background:linear-gradient(180deg,#FFFDF7,#FCF4E4);box-shadow:0 14px 30px -18px rgba(180,83,9,.28);";
+    el.innerHTML='<div class="lrow" style="padding:16px 18px;">'
+      +'<span class="av '+a.av+'">'+a.mark+'<span class="st amb"></span></span>'
+      +'<div><div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;"><span class="needlbl">Needs your call</span><span class="ztag '+(a.zone==="work"?"work":"pers")+'">'+(a.zone==="work"?"Work":"Personal")+'</span></div>'
+      +'<div class="tit" style="font-size:15px;">'+d.cardTitle+'</div>'
+      +'<div class="sub">'+d.cardSub+'</div></div>'
+      +'<svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" style="color:var(--amber);"><path d="M1.5 1.5 7.5 7.5 1.5 13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
+    el.onclick=()=>openDecision(d.id);
+    wrap.appendChild(el);
+  });
+  if(n===0){
+    const el=document.createElement("div");
+    el.className="card soft";
+    el.innerHTML='<div class="lrow" style="padding:16px 18px;">'
+      +'<span class="tick" style="width:34px;height:34px;"><svg width="13" height="11" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+      +'<div><div class="tit" style="font-size:14.5px;">Nothing needs you</div><div class="sub">Your crew keeps working. You’ll feel a tap if that changes.</div></div></div>';
+    wrap.appendChild(el);
+  }
+  $("homefoot").textContent=n>0?"One tap and you’re back to your day.":"That’s everything. Go live your day.";
+}
+
+/* ============ CREW ============ */
+function agentStatus(a,key){
+  if(a.paused)return{cls:"quiet",label:"Paused",st:"gry",sub:"Paused by you"};
+  if(decisions.some(d=>d.agent===key))return{cls:"needs",label:"Needs you",st:"amb",sub:a.sub};
+  if(key==="ramy")return{cls:"working",label:"Working",st:"grn",sub:a.subCalm};
+  const map={working:["working","Working","grn"],done:["done","Done","gry"],quiet:["quiet","Quiet","gry"]};
+  const m=map[a.status]||map.working;
+  return{cls:m[0],label:m[1],st:m[2],sub:a.sub};
+}
+function renderCrew(){
+  const zones={work:$("crew-work"),pers:$("crew-pers")};
+  zones.work.innerHTML="";zones.pers.innerHTML="";
+  Object.keys(AGENTS).forEach(key=>{
+    const a=AGENTS[key],s=agentStatus(a,key);
+    const el=document.createElement("div");
+    el.className="card tappable";
+    if(s.cls==="needs")el.style.borderColor="var(--amber-line)";
+    el.innerHTML='<div class="lrow" style="padding:9px 14px;">'
+      +'<span class="av '+a.av+' sm">'+a.mark+'<span class="st '+s.st+'" style="width:11px;height:11px;"></span></span>'
+      +'<div><div class="tit" style="font-size:14px;">'+a.name+' <span style="font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.12em;color:var(--mute);text-transform:uppercase;margin-left:5px;">'+a.role+'</span></div>'
+      +'<div class="sub">'+s.sub+'</div></div>'
+      +'<span class="pill '+s.cls+'" style="margin-left:auto;"><span class="dot"></span>'+s.label+'</span></div>';
+    el.onclick=()=>openAgent(key);
+    zones[a.zone].appendChild(el);
+  });
+  const add=document.createElement("div");
+  add.className="card tappable";
+  add.style.cssText="border-style:dashed;background:transparent;box-shadow:none;";
+  add.innerHTML='<div class="lrow" style="padding:8px 14px;">'
+    +'<span style="width:34px;height:34px;border-radius:50%;border:1.5px dashed var(--hair2);display:flex;align-items:center;justify-content:center;flex:none;color:var(--green-deep);"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>'
+    +'<div><div class="tit" style="color:var(--green-deep);font-size:13.5px;">Add an agent</div><div class="sub">14 ready-made roles</div></div></div>';
+  add.onclick=()=>toast("Agent gallery · coming soon");
+  zones.pers.appendChild(add);
+}
+
+/* ============ AGENT DETAIL ============ */
+function openAgent(key){
+  curAgent=key;
+  const a=AGENTS[key],s=agentStatus(a,key);
+  $("ag-eyebrow").textContent=a.role+" · "+(a.zone==="work"?"Work":"Personal");
+  const av=$("ag-av");
+  av.className="av lg "+a.av;
+  av.innerHTML=a.mark+'<span class="st '+s.st+'" style="width:16px;height:16px;"></span>';
+  $("ag-name").textContent=a.name;
+  const pill=$("ag-pill");
+  pill.className="pill "+s.cls;
+  pill.innerHTML='<span class="dot"></span>'+(s.cls==="working"&&key==="ramy"?"Working · 2 deals live":s.label);
+  $("ag-now").textContent=a.paused?"Paused. Picks up exactly where it stopped.":(key==="ramy"&&!decisions.some(d=>d.agent==="ramy")?a.nowCalm:a.now);
+  $("ag-next").textContent=a.next;
+  $("ag-nowcard").style.borderLeftColor=a.paused?"var(--hair2)":"var(--green)";
+  $("ag-moves").innerHTML=a.moves.map(m=>'<div class="tl-item'+(m[2]?" grn":"")+'"><div class="t">'+m[0]+'</div><div class="d">'+m[1]+"</div></div>").join("");
+  $("ag-redirect-label").textContent="Redirect "+a.name;
+  $("ag-pausebtn").textContent=a.paused?"Resume":"Pause";
+  $("ag-guard").textContent=a.guard;
+  push("v-agent");
+}
+function togglePause(){
+  const a=AGENTS[curAgent];
+  a.paused=!a.paused;
+  toast(a.paused?a.name+" paused · resumes when you say":a.name+" back to work");
+  const id=stack.pop();$(id).classList.remove("on");
+  if(stack.length)$(stack[stack.length-1]).classList.remove("under");
+  openAgent(curAgent);
+}
+
+/* ============ DECISION ============ */
+function openDecision(id){
+  const d=decisions.find(x=>x.id===id);if(!d)return;
+  curDecision=d;
+  const a=AGENTS[d.agent];
+  const idx=decisions.indexOf(d)+1;
+  $("dec-eyebrow").textContent=(d.type==="spend"?"Decision · Spend":"Decision · "+idx+" of "+decisions.length);
+  const av=$("dec-av");
+  av.className="av "+a.av;
+  av.innerHTML=a.mark+'<span class="st amb"></span>';
+  $("dec-name").textContent=a.name;
+  $("dec-zone").textContent=a.zone==="work"?"Work":"Personal";
+  $("dec-role").textContent=a.role;
+  $("dec-ask").innerHTML=d.ask;
+  $("dec-fact").textContent=d.fact;
+  var gh="";
+  if(d.glance){gh+='<div class="glancecard">';d.glance.forEach(function(r,i){gh+='<div class="grow'+(i?' brd':'')+'"><span class="gk">'+r[0]+'</span><span class="gv">'+r[1]+'</span></div>';});gh+='</div>';}
+  if(d.quote)gh+='<div class="quoteline">'+d.quote+'</div>';
+  $("dec-glance").innerHTML=gh;
+  $("dec-foot").textContent=d.foot;
+  $("dec-approve-label").textContent=d.type==="spend"?"Approve with Apple Pay":"Approve";
+  push("v-decision");
+}
+function approveCurrent(){
+  if(!curDecision)return;
+  if(curDecision.type==="spend"){openPaySheet();return;}
+  resolveDecision(curDecision);
+}
+function resolveDecision(d){
+  decisions=decisions.filter(x=>x.id!==d.id);
+  $("confirm-t").textContent=d.confirmT;
+  $("confirm-s").textContent=d.confirmS;
+  $("confirm").classList.add("on");
+  setTimeout(()=>{
+    $("confirm").classList.remove("on");
+    popAll();
+  },1100);
+}
+function holdCurrent(){
+  toast("Held · it’ll wait for you");
+  pop();
+}
+
+/* ============ APPLE PAY ============ */
+let payBusy=false;
+function openPaySheet(){
+  payBusy=false;
+  resetPayState();
+  $("dim").classList.add("on");
+  $("sheet-pay").classList.add("on");
+  $("sidebtn").style.display="block";
+}
+function resetPayState(){
+  $("paystate").innerHTML='<svg width="30" height="30" viewBox="0 0 36 36" fill="none" stroke="#0A84FF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11V8a5 5 0 0 1 5-5h3M25 3h3a5 5 0 0 1 5 5v3M33 25v3a5 5 0 0 1-5 5h-3M11 33H8a5 5 0 0 1-5-5v-3"/><path d="M12 14v2.4M24 14v2.4M18 14.5v5a1.6 1.6 0 0 1-1.6 1.6M12.6 25.4c2.9 2.6 7.9 2.6 10.8 0"/></svg>'
+    +'<span style="text-align:left;"><span style="display:block;font-family:-apple-system,sans-serif;font-size:14px;font-weight:600;color:#111;">Double-Click to Pay</span>'
+    +'<span style="display:block;font-family:-apple-system,sans-serif;font-size:11px;color:#8E8E93;margin-top:1px;">Confirm with side button</span></span>'
+    +'<svg width="14" height="22" viewBox="0 0 14 24" fill="none"><path d="M3 2l8 10-8 10" stroke="#0A84FF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+function confirmPay(){
+  if(payBusy)return;payBusy=true;
+  $("paystate").innerHTML='<span class="payspin"></span><span style="font-family:-apple-system,sans-serif;font-size:14px;font-weight:600;color:#111;">Face ID&hellip;</span>';
+  setTimeout(()=>{
+    $("paystate").innerHTML='<span class="paytick"><svg width="18" height="14" viewBox="0 0 14 11" fill="none"><path d="M1.5 5.5 5.2 9.2 12.5 1.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span style="font-family:-apple-system,sans-serif;font-size:14px;font-weight:600;color:#111;">Done</span>';
+    setTimeout(()=>{
+      closeSheets();
+      if(curDecision)resolveDecision(curDecision);
+    },750);
+  },1100);
+}
+
+/* ============ REDIRECT COMPOSER ============ */
+function openRedirect(from){
+  redirectFrom=from;
+  const key=from==="decision"?(curDecision?curDecision.agent:"ramy"):curAgent;
+  const a=AGENTS[key];
+  $("red-title").innerHTML="Tell "+a.name+" what to do <em style=\"font-weight:430;\">instead</em>.";
+  const chips=(from==="decision"&&curDecision&&curDecision.chips)?curDecision.chips:["Focus on this week’s pipeline","Check with me first","Pause this for now"];
+  $("redchips").innerHTML="";
+  chips.forEach(c=>{
+    const b=document.createElement("button");
+    b.className="redchip";b.textContent=c;
+    b.onclick=()=>{$("redfield").value=c;};
+    $("redchips").appendChild(b);
+  });
+  $("redfield").value="";
+  $("dim").classList.add("on");
+  $("sheet-redirect").classList.add("on");
+  setTimeout(()=>{try{$("redfield").focus({preventScroll:true});}catch(e){}},380);
+}
+function sendRedirect(){
+  const key=redirectFrom==="decision"?(curDecision?curDecision.agent:"ramy"):curAgent;
+  const a=AGENTS[key];
+  const txt=$("redfield").value.trim();
+  closeSheets();
+  toast("Sent to "+a.name+(txt?" · on it":" · on it"));
+  if(redirectFrom==="decision"&&curDecision){
+    decisions=decisions.filter(x=>x.id!==curDecision.id);
+    curDecision=null;
+    setTimeout(popAll,300);
+  }
+}
+function closeSheets(){
+  $("dim").classList.remove("on");
+  $("sheet-redirect").classList.remove("on");
+  $("sheet-pay").classList.remove("on");
+  $("sidebtn").style.display="none";
+  payBusy=false;
+  try{$("redfield").blur();}catch(e){}
+}
+
+/* ============ MISC ============ */
+let toastTimer=null;
+function toast(msg){
+  const t=$("toast");
+  t.innerHTML=msg;
+  t.classList.add("on");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove("on"),1900);
+}
+function stepLimit(d){
+  askLimit=Math.max(500,askLimit+d);
+  $("limitval").textContent="RM "+askLimit.toLocaleString("en-US");
+}
+function connectShopify(){
+  const b=$("shopifybtn");
+  b.outerHTML='<span class="pill linked" style="margin-left:auto;"><span class="dot" style="background:var(--green);"></span>Linked</span>';
+  toast("Shopify linked · Sufi can act on orders");
+}
+(function setDate(){
+  const d=new Date();
+  const days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const mon=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  $("homedate").textContent=days[d.getDay()]+" · "+d.getDate()+" "+mon[d.getMonth()];
+})();
+
+/* ============ TALK TO NOOR (orchestrator) ============ */
+const NOOR_REPLIES=[
+  "On it. I’ll brief <b>Ramy</b> now and check with you before anything goes out.",
+  "Got it. <b>Mara</b> will take a pass tonight - I’ll show you the draft before it posts.",
+  "Leave it with me. I’ll have <b>Talia</b> pull options and come back with the best two.",
+  "Done. I’ll have <b>Kee</b> run the numbers and file what we learn in Memory.",
+  "Noted. <b>Sufi</b> will handle it in your voice - anything over the limit still comes to you."
+];
+let noorIdx=0;
+function openTalk(){
+  push("v-talk");
+  const v=$("talkbody");
+  requestAnimationFrame(()=>{v.scrollTop=v.scrollHeight;});
+}
+function talkScroll(){
+  const v=$("talkbody");
+  requestAnimationFrame(()=>{v.scrollTop=v.scrollHeight;});
+}
+function sendTalk(){
+  const f=$("talkfield");
+  const txt=f.value.trim();
+  if(!txt)return;
+  f.value="";
+  const log=$("talklog");
+  const u=document.createElement("div");
+  u.className="chatrow";
+  const ub=document.createElement("div");
+  ub.className="bub user";ub.textContent=txt;
+  u.appendChild(ub);
+  log.appendChild(u);
+  talkScroll();
+  const r=document.createElement("div");
+  r.className="chatrow";
+  r.innerHTML='<span class="av av-noor sm" style="font-size:12px;">N</span><div class="bub agent"><span class="typing"><i></i><i></i><i></i></span></div>';
+  setTimeout(()=>{
+    log.appendChild(r);
+    talkScroll();
+    setTimeout(()=>{
+      r.querySelector(".bub").innerHTML=NOOR_REPLIES[noorIdx%NOOR_REPLIES.length];
+      noorIdx++;
+      talkScroll();
+    },900);
+  },380);
+}
+
+/* ============ CALL WITH NOOR (mocked voice) ============ */
+let callTimer=null,callSec=0,callMuted=false;
+function fmtCall(s){
+  const m=Math.floor(s/60),x=s%60;
+  return (m<10?"0":"")+m+":"+(x<10?"0":"")+x;
+}
+function openCall(){
+  callSec=0;callMuted=false;
+  $("callclock").textContent="00:00";
+  $("v-call").classList.remove("muted");
+  $("mutebtn").classList.remove("on");
+  $("mutelabel").textContent="Mute";
+  $("callhint").textContent="Noor is listening";
+  push("v-call");
+  clearInterval(callTimer);
+  callTimer=setInterval(()=>{callSec++;$("callclock").textContent=fmtCall(callSec);},1000);
+}
+function toggleMute(){
+  callMuted=!callMuted;
+  $("v-call").classList.toggle("muted",callMuted);
+  $("mutebtn").classList.toggle("on",callMuted);
+  $("mutelabel").textContent=callMuted?"Muted":"Mute";
+  $("callhint").textContent=callMuted?"Muted · Noor can’t hear you":"Noor is listening";
+}
+function endCall(){
+  clearInterval(callTimer);callTimer=null;
+  pop();
+  toast("Call ended · Noor keeps the notes");
+}
+
+/* ============ ONBOARDING ============ */
+const OB=[
+  {t:"agent",text:"Hi Fares. Before we hire anyone, what do you do?"},
+  {t:"chips",opts:[
+    {label:"I build software and ship apps",reply:"I build software, mostly shipping apps and web."},
+    {label:"Something else",reply:"A bit of everything, but mostly building product."}]},
+  {t:"agent",text:"Got it. So PRs, builds, deploys and the bug inbox probably eat your focus. Want your Crew to take those first?"},
+  {t:"chips",dots:2,opts:[
+    {label:"Yes, take them",reply:"Yes, take them."},
+    {label:"Let me pick",reply:"Let me pick which ones."}]},
+  {t:"agent",text:"And outside work, anything you’d quietly hand off?"},
+  {t:"chips",opts:[
+    {label:"Travel and life admin",reply:"Flights, reminders, the odd booking."},
+    {label:"Not much, keep it work",reply:"Not much for now, keep it to work."}]},
+  {t:"agent",text:"Noted. I’ll keep work and personal <b>strictly apart</b>: separate agents, separate memory."},
+  {t:"brain"},
+  {t:"cta",label:"Looks right, meet my Crew"}
+];
+
+let obi=0;
+function obNext(){
+  if(obi>=OB.length)return;
+  const step=OB[obi];
+  const log=$("chatlog");
+  if(step.t==="agent"){
+    obi++;
+    const row=document.createElement("div");
+    row.className="chatrow";
+    row.innerHTML='<span class="av av-crew sm" style="font-size:12px;">C</span><div class="bub agent"><span class="typing"><i></i><i></i><i></i></span></div>';
+    log.appendChild(row);
+    obScroll();
+    setTimeout(()=>{
+      row.querySelector(".bub").innerHTML=step.text;
+      obScroll();
+      setTimeout(obNext,420);
+    },620);
+  }else if(step.t==="chips"){
+    const row=document.createElement("div");
+    row.className="chiprow";
+    step.opts.forEach(o=>{
+      const b=document.createElement("button");
+      b.className="qchip";b.textContent=o.label;
+      b.onclick=()=>{
+        row.remove();
+        const u=document.createElement("div");
+        u.className="chatrow";
+        u.innerHTML='<div class="bub user">'+o.reply+"</div>";
+        log.appendChild(u);
+        if(step.dots)setDots(step.dots);
+        obi++;
+        obScroll();
+        setTimeout(obNext,460);
+      };
+      row.appendChild(b);
+    });
+    log.appendChild(row);
+    obScroll();
+  }else if(step.t==="brain"){
+    obi++;
+    const c=document.createElement("div");
+    c.className="card chatrow";
+    c.style.cssText="margin-top:12px;padding:15px 17px 13px;display:block;";
+    c.innerHTML='<div style="display:flex;align-items:center;gap:8px;">'
+      +'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.2C10 4.6 6.4 4.6 4 5.6V19c2.4-1 6-1 8 .6 2-1.6 5.6-1.6 8-.6V5.6c-2.4-1-6-1-8 .6Z"/><path d="M12 6.2v13.4"/></svg>'
+      +'<span class="eyebrow grn">What I’ve learned so far</span></div>'
+      +'<div style="display:flex;align-items:center;gap:8px;margin:13px 0 7px;"><span class="ztag work">Work</span><span style="flex:1;height:1px;background:var(--hair);"></span></div>'
+      +'<div style="font-size:13px;line-height:1.7;color:var(--ink);">Builds web and apps · ships weekly<br>small team · you review releases</div>'
+      +'<div style="display:flex;align-items:center;gap:8px;margin:13px 0 7px;"><span class="ztag pers">Personal</span><span style="flex:1;height:1px;background:var(--hair);"></span></div>'
+      +'<div style="font-size:13px;line-height:1.7;color:var(--ink);">School run 7:15 · BKK trips<br>Atok’s clinic, Tuesdays</div>';
+    log.appendChild(c);
+    obScroll();
+    setTimeout(obNext,650);
+  }else if(step.t==="cta"){
+    obi++;
+    setDots(3);
+    const w=document.createElement("div");
+    w.className="chatrow";
+    w.style.display="block";
+    w.innerHTML='<button class="btn btn-approve" style="margin-top:16px;">'+step.label+'</button>'
+      +'<button class="obfix" onclick="restartOnb()">Not quite - let me fix something</button>';
+    w.querySelector("button").onclick=()=>{push("v-disc");};
+    log.appendChild(w);
+    obScroll();
+  }
+}
+function setDots(n){
+  const dots=$("obdots").children;
+  for(let i=0;i<3;i++)dots[i].classList.toggle("on",i===n-1);
+  for(let i=0;i<n-1;i++)dots[i].classList.add("on");
+  for(let i=0;i<3;i++)dots[i].style.width=(i===n-1)?"22px":"5px";
+  $("obtitle").textContent=n===1?"Getting to know you":n===2?"Work & life, apart":"Meet your Crew";
+}
+function obScroll(){
+  const v=$("v-onb").querySelector(".vbody");
+  requestAnimationFrame(()=>{v.scrollTop=v.scrollHeight;});
+}
+function restartOnb(){
+  $("chatlog").innerHTML="";
+  obi=0;setDots(1);
+  setTimeout(obNext,420);
+}
+function startOnb(){
+  document.getElementById("app").classList.add("onb");
+  $("chatlog").innerHTML="";obi=0;setDots(1);
+  $("v-onb").classList.add("on");
+  setTimeout(obNext,500);
+}
+function finishOnb(){
+  try{localStorage.setItem("crew_onboarded","1");}catch(e){}
+  document.getElementById("app").classList.remove("onb");
+  $("v-disc").classList.remove("on");
+  $("v-onb").classList.remove("on");
+  stack=[];
+  showTab("home");
+}
+function replayOnb(){
+  try{localStorage.removeItem("crew_onboarded");}catch(e){}
+  popAll();
+  TABS.forEach(t=>$("v-"+t).classList.remove("on"));
+  startOnb();
+}
+
+/* ============ BOOT ============ */
+(function boot(){
+  let onboarded=false;
+  try{onboarded=localStorage.getItem("crew_onboarded")==="1";}catch(e){}
+  if(location.search.indexOf("skiponb")>-1)onboarded=true;
+  if(location.search.indexOf("forceonb")>-1)onboarded=false;
+  renderHome();renderCrew();
+  if(onboarded){document.getElementById("app").classList.remove("onb");showTab("home");}
+  else startOnb();
+  $("redfield").addEventListener("keydown",e=>{if(e.key==="Enter")sendRedirect();});
+  $("talkfield").addEventListener("keydown",e=>{if(e.key==="Enter")sendTalk();});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "Crew",
+  "short_name": "Crew",
+  "description": "Your crew of agents. Glance, approve, redirect. Never a pile.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FBF8F1",
+  "theme_color": "#FBF8F1",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"512\" height=\"512\"><rect width=\"512\" height=\"512\" rx=\"116\" fill=\"%23FBF8F1\"/><rect x=\"14\" y=\"14\" width=\"484\" height=\"484\" rx=\"102\" fill=\"none\" stroke=\"%23E7E2D4\" stroke-width=\"6\"/><text x=\"246\" y=\"338\" font-family=\"Georgia,serif\" font-style=\"italic\" font-size=\"300\" font-weight=\"600\" fill=\"%2320241E\" text-anchor=\"middle\">C</text><circle cx=\"352\" cy=\"332\" r=\"30\" fill=\"%2300B14F\"/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
