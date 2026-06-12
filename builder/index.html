@@ -932,14 +932,14 @@ const AGENTS = {
 };
 
 let decisions = [
-  {id:"pr142",agent:"ramy",type:"choice",
-   ask:'Merge <em>PR #142</em>, the decision screen?',
-   fact:"All checks green, one reviewer approved.",
-   glance:[["Branch","feat/decision-fill → main"],["Diff","+184 / -36 · 6 files"],["CI","All green · 2m ago"]],
-   quote:"Devon: Ready to merge. Want me to squash and tag 1.3.3?",
-   foot:"Devon merges, tags the build, kicks CI.",
-   cardTitle:"Merge PR #142?",cardSub:"Devon · Engineering · ready to merge",
-   confirmT:"Merged.",confirmS:"Devon tags 1.3.3 and starts the build.",
+  {id:"pr2",agent:"ramy",type:"github_merge",repo:"agenteams-hq/crew",pr:2,
+   ask:'Merge <em>PR #2</em> into main?',
+   fact:"Ready to merge - this is a REAL merge on GitHub.",
+   glance:[["Repo","agenteams-hq/crew"],["Branch","demo/agent-merge-2 → main"],["Action","Squash & merge, for real"]],
+   quote:"Devon: Ready to merge. One tap and it goes into main on GitHub.",
+   foot:"Devon squash-merges PR #2 into main on GitHub.",
+   cardTitle:"Merge PR #2?",cardSub:"Devon · Engineering · ready to merge",
+   confirmT:"Merged.",confirmS:"PR #2 is squash-merged into main on GitHub.",
    chips:["Squash and merge","Request a change","Review it first"]},
   {id:"talia-bkk",agent:"talia",type:"choice",
    ask:'Book the 7:05 to <em>BKK</em>?',
@@ -1120,7 +1120,14 @@ function openDecision(id){
 function approveCurrent(){
   if(!curDecision)return;
   if(curDecision.type==="spend"){openPaySheet();return;}
+  if(curDecision.type==="github_merge"){mergeGithub(curDecision);return;}
   resolveDecision(curDecision);
+}
+function mergeGithub(d){
+  fetch(CREW_GH,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"merge",repo:d.repo,pr:d.pr})})
+    .then(function(r){return r.json();})
+    .then(function(res){ if(res&&res.merged){resolveDecision(d);} else {toast("Could not merge: "+((res&&res.error)||"not mergeable"));} })
+    .catch(function(){toast("Merge failed - check connection");});
 }
 function resolveDecision(d){
   decisions=decisions.filter(x=>x.id!==d.id);
@@ -1249,6 +1256,7 @@ function talkScroll(){
   requestAnimationFrame(()=>{v.scrollTop=v.scrollHeight;});
 }
 const CREW_API="https://crew-api-two.vercel.app/api/noor";
+const CREW_GH="https://crew-api-two.vercel.app/api/github";
 const CREW_HISTORY="https://crew-api-two.vercel.app/api/history";
 let TALK_HISTORY=[];
 let talkLoaded=false;
