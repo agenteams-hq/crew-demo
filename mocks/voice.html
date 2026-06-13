@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crew · Voice-first entry (mockup · AGT-175)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..650;1,9..144,300..650&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBF8F1; --bone:#F3EFE5;
+  --ink:#20241E; --ink2:#565B4E; --mute:#8B8F7E;
+  --hair:#E7E2D4; --hair2:#DDD7C5;
+  --green:#00B14F; --green-deep:#00813B; --green-tint:#E3F3E8;
+  --amber:#B45309; --amber-tint:#FBF0DC; --amber-line:#EFDCBA;
+  --serif:"Fraunces",Georgia,serif;
+  --grot:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",sans-serif;
+  --mono:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",sans-serif;
+  --spring:cubic-bezier(.34,1.35,.64,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+body{font-family:var(--grot);color:var(--ink);background:var(--bone);text-rendering:optimizeLegibility;padding:0 0 80px;}
+.mono-num{font-variant-numeric:tabular-nums;}
+.wrap{max-width:1700px;margin:0 auto;padding:0 28px;}
+.masthead{text-align:center;padding:64px 20px 18px;}
+.mark{width:60px;height:60px;border-radius:16px;background:var(--paper);border:1px solid var(--hair);margin:0 auto 22px;position:relative;box-shadow:0 1px 2px rgba(32,36,30,.05);}
+.mark span{font-family:var(--serif);font-style:italic;font-weight:600;font-size:38px;color:var(--ink);position:absolute;left:50%;top:50%;transform:translate(-52%,-52%);}
+.mark::after{content:"";position:absolute;right:13px;bottom:14px;width:11px;height:11px;border-radius:50%;background:var(--green);}
+.masthead h1{font-family:var(--serif);font-weight:480;font-size:40px;letter-spacing:-.02em;line-height:1.05;font-variation-settings:"opsz" 60;}
+.masthead h1 em{font-style:italic;font-weight:430;}
+.masthead .sub{font-size:15px;color:var(--ink2);margin-top:14px;line-height:1.5;max-width:600px;margin-left:auto;margin-right:auto;}
+.eyebrow{font-family:var(--grot);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);}
+.eyebrow.grn{color:var(--green-deep);} .eyebrow.amb{color:var(--amber);}
+.masthead .tag{display:inline-flex;align-items:center;gap:7px;margin-top:20px;background:var(--paper);border:1px solid var(--hair);border-radius:999px;padding:7px 14px;}
+.masthead .tag .dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+
+.rail{display:flex;gap:34px;justify-content:center;flex-wrap:wrap;padding:46px 8px 30px;align-items:flex-start;}
+.step{width:344px;}
+.steplbl{display:flex;align-items:center;gap:10px;margin:0 6px 14px;}
+.stepnum{font-family:var(--serif);font-style:italic;font-weight:560;font-size:19px;color:var(--green-deep);width:22px;}
+.steplbl .t{font-size:13px;font-weight:600;color:var(--ink);letter-spacing:-.005em;}
+.steplbl .t small{display:block;font-family:var(--grot);font-weight:500;font-size:11px;color:var(--mute);margin-top:1px;}
+
+/* generously tall frames - no clipping */
+.phone{width:344px;height:812px;border-radius:46px;background:#15170F;padding:9px;box-shadow:0 2px 4px rgba(32,36,30,.1),0 40px 70px -40px rgba(32,36,30,.55);}
+.screen{width:100%;height:100%;border-radius:38px;background:var(--paper);overflow:hidden;position:relative;display:flex;flex-direction:column;}
+.screen::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:60;background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter><rect width="120" height="120" filter="url(%23g)" opacity="0.03"/></svg>');}
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:16px 26px 0;font-size:12px;font-weight:600;flex:none;}
+.navrow{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 6px;flex:none;}
+.backbtn{display:inline-flex;align-items:center;gap:6px;font-family:var(--grot);font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);background:#fff;border:1px solid var(--hair);border-radius:999px;padding:9px 14px 9px 11px;box-shadow:0 1px 2px rgba(32,36,30,.05);}
+.callbtn{width:38px;height:38px;border-radius:50%;background:var(--green-tint);border:1px solid #BFE3CC;color:var(--green-deep);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 1px 2px rgba(32,36,30,.05);}
+.vbody{flex:1;overflow:hidden;padding:0 22px;display:flex;flex-direction:column;min-height:0;}
+.display{font-family:var(--serif);font-weight:480;letter-spacing:-.015em;line-height:1.08;font-variation-settings:"opsz" 60;}
+.display em{font-style:italic;font-weight:430;}
+.body-t{font-size:14px;line-height:1.55;color:var(--ink2);}
+.tit{font-weight:600;font-size:14.5px;letter-spacing:-.005em;}
+.sub{font-size:12px;color:var(--mute);margin-top:2px;line-height:1.4;}
+
+/* avatars */
+.av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;flex:none;
+  font-family:var(--serif);font-style:italic;font-weight:560;font-size:18px;letter-spacing:-.02em;
+  box-shadow:0 0 0 1px rgba(32,36,30,.08) inset, 0 1px 2px rgba(32,36,30,.08);}
+.av::before{content:"";position:absolute;inset:3px;border-radius:50%;border:1px solid rgba(255,255,255,.55);}
+.av.sm{width:34px;height:34px;font-size:14px;}
+.av .st{position:absolute;right:-1px;bottom:-1px;width:13px;height:13px;border-radius:50%;border:2.5px solid var(--paper);}
+.av .st.grn{background:var(--green);}
+.av-noor{background:linear-gradient(135deg,#1C3A2A,#33604A);color:#E9F2E6;}
+.av-ramy{background:linear-gradient(135deg,#DDEDE0,#C9E2D1);color:#23513C;}
+
+/* chat bubbles */
+.chatrow{display:flex;gap:9px;align-items:flex-end;margin-top:13px;}
+.bub{max-width:78%;padding:12px 15px;border-radius:20px;font-size:14px;line-height:1.5;}
+.bub.agent{background:#fff;border:1px solid var(--hair);border-bottom-left-radius:7px;color:var(--ink);box-shadow:0 1px 2px rgba(32,36,30,.04), 0 8px 18px -14px rgba(32,36,30,.2);}
+.bub.user{background:var(--ink);color:#F3EFE5;border-bottom-right-radius:7px;margin-left:auto;box-shadow:0 8px 18px -12px rgba(32,36,30,.45);}
+.bub.draft{background:var(--green-tint);border:1px solid #BFE3CC;color:var(--green-deep);border-bottom-right-radius:7px;margin-left:auto;font-style:italic;}
+
+/* ---------- talk composer (from index.html, locked) ---------- */
+.talkcomposer{flex:none;display:flex;align-items:center;gap:9px;padding:10px 18px 16px;border-top:.5px solid rgba(32,36,30,.12);background:rgba(251,248,241,.78);}
+.talkwrap{flex:1;position:relative;min-width:0;}
+.talkfield{width:100%;background:#fff;border:1.5px solid var(--hair2);border-radius:999px;padding:13px 46px 13px 18px;font-size:15px;color:var(--ink);outline:none;}
+.talkfield.placeholder{color:var(--mute);}
+.micbtn{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--ink2);}
+.sendbtn{width:50px;height:50px;border-radius:50%;background:var(--ink);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 8px 16px -8px rgba(32,36,30,.6);}
+
+/* hold-to-talk hint chip under composer */
+.holdhint{display:flex;align-items:center;justify-content:center;gap:7px;padding:0 18px 14px;background:rgba(251,248,241,.78);}
+.holdhint .k{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);}
+.holdhint svg{flex:none;}
+
+/* big tap-to-talk mic affordance (alt entry) */
+.micbig{width:46px;height:46px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;flex:none;color:#fff;box-shadow:0 10px 20px -10px rgba(0,129,59,.55),0 1px 0 rgba(255,255,255,.25) inset;}
+
+/* ---------- listening / transcribing state ---------- */
+.listenwrap{flex:none;padding:14px 18px 16px;border-top:.5px solid rgba(32,36,30,.12);background:rgba(251,248,241,.86);}
+.listenrow{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid var(--green);border-radius:24px;padding:13px 15px;box-shadow:0 10px 26px -16px rgba(0,129,59,.4);}
+.miclive{width:42px;height:42px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;flex:none;color:#fff;position:relative;animation:micpulse 2s ease-in-out infinite;}
+@keyframes micpulse{0%,100%{box-shadow:0 0 0 0 rgba(0,177,79,.32);}50%{box-shadow:0 0 0 8px rgba(0,177,79,0);}}
+.transcript{flex:1;min-width:0;}
+.transcript .live{font-size:14.5px;line-height:1.45;color:var(--ink);}
+.transcript .live .interim{color:var(--mute);}
+.transcript .meta{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--green-deep);margin-top:5px;display:flex;align-items:center;gap:6px;}
+.transcript .meta .dot{width:5px;height:5px;border-radius:50%;background:var(--green);}
+.stopbtn{width:34px;height:34px;border-radius:50%;background:var(--bone);border:1px solid var(--hair2);display:flex;align-items:center;justify-content:center;flex:none;color:var(--ink2);}
+
+/* inline composer waveform (transcribing) */
+.wave{display:flex;gap:4px;align-items:center;height:22px;justify-content:center;}
+.wave i{width:3px;height:100%;border-radius:2px;background:var(--green);transform-origin:center;animation:eq 1.25s ease-in-out infinite;}
+.wave.sm i{width:2.5px;}
+.wave i:nth-child(1){animation-delay:0s;height:42%;}
+.wave i:nth-child(2){animation-delay:.14s;height:78%;}
+.wave i:nth-child(3){animation-delay:.28s;height:100%;}
+.wave i:nth-child(4){animation-delay:.42s;height:66%;}
+.wave i:nth-child(5){animation-delay:.56s;height:48%;}
+.wave i:nth-child(6){animation-delay:.7s;height:84%;}
+.wave i:nth-child(7){animation-delay:.84s;height:38%;}
+@keyframes eq{0%,100%{transform:scaleY(.3);opacity:.55;}50%{transform:scaleY(1);opacity:1;}}
+
+/* ---------- call view (from index.html, locked) ---------- */
+.callscreen{background:linear-gradient(180deg,#FBF8F1 0%,#F1EEE0 100%);}
+@keyframes halo{0%,100%{transform:translateX(-50%) scale(1);opacity:.55;}50%{transform:translateX(-50%) scale(1.08);opacity:.85;}}
+.halo{position:absolute;top:-90px;left:50%;width:420px;height:320px;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(0,177,79,.10),rgba(0,177,79,0));animation:halo 6s ease-in-out infinite;pointer-events:none;}
+@keyframes orbb{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(0,177,79,.20),0 30px 60px -24px rgba(28,58,42,.45);}50%{transform:scale(1.045);box-shadow:0 0 0 26px rgba(0,177,79,0),0 30px 60px -24px rgba(28,58,42,.45);}}
+.orb{width:130px;height:130px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-style:italic;font-weight:560;font-size:50px;animation:orbb 3.4s ease-in-out infinite;position:relative;}
+.orb::before{content:"";position:absolute;inset:7px;border-radius:50%;border:1px solid rgba(255,255,255,.35);}
+.callwave{display:flex;gap:5px;align-items:center;height:26px;justify-content:center;}
+.callwave i{width:3.5px;height:100%;border-radius:2px;background:var(--green);transform-origin:center;animation:eq 1.25s ease-in-out infinite;}
+.callwave i:nth-child(1){animation-delay:0s;height:46%;}
+.callwave i:nth-child(2){animation-delay:.18s;height:80%;}
+.callwave i:nth-child(3){animation-delay:.36s;height:100%;}
+.callwave i:nth-child(4){animation-delay:.5s;height:70%;}
+.callwave i:nth-child(5){animation-delay:.66s;height:52%;}
+.callctl{width:62px;height:62px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.callctl.mute{background:#fff;border:1px solid var(--hair2);color:var(--ink2);box-shadow:0 1px 2px rgba(32,36,30,.06),0 10px 22px -14px rgba(32,36,30,.25);}
+.callctl.end{background:#D6453D;color:#fff;box-shadow:0 16px 30px -12px rgba(214,69,61,.65);}
+.callctl-label{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-top:9px;text-align:center;}
+.mono-eyebrow{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);}
+
+.disclaimer{text-align:center;max-width:760px;margin:8px auto 0;font-size:12px;color:var(--mute);line-height:1.5;}
+.phasecap{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin:18px auto 0;max-width:780px;}
+.phasecap .pc{display:flex;align-items:flex-start;gap:9px;background:var(--paper);border:1px solid var(--hair);border-radius:18px;padding:13px 16px;max-width:360px;text-align:left;}
+.phasecap .pc .pn{font-family:var(--serif);font-style:italic;font-weight:560;font-size:16px;color:var(--green-deep);flex:none;}
+.phasecap .pc .pt{font-size:13px;color:var(--ink);font-weight:600;}
+.phasecap .pc .pd{font-size:12px;color:var(--ink2);line-height:1.45;margin-top:2px;}
+.phasecap .pc.p2{background:var(--bone);border-style:dashed;}
+.phasecap .pc.p2 .pn{color:var(--mute);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="mark"><span>C</span></div>
+    <div class="eyebrow grn">AgenTeams &middot; voice-first entry &middot; mockup for approval &middot; AGT-175</div>
+    <h1 style="margin-top:16px;">Call your crew. <em>Out loud.</em></h1>
+    <p class="sub">Talk to your main agent instead of typing - then talk to and monitor the whole crew by voice. Hold to talk, or open a calm voice line. The main agent listens, then briefs the six below.</p>
+    <div class="tag"><span class="dot"></span><span class="eyebrow grn" style="letter-spacing:.1em;">Talk to + monitor your crew &middot; pending Fares sign-off</span></div>
+  </div>
+
+  <div class="rail">
+
+    <!-- A · MIC AFFORDANCE ON COMPOSER -->
+    <div class="step">
+      <div class="steplbl"><span class="stepnum">A</span><span class="t">Mic on the composer<small>Hold to talk / tap to talk</small></span></div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span style="color:var(--ink);">9:41</span><span class="eyebrow">Talk</span></div>
+        <div class="navrow">
+          <span class="backbtn"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1 1.5 6 6 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Back</span>
+          <span class="eyebrow">Your main agent</span>
+          <span class="callbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16.5v2.6a1.9 1.9 0 0 1-2.1 1.9c-3.3-.36-6.4-1.7-8.9-3.8a18.6 18.6 0 0 1-5.2-5.2C2.7 9.5 1.36 6.4 1 3.1A1.9 1.9 0 0 1 2.9 1h2.6a1.9 1.9 0 0 1 1.9 1.63c.12.9.34 1.78.66 2.62a1.9 1.9 0 0 1-.43 2L6.5 8.4a15.2 15.2 0 0 0 5.1 5.1l1.15-1.13a1.9 1.9 0 0 1 2-.43c.84.32 1.72.54 2.62.66A1.9 1.9 0 0 1 21 16.5Z"/></svg></span>
+        </div>
+        <div class="vbody" style="padding-top:6px;">
+          <div style="display:flex;align-items:center;gap:11px;margin-top:4px;">
+            <span class="av av-noor sm">&#9733;<span class="st grn"></span></span>
+            <div>
+              <div class="tit" style="font-size:15px;">Main agent</div>
+              <div class="sub">Tell it once. The crew handles the rest.</div>
+            </div>
+          </div>
+          <div style="flex:1;"></div>
+          <div class="chatrow"><div class="bub user">The promo replies are piling up.</div></div>
+          <div class="chatrow"><span class="av av-noor sm" style="font-size:12px;">&#9733;</span><div class="bub agent">On it. I&rsquo;ll get Ramy to draft those replies and check with you before sending.</div></div>
+          <div class="chatrow"><span class="av av-noor sm" style="font-size:12px;">&#9733;</span><div class="bub agent">While you&rsquo;re here - Talia is holding two KUL&rarr;BKK fares till 6 PM. Say the word and I&rsquo;ll book the 7:05.</div></div>
+          <div style="height:14px;"></div>
+        </div>
+        <div class="talkcomposer">
+          <div class="talkwrap">
+            <div class="talkfield placeholder">Ask, or hold the mic&hellip;</div>
+            <span class="micbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="11.5" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3.5"/></svg></span>
+          </div>
+          <span class="micbig"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="11.5" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3.5"/></svg></span>
+        </div>
+        <div class="holdhint">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#8B8F7E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="11.5" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3.5"/></svg>
+          <span class="k">Hold to talk &middot; release to send &middot; tap for a voice line</span>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- B · ACTIVE LISTENING / TRANSCRIBING -->
+    <div class="step">
+      <div class="steplbl"><span class="stepnum">B</span><span class="t">Listening<small>Live waveform + transcript</small></span></div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span style="color:var(--ink);">9:41</span><span class="eyebrow grn">Listening</span></div>
+        <div class="navrow">
+          <span class="backbtn"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1 1.5 6 6 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Back</span>
+          <span class="eyebrow">Your main agent</span>
+          <span class="callbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16.5v2.6a1.9 1.9 0 0 1-2.1 1.9c-3.3-.36-6.4-1.7-8.9-3.8a18.6 18.6 0 0 1-5.2-5.2C2.7 9.5 1.36 6.4 1 3.1A1.9 1.9 0 0 1 2.9 1h2.6a1.9 1.9 0 0 1 1.9 1.63c.12.9.34 1.78.66 2.62a1.9 1.9 0 0 1-.43 2L6.5 8.4a15.2 15.2 0 0 0 5.1 5.1l1.15-1.13a1.9 1.9 0 0 1 2-.43c.84.32 1.72.54 2.62.66A1.9 1.9 0 0 1 21 16.5Z"/></svg></span>
+        </div>
+        <div class="vbody" style="padding-top:6px;">
+          <div style="display:flex;align-items:center;gap:11px;margin-top:4px;">
+            <span class="av av-noor sm">&#9733;<span class="st grn"></span></span>
+            <div>
+              <div class="tit" style="font-size:15px;">Main agent</div>
+              <div class="sub">I&rsquo;m listening&hellip; take your time.</div>
+            </div>
+          </div>
+          <div style="flex:1;"></div>
+          <div class="chatrow"><span class="av av-noor sm" style="font-size:12px;">&#9733;</span><div class="bub agent">Anything else you want me to line up tonight?</div></div>
+          <div style="height:14px;"></div>
+        </div>
+        <!-- live listening dock replaces the composer -->
+        <div class="listenwrap">
+          <div class="listenrow">
+            <span class="miclive"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="11.5" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3.5"/></svg></span>
+            <div class="transcript">
+              <div class="live">Tell Kee to chase the Lazada payout <span class="interim">and remind me&hellip;</span></div>
+              <div class="meta"><span class="dot"></span>Transcribing on-device</div>
+            </div>
+            <span class="wave sm" style="width:30px;"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:18px;margin-top:14px;">
+            <span style="display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#8B8F7E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>Slide to cancel
+            </span>
+            <span class="stopbtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="6" y="6" width="12" height="12" rx="2.5" fill="#565B4E"/></svg></span>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- C · CALM VOICE-CALL SCREEN -->
+    <div class="step">
+      <div class="steplbl"><span class="stepnum">C</span><span class="t">Voice line<small>Calm call with your main agent</small></span></div>
+      <div class="phone"><div class="screen callscreen">
+        <div class="halo"></div>
+        <div class="statusbar"><span style="color:var(--ink);">9:41</span><span class="eyebrow grn">Voice</span></div>
+        <div class="vbody" style="align-items:center;justify-content:center;text-align:center;padding-bottom:28px;">
+          <div style="flex:1;"></div>
+          <span class="eyebrow grn" style="letter-spacing:.22em;">Voice &middot; Main agent</span>
+          <span class="orb av-noor" style="margin-top:24px;">&#9733;</span>
+          <h2 class="display" style="font-size:29px;margin-top:26px;">Talking to your <em>main agent</em>.</h2>
+          <div class="mono-num" style="font-size:13px;letter-spacing:.14em;color:var(--ink2);margin-top:10px;">01:24</div>
+          <div class="callwave" style="margin-top:20px;"><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="mono-eyebrow" style="margin-top:14px;">&ldquo;&hellip;and tell Mara to hold the Raya promo.&rdquo;</div>
+          <div style="flex:1.2;"></div>
+          <div style="display:flex;gap:36px;align-items:flex-start;">
+            <div>
+              <span class="callctl mute"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="11.5" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3.5"/></svg></span>
+              <div class="callctl-label">Mute</div>
+            </div>
+            <div>
+              <span class="callctl mute" style="color:var(--green-deep);border-color:#BFE3CC;background:var(--green-tint);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19.5c.6-3 2.8-4.8 5.5-4.8s4.9 1.8 5.5 4.8"/><circle cx="17" cy="9.5" r="2.4"/><path d="M16 14.9c2.4.1 4 1.6 4.5 4"/></svg></span>
+              <div class="callctl-label">Crew</div>
+            </div>
+            <div>
+              <span class="callctl end"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14.5c5.3-5 12.7-5 18 0l-2.5 2.7a1.8 1.8 0 0 1-2.3.3l-1.9-1.2a1.8 1.8 0 0 1-.8-1.7l.1-1.3a13.4 13.4 0 0 0-3.2 0l.1 1.3a1.8 1.8 0 0 1-.8 1.7l-1.9 1.2a1.8 1.8 0 0 1-2.3-.3L3 14.5Z"/></svg></span>
+              <div class="callctl-label">End</div>
+            </div>
+          </div>
+          <div class="mono-eyebrow" style="margin-top:24px;font-size:8.5px;">Phase 2 &middot; real-time voice via Gemini Live</div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- D · MONITOR THE CREW BY VOICE -->
+    <div class="step">
+      <div class="steplbl"><span class="stepnum">D</span><span class="t">Monitor by voice<small>Spoken brief back from the crew</small></span></div>
+      <div class="phone"><div class="screen callscreen">
+        <div class="halo"></div>
+        <div class="statusbar"><span style="color:var(--ink);">9:41</span><span class="eyebrow grn">Voice</span></div>
+        <div class="vbody" style="padding-top:6px;">
+          <div style="display:flex;align-items:center;gap:11px;margin-top:4px;">
+            <span class="av av-noor sm">&#9733;<span class="st grn"></span></span>
+            <div>
+              <div class="tit" style="font-size:15px;">Main agent &middot; on the line</div>
+              <div class="sub">Ask &ldquo;how&rsquo;s the crew?&rdquo; - it reads the real status.</div>
+            </div>
+            <span class="callwave" style="margin-left:auto;width:26px;height:18px;"><i></i><i></i><i></i><i></i><i></i></span>
+          </div>
+          <div style="flex:1;"></div>
+          <div class="chatrow"><div class="bub user">How&rsquo;s the crew doing right now?</div></div>
+          <div class="chatrow"><span class="av av-noor sm" style="font-size:12px;">&#9733;</span><div class="bub agent">Ramy is drafting the promo replies, Kee just pulled RM 4,120 in overdue invoices, and Talia is holding two BKK fares. Mara needs a yes on the Raya copy.</div></div>
+          <div class="chatrow"><div class="bub user">Approve Mara&rsquo;s copy.</div></div>
+          <div class="chatrow"><span class="av av-noor sm" style="font-size:12px;">&#9733;</span><div class="bub agent">Done. Mara is sending it now. Anything else?</div></div>
+          <div style="height:14px;"></div>
+        </div>
+        <div class="talkcomposer" style="background:rgba(251,248,241,.86);">
+          <div class="talkwrap">
+            <div class="talkfield placeholder">Speaking&hellip;</div>
+            <span class="micbtn" style="color:var(--green-deep);"><span class="wave sm" style="width:22px;height:16px;"><i></i><i></i><i></i><i></i><i></i></span></span>
+          </div>
+          <span class="callctl end" style="width:50px;height:50px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14.5c5.3-5 12.7-5 18 0l-2.5 2.7a1.8 1.8 0 0 1-2.3.3l-1.9-1.2a1.8 1.8 0 0 1-.8-1.7l.1-1.3a13.4 13.4 0 0 0-3.2 0l.1 1.3a1.8 1.8 0 0 1-.8 1.7l-1.9 1.2a1.8 1.8 0 0 1-2.3-.3L3 14.5Z"/></svg></span>
+        </div>
+        <div class="holdhint" style="background:rgba(251,248,241,.86);">
+          <span class="dot" style="width:6px;height:6px;border-radius:50%;background:var(--green);"></span>
+          <span class="k">Voice line open &middot; talk to + monitor your crew</span>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+
+  <!-- PHASED REALITY CAPTION -->
+  <div class="phasecap">
+    <div class="pc">
+      <span class="pn">1</span>
+      <div>
+        <div class="pt">Phase 1 &middot; on-device dictation</div>
+        <div class="pd">Hold-to-talk uses the phone&rsquo;s own speech-to-text. Free, zero tokens, nothing leaves the device until you send. Screens A &amp; B ship first.</div>
+      </div>
+    </div>
+    <div class="pc p2">
+      <span class="pn">2</span>
+      <div>
+        <div class="pt">Phase 2 &middot; real-time voice (later)</div>
+        <div class="pd">The live voice line (screens C &amp; D) runs on Gemini Live for true back-and-forth speech. Same calm UI, lit up later.</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="disclaimer">Static mockup for direction only &middot; AGT-175. Voice is an entry into the existing talk surface, not a new surface: the same main agent, the same approvals, the same work / personal wall. It is &ldquo;talk to + monitor your crew by voice.&rdquo; Brand: AgenTeams (#00B14F).</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crew · Onboarding · one real connection (calendar-first) · mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..650;1,9..144,300..650&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Tokens copied verbatim from crew-demo/index.html (locked v2)
+   ============================================================ */
+:root{
+  --paper:#FBF8F1; --bone:#F3EFE5;
+  --ink:#20241E; --ink2:#565B4E; --mute:#8B8F7E;
+  --hair:#E7E2D4; --hair2:#DDD7C5;
+  --green:#00B14F; --green-deep:#00813B; --green-tint:#E3F3E8;
+  --amber:#B45309; --amber-tint:#FBF0DC; --amber-line:#EFDCBA;
+  --serif:"Fraunces",Georgia,serif;
+  --grot:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",sans-serif;
+  --mono:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",sans-serif;
+  --spring:cubic-bezier(.34,1.35,.64,1);
+  --ios:cubic-bezier(.32,.72,0,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+body{font-family:var(--grot);color:var(--ink);background:var(--bone);text-rendering:optimizeLegibility;padding:0 0 80px;}
+.wrap{max-width:1320px;margin:0 auto;padding:0 28px;}
+
+/* masthead (matches companion.html mock shell) */
+.masthead{text-align:center;padding:60px 20px 14px;}
+.mark{width:60px;height:60px;border-radius:16px;background:var(--paper);border:1px solid var(--hair);margin:0 auto 22px;position:relative;box-shadow:0 1px 2px rgba(32,36,30,.05);}
+.mark span{font-family:var(--serif);font-style:italic;font-weight:600;font-size:38px;color:var(--ink);position:absolute;left:50%;top:50%;transform:translate(-52%,-52%);}
+.mark::after{content:"";position:absolute;right:13px;bottom:14px;width:11px;height:11px;border-radius:50%;background:var(--green);}
+.masthead h1{font-family:var(--serif);font-weight:480;font-size:38px;letter-spacing:-.02em;line-height:1.06;font-variation-settings:"opsz" 60;margin-top:16px;}
+.masthead h1 em{font-style:italic;font-weight:430;}
+.masthead .sub{font-size:15px;color:var(--ink2);margin-top:14px;line-height:1.5;max-width:620px;margin-left:auto;margin-right:auto;}
+.eyebrow{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);}
+.eyebrow.grn{color:var(--green-deep);} .eyebrow.amb{color:var(--amber);}
+.masthead .tag{display:inline-flex;align-items:center;gap:7px;margin-top:20px;background:var(--paper);border:1px solid var(--hair);border-radius:999px;padding:7px 14px;}
+.masthead .tag .dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+
+.rail{display:flex;gap:34px;justify-content:center;flex-wrap:wrap;padding:46px 8px 30px;align-items:flex-start;}
+.step{width:344px;}
+.steplbl{display:flex;align-items:center;gap:10px;margin:0 6px 14px;}
+.stepnum{font-family:var(--serif);font-style:italic;font-weight:560;font-size:19px;color:var(--green-deep);width:22px;}
+.steplbl .t{font-size:13px;font-weight:600;color:var(--ink);letter-spacing:-.005em;}
+.steplbl .t small{display:block;font-family:var(--grot);font-weight:500;font-size:11px;color:var(--mute);margin-top:1px;}
+
+/* phone frame — generously tall, no clipping */
+.phone{width:344px;height:812px;border-radius:46px;background:#15170F;padding:9px;box-shadow:0 2px 4px rgba(32,36,30,.1),0 40px 70px -40px rgba(32,36,30,.55);}
+.screen{width:100%;height:100%;border-radius:38px;background:var(--paper);overflow:hidden;position:relative;display:flex;flex-direction:column;}
+.screen::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:60;background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter><rect width="120" height="120" filter="url(%23g)" opacity="0.03"/></svg>');}
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:16px 26px 0;font-size:12px;font-weight:600;flex:none;}
+
+.vbody{flex:1;overflow:hidden;padding:18px 22px 0;display:flex;flex-direction:column;min-height:0;}
+
+/* ---- onboarding dots (from index.html) ---- */
+.obdots{display:flex;align-items:center;gap:6px;}
+.obdots span{width:5px;height:5px;border-radius:3px;background:var(--hair2);transition:all .3s;}
+.obdots span.on{width:22px;background:var(--green);}
+.skipbtn{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-left:auto;padding:6px 2px;background:none;border:none;}
+
+/* ---- chat bubbles (from index.html) ---- */
+.av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;flex:none;font-family:var(--serif);font-style:italic;font-weight:560;font-size:18px;letter-spacing:-.02em;box-shadow:0 0 0 1px rgba(32,36,30,.08) inset,0 1px 2px rgba(32,36,30,.08);}
+.av::before{content:"";position:absolute;inset:3px;border-radius:50%;border:1px solid rgba(255,255,255,.55);}
+.av.sm{width:34px;height:34px;font-size:14px;}
+.av.lg{width:62px;height:62px;font-size:26px;}
+.av .st{position:absolute;right:-1px;bottom:-1px;width:13px;height:13px;border-radius:50%;border:2.5px solid var(--paper);}
+.av .st.grn{background:var(--green);}
+.av-iman{background:linear-gradient(135deg,#E7EBD3,#D8DFB9);color:#4D5827;}
+.av-crew{background:linear-gradient(135deg,#20241E,#3A4034);color:#F3EFE5;}
+
+.chatrow{display:flex;gap:9px;align-items:flex-end;margin-top:13px;}
+.bub{max-width:80%;padding:12px 15px;border-radius:20px;font-size:14px;line-height:1.5;}
+.bub.agent{background:#fff;border:1px solid var(--hair);border-bottom-left-radius:7px;color:var(--ink);box-shadow:0 1px 2px rgba(32,36,30,.04),0 8px 18px -14px rgba(32,36,30,.2);}
+.bub.user{background:var(--ink);color:#F3EFE5;border-bottom-right-radius:7px;margin-left:auto;box-shadow:0 8px 18px -12px rgba(32,36,30,.45);}
+
+/* ---- cards / rows (from index.html) ---- */
+.card{background:#fff;border:1px solid var(--hair);border-radius:24px;box-shadow:0 1px 2px rgba(32,36,30,.04),0 10px 24px -18px rgba(32,36,30,.18);}
+.body-t{font-size:14px;line-height:1.55;color:var(--ink2);}
+.display{font-family:var(--serif);font-weight:480;letter-spacing:-.015em;line-height:1.08;font-variation-settings:"opsz" 60;}
+.display em{font-style:italic;font-weight:430;}
+.lrow{display:flex;align-items:center;gap:13px;padding:13px 16px;}
+.lrow + .lrow{border-top:1px solid var(--hair);}
+.lrow .tit{font-weight:600;font-size:14.5px;letter-spacing:-.005em;}
+.lrow .sub{font-size:12px;color:var(--mute);margin-top:2px;line-height:1.4;}
+.lrow .time{font-family:var(--mono);font-size:10px;font-weight:500;color:var(--mute);letter-spacing:.06em;margin-left:auto;flex:none;}
+.tick{width:20px;height:20px;border-radius:50%;background:var(--green-tint);display:flex;align-items:center;justify-content:center;flex:none;}
+
+/* ---- buttons (from index.html) ---- */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;font-weight:700;font-size:15px;letter-spacing:.01em;height:54px;border:none;width:100%;}
+.btn-approve{background:var(--green);color:#fff;box-shadow:0 10px 20px -10px rgba(0,129,59,.55),0 1px 0 rgba(255,255,255,.25) inset;}
+.obfix{display:block;width:100%;text-align:center;margin-top:13px;font-size:13px;font-weight:500;color:var(--ink2);background:none;border:none;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--hair2);padding:6px 0;}
+
+/* google connect button — mirrors .gbtn */
+.gbtn{display:inline-flex;align-items:center;justify-content:center;gap:9px;width:100%;background:#fff;border:1px solid var(--hair2);border-radius:999px;padding:13px 16px;font-family:var(--grot);font-size:14.5px;font-weight:600;color:var(--ink);box-shadow:0 1px 2px rgba(32,36,30,.05);}
+.gbtn .gico{width:17px;height:17px;flex:none;}
+
+.pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border-radius:999px;padding:6px 11px;background:var(--green-tint);color:var(--green-deep);border:1px solid #BFE3CC;}
+.pill .dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+.sparkline{display:flex;align-items:center;gap:8px;padding:0 4px;}
+.sparkline span{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.04em;color:var(--ink2);}
+
+/* connected check animation accent */
+.bigtick{width:60px;height:60px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;box-shadow:0 16px 36px -14px rgba(0,129,59,.55);}
+
+.spacer{flex:1;}
+.disclaimer{text-align:center;max-width:760px;margin:8px auto 0;font-size:12px;color:var(--mute);line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="mark"><span>C</span></div>
+    <div class="eyebrow grn">AgenTeams &middot; Crew onboarding &middot; mockup for approval</div>
+    <h1>Land on Home with an agent that <em>already did something</em>.</h1>
+    <p class="sub">The final onboarding beat asks for one low-risk connection - your calendar - so the very first thing the user sees is real: their day, already read. No empty Home, no "set me up later". One yes, and a calendar agent is quietly on it.</p>
+    <div class="tag"><span class="dot"></span><span class="eyebrow grn" style="letter-spacing:.1em;">AGT-169 / CREW-09 &middot; calendar-first &middot; pending Fares sign-off</span></div>
+  </div>
+
+  <div class="rail">
+
+    <!-- ============ A · THE CONNECT BEAT ============ -->
+    <div class="step">
+      <div class="steplbl"><span class="stepnum">A</span><span class="t">The connect beat<small>One low-risk yes &middot; quiet skip</small></span></div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span style="color:var(--ink);">9:41</span><span class="eyebrow">Crew</span></div>
+        <div class="vbody">
+          <div style="display:flex;align-items:center;">
+            <div class="obdots"><span></span><span></span><span class="on"></span></div>
+            <button class="skipbtn">Skip</button>
+          </div>
+
+          <!-- crew bubble: hand-off to one real connection -->
+          <div class="chatrow">
+            <span class="av av-crew sm" style="font-size:12px;">C</span>
+            <div class="bub agent">Your Crew is set. One last thing - let me <b>actually start</b>. Connect your calendar and I'll read today before you even open Home.</div>
+          </div>
+          <div class="chatrow">
+            <span class="av av-crew sm" style="font-size:12px;">C</span>
+            <div class="bub agent">Read-only to start. I never move or cancel anything without asking.</div>
+          </div>
+
+          <!-- the connect card -->
+          <div class="card" style="margin-top:18px;padding:17px 17px 16px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span class="av av-iman sm" style="width:40px;height:40px;font-size:15px;">I<span class="st grn"></span></span>
+              <div style="flex:1;">
+                <div style="font-size:14.5px;font-weight:600;letter-spacing:-.005em;">Iman &middot; your calendar agent</div>
+                <div style="font-size:12px;color:var(--mute);margin-top:2px;">Reads your day, guards your focus hours</div>
+              </div>
+            </div>
+            <button class="gbtn" style="margin-top:15px;">
+              <svg class="gico" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62Z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18Z"/><path fill="#FBBC05" d="M3.97 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.82.96 4.05l3.01-2.33Z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58A9 9 0 0 0 9 0 9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58Z"/></svg>
+              Connect Google Calendar
+            </button>
+            <div style="display:flex;align-items:center;gap:7px;margin-top:13px;justify-content:center;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8B8F7E" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5c0 4.4 3 8.4 7 9.5 4-1.1 7-5.1 7-9.5V6l-7-3Z"/></svg>
+              <span style="font-size:11px;color:var(--mute);">Read-only &middot; revoke anytime in Settings</span>
+            </div>
+          </div>
+
+          <button class="obfix">Skip for now</button>
+
+          <div class="spacer"></div>
+          <div class="sparkline" style="margin-bottom:18px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 14 9l6.5 2-6.5 2-2 6.5L10 13l-6.5-2L10 9l2-6.5Z" stroke="#565B4E" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            <span>One connection. Real status from minute one.</span>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- ============ B · CONNECTED ✓ ============ -->
+    <div class="step">
+      <div class="steplbl"><span class="stepnum">B</span><span class="t">Connected &check;<small>The yes lands &middot; agent goes to work</small></span></div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span style="color:var(--ink);">9:41</span><span class="eyebrow">Crew</span></div>
+        <div class="vbody">
+          <div style="display:flex;align-items:center;">
+            <div class="obdots"><span></span><span></span><span class="on"></span></div>
+          </div>
+
+          <div class="spacer" style="flex:0.7;"></div>
+
+          <!-- success moment -->
+          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;">
+            <div class="bigtick">
+              <svg width="28" height="22" viewBox="0 0 32 24" fill="none"><path d="M3 13 12 22 29 3" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="display" style="font-size:26px;margin-top:20px;">Calendar <em>connected</em></div>
+            <p class="body-t" style="margin-top:10px;padding:0 14px;">Iman is reading your week now. Give it a second - there'll be something waiting on Home.</p>
+            <span class="pill" style="margin-top:16px;"><span class="dot"></span>Iman is on it</span>
+          </div>
+
+          <!-- live read-out card -->
+          <div class="card" style="margin-top:24px;padding:4px 16px;">
+            <div class="lrow">
+              <span class="tick"><svg width="11" height="8" viewBox="0 0 12 9" fill="none"><path d="M1 4.5 4.4 8 11 1" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <div style="flex:1;"><div class="tit" style="font-size:13.5px;">Read today &amp; the week ahead</div><div class="sub">6 events &middot; 2 focus blocks found</div></div>
+              <span class="time">now</span>
+            </div>
+            <div class="lrow">
+              <span class="tick"><svg width="11" height="8" viewBox="0 0 12 9" fill="none"><path d="M1 4.5 4.4 8 11 1" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <div style="flex:1;"><div class="tit" style="font-size:13.5px;">Spotted a clash this afternoon</div><div class="sub">Two meetings at 3:00 - flagged for you</div></div>
+              <span class="time">now</span>
+            </div>
+          </div>
+
+          <div class="spacer"></div>
+          <button class="btn btn-approve" style="margin-bottom:14px;">See what Iman found</button>
+          <div class="sparkline" style="margin-bottom:18px;justify-content:center;">
+            <span style="color:var(--mute);">Nothing left to set up. Home is already useful.</span>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- ============ C · THE SIGNAL ON HOME ============ -->
+    <div class="step">
+      <div class="steplbl"><span class="stepnum">C</span><span class="t">The signal it leaves<small>First Home view &middot; already did something</small></span></div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span style="color:var(--ink);">9:41</span><span class="eyebrow">Home</span></div>
+        <div class="vbody">
+          <!-- home header -->
+          <div style="display:flex;align-items:center;gap:11px;margin-top:4px;">
+            <span class="av av-crew sm" style="font-size:13px;">F</span>
+            <div style="flex:1;">
+              <div class="eyebrow grn">Good morning, Farah</div>
+              <div style="font-family:var(--serif);font-size:21px;font-weight:520;letter-spacing:-.01em;margin-top:1px;">Your Crew has been busy</div>
+            </div>
+          </div>
+
+          <!-- the gentle "your calendar agent is set up" signal -->
+          <div class="card" style="margin-top:18px;padding:16px 17px 15px;">
+            <div style="display:flex;align-items:center;gap:11px;">
+              <span class="av av-iman sm" style="width:38px;height:38px;font-size:15px;">I<span class="st grn"></span></span>
+              <div style="flex:1;">
+                <div style="font-size:14px;font-weight:600;letter-spacing:-.005em;">Iman</div>
+                <div style="font-size:11.5px;color:var(--green-deep);font-weight:600;margin-top:1px;">Calendar agent &middot; set up</div>
+              </div>
+              <span class="pill"><span class="dot"></span>On it</span>
+            </div>
+            <div style="font-size:13.5px;line-height:1.55;color:var(--ink);margin-top:13px;">
+              I read your day. You've got <b>6 things on</b>, and a clash at 3:00 I'd untangle if you like.
+            </div>
+            <div style="display:flex;gap:8px;margin-top:14px;">
+              <button class="btn btn-approve" style="height:44px;font-size:13.5px;flex:1;">Fix the 3:00 clash</button>
+              <button class="btn" style="height:44px;font-size:13.5px;flex:1;background:#fff;color:var(--ink);border:1px solid var(--hair2);box-shadow:0 1px 2px rgba(32,36,30,.05);">See my day</button>
+            </div>
+          </div>
+
+          <!-- what it already did, quietly -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin:22px 2px 10px;">
+            <span class="eyebrow">Already done</span>
+            <span class="eyebrow" style="color:var(--green-deep);">Today</span>
+          </div>
+          <div class="card" style="padding:4px 16px;">
+            <div class="lrow">
+              <span class="tick"><svg width="11" height="8" viewBox="0 0 12 9" fill="none"><path d="M1 4.5 4.4 8 11 1" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <div style="flex:1;"><div class="tit" style="font-size:13.5px;">Checked your calendar</div><div class="sub">Iman &middot; read today &amp; the week</div></div>
+              <span class="time">9:41</span>
+            </div>
+            <div class="lrow">
+              <span class="tick"><svg width="11" height="8" viewBox="0 0 12 9" fill="none"><path d="M1 4.5 4.4 8 11 1" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <div style="flex:1;"><div class="tit" style="font-size:13.5px;">Found a clash to clear</div><div class="sub">Iman &middot; 3:00 double-booked</div></div>
+              <span class="time">9:41</span>
+            </div>
+          </div>
+
+          <div class="spacer"></div>
+          <div class="sparkline" style="margin-bottom:18px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#565B4E" stroke-width="1.6"/><path d="M12 8v4l2.5 1.5" stroke="#565B4E" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <span>No empty start. The agent earned its place before you asked.</span>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+  <p class="disclaimer">Static mockup for direction only. AGT-169 / CREW-09: the last onboarding step offers exactly one low-risk connection (read-only calendar) plus a quiet "skip for now"; on yes, a calendar agent (Iman) reads the user's day so the first Home view shows real, already-done work, never an empty setup screen. Tokens, type, bubbles and buttons reused verbatim from crew-demo/index.html. Brand: AgenTeams (Grab green #00B14F).</p>
+</div>
+</body>
+</html>

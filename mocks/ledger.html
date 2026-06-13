@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crew · Ledger screen (AGT-168 · retention spine) · mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..650;1,9..144,300..650&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   CREW · LEDGER (AGT-168) · tokens lifted verbatim from index.html
+   ============================================================ */
+:root{
+  --paper:#FBF8F1; --bone:#F3EFE5;
+  --ink:#20241E; --ink2:#565B4E; --mute:#8B8F7E;
+  --hair:#E7E2D4; --hair2:#DDD7C5;
+  --green:#00B14F; --green-deep:#00813B; --green-tint:#E3F3E8;
+  --amber:#B45309; --amber-tint:#FBF0DC; --amber-line:#EFDCBA;
+  --serif:"Fraunces",Georgia,serif;
+  --grot:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",sans-serif;
+  --mono:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",sans-serif;
+  --spring:cubic-bezier(.34,1.35,.64,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+body{font-family:var(--grot);color:var(--ink);background:var(--bone);text-rendering:optimizeLegibility;padding:0 0 70px;}
+.mono-num,.time,.tl-item .t{font-variant-numeric:tabular-nums;}
+.wrap{max-width:920px;margin:0 auto;padding:0 28px;}
+
+/* ---- masthead ---- */
+.masthead{text-align:center;padding:60px 20px 14px;}
+.mark{width:58px;height:58px;border-radius:16px;background:var(--paper);border:1px solid var(--hair);margin:0 auto 20px;position:relative;box-shadow:0 1px 2px rgba(32,36,30,.05);}
+.mark span{font-family:var(--serif);font-style:italic;font-weight:600;font-size:36px;color:var(--ink);position:absolute;left:50%;top:50%;transform:translate(-52%,-52%);}
+.mark::after{content:"";position:absolute;right:13px;bottom:14px;width:11px;height:11px;border-radius:50%;background:var(--green);}
+.masthead h1{font-family:var(--serif);font-weight:480;font-size:38px;letter-spacing:-.02em;line-height:1.06;font-variation-settings:"opsz" 60;}
+.masthead h1 em{font-style:italic;font-weight:430;}
+.masthead .sub{font-size:14.5px;color:var(--ink2);margin-top:13px;line-height:1.5;max-width:560px;margin-left:auto;margin-right:auto;}
+.eyebrow{font-family:var(--grot);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);}
+.eyebrow.grn{color:var(--green-deep);}
+.masthead .tag{display:inline-flex;align-items:center;gap:7px;margin-top:18px;background:var(--paper);border:1px solid var(--hair);border-radius:999px;padding:7px 14px;}
+.masthead .tag .dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+
+/* ---- phone frame (generously tall so nothing clips) ---- */
+.rail{display:flex;justify-content:center;padding:40px 8px 24px;}
+.phone{width:360px;height:912px;border-radius:48px;background:#15170F;padding:9px;box-shadow:0 2px 4px rgba(32,36,30,.1),0 40px 70px -40px rgba(32,36,30,.55);}
+.screen{width:100%;height:100%;border-radius:40px;background:var(--paper);overflow:hidden;position:relative;display:flex;flex-direction:column;}
+.screen::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:60;background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter><rect width="120" height="120" filter="url(%23g)" opacity="0.03"/></svg>');}
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:16px 26px 0;font-size:12px;font-weight:600;flex:none;}
+
+/* ---- nav row (pushview off Home) ---- */
+.navrow{display:flex;align-items:center;justify-content:space-between;padding:13px 18px 4px;flex:none;position:relative;}
+.backbtn{display:inline-flex;align-items:center;gap:6px;font-family:var(--grot);font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);background:#fff;border:1px solid var(--hair);border-radius:999px;padding:9px 15px 9px 11px;box-shadow:0 1px 2px rgba(32,36,30,.05);}
+.navrow .eyebrow.center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);}
+
+.vbody{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 22px 28px;display:flex;flex-direction:column;min-height:0;}
+.vbody::-webkit-scrollbar{display:none;}
+
+.display{font-family:var(--serif);font-weight:480;letter-spacing:-.015em;line-height:1.1;font-variation-settings:"opsz" 60;}
+.display em{font-style:italic;font-weight:430;}
+.body-t{font-size:13.5px;line-height:1.55;color:var(--ink2);}
+.card{background:#fff;border:1px solid var(--hair);border-radius:24px;box-shadow:0 1px 2px rgba(32,36,30,.04),0 10px 24px -18px rgba(32,36,30,.18);}
+
+/* ---- ROI summary card (the whole point) ---- */
+.roicard{margin-top:18px;border-color:#CFE6D8;background:linear-gradient(180deg,#FFFFFF,#F3FAF5);box-shadow:0 1px 2px rgba(32,36,30,.05),0 20px 40px -22px rgba(0,129,59,.30);}
+.roihead{display:flex;align-items:center;gap:8px;padding:15px 18px 0;}
+.roihead .live{width:8px;height:8px;border-radius:50%;background:var(--green);}
+.roifacts{display:flex;padding:12px 6px 16px;}
+.roifact{flex:1;text-align:center;position:relative;}
+.roifact + .roifact::before{content:"";position:absolute;left:0;top:14%;bottom:14%;width:1px;background:var(--hair);}
+.roifact .n{font-family:var(--serif);font-weight:520;font-size:27px;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1;}
+.roifact .n.grn{color:var(--green-deep);}
+.roifact .l{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-top:7px;}
+.roifoot{font-size:11px;color:var(--mute);text-align:center;padding:0 18px 14px;line-height:1.5;}
+
+/* ---- segmented range chips ---- */
+.seg{display:flex;background:var(--bone);border:1px solid var(--hair2);border-radius:999px;padding:3px;margin-top:16px;}
+.seg button{flex:1;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);border-radius:999px;padding:8px 0;background:none;border:none;}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(32,36,30,.1);}
+
+/* ---- zone filter chips ---- */
+.zfilter{display:flex;gap:7px;margin-top:11px;}
+.zchip{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);background:#fff;border:1px solid var(--hair2);border-radius:999px;padding:7px 13px;display:inline-flex;align-items:center;gap:6px;}
+.zchip.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.zchip .ct{font-size:8.5px;opacity:.7;}
+
+/* ---- zone header (work/personal wall) ---- */
+.zonehead{display:flex;align-items:center;gap:10px;margin:26px 2px 12px;}
+.zonehead .zicon{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:none;}
+.zonehead .zicon.work{background:var(--ink);color:var(--paper);}
+.zonehead .zicon.pers{background:#fff;border:1px solid var(--hair2);color:var(--ink2);}
+.zonehead .zt{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ink);}
+.zonehead .zt.pers{color:var(--ink2);}
+.zonehead .zl{flex:1;height:1px;background:var(--hair2);}
+.zonehead .zc{font-family:var(--mono);font-size:9.5px;font-weight:500;letter-spacing:.08em;color:var(--mute);text-transform:uppercase;}
+
+/* ---- day group label ---- */
+.daylbl{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin:20px 2px 4px;}
+
+/* ---- ztag pills (verbatim) ---- */
+.ztag{font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;border-radius:5px;padding:2.5px 6px;flex:none;display:inline-block;vertical-align:1px;white-space:nowrap;}
+.ztag.work{background:var(--ink);color:var(--paper);}
+.ztag.pers{background:transparent;border:1px solid var(--hair2);color:var(--ink2);}
+
+/* ---- avatars (verbatim) ---- */
+.av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;flex:none;font-family:var(--serif);font-style:italic;font-weight:560;font-size:18px;letter-spacing:-.02em;box-shadow:0 0 0 1px rgba(32,36,30,.08) inset,0 1px 2px rgba(32,36,30,.08);}
+.av::before{content:"";position:absolute;inset:3px;border-radius:50%;border:1px solid rgba(255,255,255,.55);}
+.av.sm{width:34px;height:34px;font-size:14px;}
+.av-ramy {background:linear-gradient(135deg,#DDEDE0,#C9E2D1);color:#23513C;}
+.av-mara {background:linear-gradient(135deg,#F4E3D1,#EAD0B6);color:#7A4A22;}
+.av-sufi {background:linear-gradient(135deg,#DCE8EE,#C8DAE4);color:#2E4B5C;}
+.av-kee  {background:linear-gradient(135deg,#F2E8C9,#E8DAAE);color:#73591A;}
+.av-talia{background:linear-gradient(135deg,#E8E1F0,#D8CEE6);color:#54456B;}
+.av-iman {background:linear-gradient(135deg,#E7EBD3,#D8DFB9);color:#4D5827;}
+
+/* ---- ledger entry rows (tl-item shape + agent avatar) ---- */
+.ledcard{margin-top:4px;}
+.ledrow{display:flex;gap:13px;padding:14px 16px;align-items:flex-start;}
+.ledrow + .ledrow{border-top:1px solid var(--hair);}
+.ledrow .av{margin-top:1px;}
+.ledbody{flex:1;min-width:0;}
+.ledtop{display:flex;align-items:center;gap:7px;margin-bottom:3px;}
+.ledtop .who{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);}
+.ledtop .time{font-family:var(--mono);font-size:9.5px;font-weight:500;color:var(--mute);letter-spacing:.06em;margin-left:auto;flex:none;}
+.led-d{font-size:13.5px;line-height:1.45;color:var(--ink);}
+.led-d b{font-weight:700;}
+.led-d .amt{color:var(--green-deep);font-weight:700;}
+.tickdot{width:18px;height:18px;border-radius:50%;background:var(--green-tint);display:flex;align-items:center;justify-content:center;flex:none;margin-top:1px;}
+/* settled-by-counterparty distinct entry */
+.led-link{display:inline-flex;align-items:center;gap:5px;margin-top:6px;font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--green-tint);color:var(--green-deep);border:1px solid #BFE3CC;border-radius:999px;padding:4px 9px;}
+
+.chev{flex:none;color:#C5C1B0;align-self:center;}
+
+.foot{text-align:center;margin-top:22px;font-size:12px;color:var(--mute);line-height:1.5;}
+
+.disclaimer{text-align:center;max-width:760px;margin:14px auto 0;font-size:12px;color:var(--mute);line-height:1.55;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="mark"><span>C</span></div>
+    <div class="eyebrow grn">AgenTeams &middot; AGT-168 &middot; ledger &middot; mockup for approval</div>
+    <h1 style="margin-top:16px;">Look at everything <em>your team</em> handled.</h1>
+    <p class="sub">The retention spine. One calm morning glance: what the crew did overnight, what it recovered, the hours it saved. ROI is visible and honest - a number only shows when it is real. Pushview off Home, no 4th tab.</p>
+    <div class="tag"><span class="dot"></span><span class="eyebrow grn" style="letter-spacing:.1em;">Reuses tl-item &middot; ztag &middot; zonehead &middot; live-data discipline</span></div>
+  </div>
+
+  <div class="rail">
+    <div class="phone"><div class="screen">
+      <div class="statusbar"><span style="color:var(--ink);">9:41</span><span class="eyebrow">Ledger</span></div>
+      <div class="navrow">
+        <span class="backbtn"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1 1.5 6 6 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Home</span>
+        <span class="eyebrow center">Ledger</span>
+        <span style="width:84px;"></span>
+      </div>
+
+      <div class="vbody">
+        <h2 class="display" style="font-size:27px;margin:14px 2px 0;">What your crew <em>did</em>.</h2>
+        <p class="body-t" style="font-size:13px;margin:6px 2px 0;">Your team is always on. Here is the running log.</p>
+
+        <!-- ROI summary: the whole point -->
+        <div class="card roicard">
+          <div class="roihead"><span class="live"></span><span class="eyebrow grn" style="letter-spacing:.12em;">Today &middot; while you slept</span></div>
+          <div class="roifacts">
+            <div class="roifact"><div class="n">34</div><div class="l">Handled</div></div>
+            <div class="roifact"><div class="n grn">RM&thinsp;4,120</div><div class="l">Recovered</div></div>
+            <div class="roifact"><div class="n">~6&thinsp;hrs</div><div class="l">Saved</div></div>
+          </div>
+          <div class="roifoot">Recovered is real money-in. Saved is an estimate (the tilde says so). A number only shows when it is real.</div>
+        </div>
+
+        <!-- range chips -->
+        <div class="seg">
+          <button class="on">Today</button>
+          <button>This week</button>
+          <button>All</button>
+        </div>
+
+        <!-- zone filter -->
+        <div class="zfilter">
+          <span class="zchip on">All</span>
+          <span class="zchip">Work <span class="ct">22</span></span>
+          <span class="zchip">Personal <span class="ct">12</span></span>
+        </div>
+
+        <!-- ============ TODAY ============ -->
+        <div class="daylbl">Today &middot; 13 June</div>
+
+        <!-- WORK zone -->
+        <div class="zonehead">
+          <span class="zicon work"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2.5"/><path d="M9 8V6.5A2.5 2.5 0 0 1 11.5 4h1A2.5 2.5 0 0 1 15 6.5V8"/></svg></span>
+          <span class="zt">Work</span><span class="zl"></span><span class="zc">Sari Batik</span>
+        </div>
+        <div class="card ledcard">
+          <div class="ledrow">
+            <span class="av av-kee sm">K</span>
+            <div class="ledbody">
+              <div class="ledtop"><span class="who">Kee &middot; Books</span><span class="ztag work">Work</span><span class="time">6:58</span></div>
+              <div class="led-d">Pulled <span class="amt">RM 4,120</span> in overdue invoices from 6 clients</div>
+              <span class="led-link"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 0 1 7 7h2M15 7h2a5 5 0 0 1 0 10h-2M8 12h8"/></svg>Settled RM 1,200 with Mutiara Foods &middot; both crews</span>
+            </div>
+            <span class="tickdot"><svg width="9" height="7" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </div>
+          <div class="ledrow">
+            <span class="av av-kee sm">K</span>
+            <div class="ledbody">
+              <div class="ledtop"><span class="who">Kee &middot; Books</span><span class="ztag work">Work</span><span class="time">6:45</span></div>
+              <div class="led-d">Reconciled <b>18 payouts</b> against Xero</div>
+            </div>
+            <span class="tickdot"><svg width="9" height="7" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </div>
+          <div class="ledrow">
+            <span class="av av-ramy sm">R</span>
+            <div class="ledbody">
+              <div class="ledtop"><span class="who">Ramy &middot; Sales</span><span class="ztag work">Work</span><span class="time">8:02</span></div>
+              <div class="led-d">Sent the Mutiara Foods quote, <b>RM 12,400</b>, within price book</div>
+            </div>
+            <span class="tickdot"><svg width="9" height="7" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </div>
+          <div class="ledrow">
+            <span class="av av-sufi sm">S</span>
+            <div class="ledbody">
+              <div class="ledtop"><span class="who">Sufi &middot; Support</span><span class="ztag work">Work</span><span class="time">6:31</span></div>
+              <div class="led-d">Answered <b>11 overnight DMs</b> in your voice</div>
+            </div>
+            <span class="tickdot"><svg width="9" height="7" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </div>
+          <div class="ledrow">
+            <span class="av av-mara sm">M</span>
+            <div class="ledbody">
+              <div class="ledtop"><span class="who">Mara &middot; Marketing</span><span class="ztag work">Work</span><span class="time">7:40</span></div>
+              <div class="led-d">Pulled last month&rsquo;s top 5 reels by saves</div>
+            </div>
+            <span class="tickdot"><svg width="9" height="7" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </div>
+        </div>
+
+        <!-- PERSONAL zone -->
+        <div class="zonehead">
+          <span class="zicon pers"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5 12 3.8l8.5 6.7V20a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1v-9.5Z"/></svg></span>
+          <span class="zt pers">Personal</span><span class="zl"></span><span class="zc">Family &amp; home</span>
+        </div>
+        <div class="card ledcard">
+          <div class="ledrow">
+            <span class="av av-talia sm">T</span>
+            <div class="ledbody">
+              <div class="ledtop"><span class="who">Talia &middot; Travel</span><span class="ztag pers">Personal</span><span class="time">0:47</span></div>
+              <div class="led-d">Held AirAsia 7:05 AM, <b>RM 412</b> return for the Mak visit</div>
+            </div>
+            <span class="tickdot"><svg width="9" height="7" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </div>
+          <div class="ledrow">
+            <span class="av av-talia sm">T</span>
+            <div class="ledbody">
+              <div class="ledtop"><span class="who">Talia &middot; Travel</span><span class="ztag pers">Personal</span><span class="time">0:46</span></div>
+              <div class="led-d">Held Batik Air 9:30 AM, <b>RM 468</b> return</div>
+            </div>
+            <span class="tickdot"><svg width="9" height="7" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </div>
+          <div class="ledrow">
+            <span class="av av-iman sm">I</span>
+            <div class="ledbody">
+              <div class="ledtop"><span class="who">Iman &middot; Errands</span><span class="ztag pers">Personal</span><span class="time">8:00</span></div>
+              <div class="led-d">Confirmed Atok&rsquo;s clinic, Tuesday 10 AM</div>
+            </div>
+            <span class="tickdot"><svg width="9" height="7" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </div>
+        </div>
+
+        <!-- ============ YESTERDAY ============ -->
+        <div class="daylbl">Yesterday &middot; 12 June</div>
+        <div class="card ledcard">
+          <div class="ledrow">
+            <span class="av av-kee sm">K</span>
+            <div class="ledbody">
+              <div class="ledtop"><span class="who">Kee &middot; Books</span><span class="ztag work">Work</span><span class="time">19:20</span></div>
+              <div class="led-d">Sent <b>4 polite payment nudges</b>, second round</div>
+            </div>
+            <span class="tickdot"><svg width="9" height="7" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </div>
+          <div class="ledrow">
+            <span class="av av-ramy sm">R</span>
+            <div class="ledbody">
+              <div class="ledtop"><span class="who">Ramy &middot; Sales</span><span class="ztag work">Work</span><span class="time">18:15</span></div>
+              <div class="led-d">Nudged <b>4 quiet prospects</b> with a soft follow-up</div>
+            </div>
+            <span class="tickdot"><svg width="9" height="7" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </div>
+          <div class="ledrow">
+            <span class="av av-iman sm">I</span>
+            <div class="ledbody">
+              <div class="ledtop"><span class="who">Iman &middot; Errands</span><span class="ztag pers">Personal</span><span class="time">17:45</span></div>
+              <div class="led-d">Reordered the water filter, arrives Thursday</div>
+            </div>
+            <span class="tickdot"><svg width="9" height="7" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </div>
+          <div class="ledrow">
+            <span class="av av-mara sm">M</span>
+            <div class="ledbody">
+              <div class="ledtop"><span class="who">Mara &middot; Marketing</span><span class="ztag work">Work</span><span class="time">21:30</span></div>
+              <div class="led-d">Rescheduled the tote-bag post to Friday peak hour</div>
+            </div>
+            <span class="tickdot"><svg width="9" height="7" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </div>
+        </div>
+
+        <div class="foot">That is the whole log, kept honestly.<br>Go live your day - your crew has it.</div>
+      </div>
+    </div></div>
+  </div>
+
+  <p class="disclaimer">Static mockup for direction only (AGT-168, ledger retention spine). Pushview off Home - taps the live "34 done while you slept" peek, no 4th tab added. Entries reuse the agent <code>moves</code> data (real seeded content), the tl-item tick, ztag work/personal wall, and zonehead grouping. ROI line is fail-to-omit, never fail-to-fake: recovered = real money-in events, saved = a labelled "~hrs" estimate. Logged-out demo renders from seeded moves; authed reads an RLS-scoped crew_event by user_id. Brand: AgenTeams.</p>
+</div>
+</body>
+</html>
