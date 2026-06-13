@@ -1315,8 +1315,9 @@ function sendTalk(){
   log.appendChild(r);
   talkScroll();
   fetch(CREW_API,crewAuthPOST({device_id:crewDevice(),message:txt}))
-    .then(x=>x.json())
+    .then(function(x){return x.status===401?{__auth:1}:x.json();})
     .then(d=>{
+      if(d&&d.__auth){ r.querySelector(".bub").textContent="Sign in with Google to use your crew - tap your avatar, top right."; talkScroll(); return; } // CREW-11: 401 -> sign-in gate, never canned filler
       const reply=(d&&d.reply)?d.reply:NOOR_REPLIES[noorIdx++%NOOR_REPLIES.length];
       TALK_HISTORY.push({role:"assistant",content:reply});
       r.querySelector(".bub").textContent=reply;
