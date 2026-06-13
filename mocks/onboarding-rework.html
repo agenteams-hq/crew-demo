@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crew · consumer onboarding rework (mockup)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..650;1,9..144,300..650&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBF8F1; --bone:#F3EFE5; --ink:#20241E; --ink2:#565B4E; --mute:#8B8F7E;
+  --hair:#E7E2D4; --hair2:#DDD7C5;
+  --green:#00B14F; --green-deep:#00813B; --green-tint:#E3F3E8; --amber:#B45309;
+  --serif:"Fraunces",Georgia,serif;
+  --grot:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+body{font-family:var(--grot);color:var(--ink);background:var(--bone);padding:0 0 90px;}
+.wrap{max-width:1040px;margin:0 auto;padding:0 28px;}
+.masthead{text-align:center;padding:60px 20px 8px;}
+.mark{width:58px;height:58px;border-radius:16px;background:var(--paper);border:1px solid var(--hair);margin:0 auto 20px;position:relative;box-shadow:0 1px 2px rgba(32,36,30,.05);}
+.mark span{font-family:var(--serif);font-style:italic;font-weight:600;font-size:36px;color:var(--ink);position:absolute;left:50%;top:50%;transform:translate(-52%,-52%);}
+.mark::after{content:"";position:absolute;right:13px;bottom:13px;width:10px;height:10px;border-radius:50%;background:var(--green);}
+.masthead h1{font-family:var(--serif);font-weight:480;font-size:36px;letter-spacing:-.02em;line-height:1.07;font-variation-settings:"opsz" 60;}
+.masthead h1 em{font-style:italic;font-weight:430;}
+.masthead .sub{font-size:15px;color:var(--ink2);margin-top:13px;line-height:1.5;max-width:600px;margin:13px auto 0;}
+.eyebrow{font-family:var(--grot);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);}
+.eyebrow.grn{color:var(--green-deep);}
+.tag{display:inline-flex;align-items:center;gap:7px;margin-top:18px;background:var(--paper);border:1px solid var(--hair);border-radius:999px;padding:7px 14px;}
+.tag .dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+.boards{display:flex;gap:40px;justify-content:center;flex-wrap:wrap;padding:46px 0 0;align-items:flex-start;}
+.frame{width:360px;}
+.flbl{display:flex;align-items:baseline;gap:9px;margin:0 4px 13px;}
+.flbl .num{font-family:var(--serif);font-style:italic;font-weight:560;font-size:20px;color:var(--green-deep);}
+.flbl .t{font-size:14px;font-weight:600;color:var(--ink);}
+.flbl .t small{display:block;font-weight:500;font-size:11.5px;color:var(--mute);margin-top:1px;}
+.shell{width:360px;height:640px;border-radius:36px;overflow:hidden;box-shadow:0 2px 4px rgba(32,36,30,.1),0 36px 60px -36px rgba(32,36,30,.5);position:relative;background:#000;padding:9px;}
+.board{position:absolute;top:9px;left:9px;width:1080px;height:1920px;transform:scale(.3167);transform-origin:top left;overflow:hidden;border-radius:30px;}
+.scr{position:absolute;inset:0;background:var(--paper);overflow:hidden;}
+.scr::after{content:"";position:absolute;inset:0;pointer-events:none;background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter><rect width="120" height="120" filter="url(%23g)" opacity="0.035"/></svg>');}
+.sb{display:flex;justify-content:space-between;align-items:center;padding:40px 60px 0;font-size:30px;font-weight:600;color:var(--ink);}
+.pad{padding:0 70px;}
+.step{display:flex;gap:10px;margin:54px 0 0;}
+.step i{height:7px;border-radius:4px;background:var(--hair2);flex:1;}
+.step i.on{background:var(--green);}
+.eb{font-family:var(--grot);font-size:24px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin-top:40px;}
+.eb.grn{color:var(--green-deep);}
+.h1{font-family:var(--serif);font-weight:480;font-size:80px;line-height:1.08;letter-spacing:-.02em;color:var(--ink);margin-top:22px;font-variation-settings:"opsz" 70;}
+.h1 em{font-style:italic;font-weight:430;}
+.sub{font-size:33px;line-height:1.45;color:var(--ink2);margin-top:24px;}
+/* picker cards */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:50px;}
+.pc{background:#fff;border:1.5px solid var(--hair);border-radius:34px;padding:34px 30px;box-shadow:0 2px 6px rgba(32,36,30,.04);position:relative;min-height:248px;display:flex;flex-direction:column;}
+.pc.sel{border-color:var(--green);box-shadow:0 0 0 3px var(--green-tint),0 2px 6px rgba(32,36,30,.04);}
+.pc .ic{width:84px;height:84px;border-radius:24px;background:var(--bone);display:flex;align-items:center;justify-content:center;}
+.pc.sel .ic{background:var(--green-tint);}
+.pc .ck{position:absolute;top:26px;right:26px;width:48px;height:48px;border-radius:50%;border:2px solid var(--hair2);}
+.pc.sel .ck{background:var(--green);border-color:var(--green);display:flex;align-items:center;justify-content:center;}
+.pc .ln{font-family:var(--serif);font-weight:500;font-size:38px;line-height:1.15;letter-spacing:-.01em;color:var(--ink);margin-top:30px;}
+.pc .do{font-size:27px;color:var(--mute);margin-top:12px;}
+.btn{height:128px;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:18px;font-weight:700;font-size:38px;letter-spacing:.01em;margin-top:54px;}
+.btn-green{background:var(--green);color:#fff;box-shadow:0 20px 40px -20px rgba(0,129,59,.55);}
+.skip{text-align:center;margin-top:40px;font-family:var(--grot);font-size:31px;color:var(--ink2);font-weight:600;}
+.skip span{color:var(--mute);font-weight:500;}
+/* moment B */
+.mcard{background:#fff;border:1px solid var(--hair);border-radius:38px;padding:14px 38px;box-shadow:0 2px 8px rgba(32,36,30,.05);margin-top:46px;}
+.mrow{display:flex;align-items:center;gap:26px;padding:34px 0;}
+.mrow + .mrow{border-top:1px solid var(--hair);}
+.mav{width:84px;height:84px;border-radius:50%;flex:none;position:relative;box-shadow:0 0 0 1px rgba(32,36,30,.08) inset;font-family:var(--serif);font-style:italic;font-weight:560;font-size:36px;display:flex;align-items:center;justify-content:center;}
+.mav .st{position:absolute;right:0;bottom:0;width:24px;height:24px;border-radius:50%;background:var(--green);border:5px solid #fff;}
+.av-niko{background:linear-gradient(135deg,#E8E1F0,#D8CEE6);color:#54456B;}
+.av-omar{background:linear-gradient(135deg,#DCE8EE,#C2DCD9);color:#1E5A56;}
+.mtick{width:84px;height:84px;border-radius:50%;background:var(--green-tint);display:flex;align-items:center;justify-content:center;flex:none;}
+.mrow .nm{font-size:36px;font-weight:600;color:var(--ink);}
+.mrow .ac{font-size:30px;color:var(--ink2);margin-top:5px;}
+.mrow .ld{margin-left:auto;width:18px;height:18px;border-radius:50%;background:var(--green);}
+.save{position:absolute;left:70px;right:70px;bottom:70px;}
+.saveline{font-family:var(--serif);font-weight:480;font-size:44px;line-height:1.2;color:var(--ink);text-align:center;}
+.savesub{text-align:center;font-size:28px;color:var(--ink2);margin-top:16px;line-height:1.4;}
+.gbtn{height:130px;border-radius:999px;background:#fff;border:1.5px solid var(--hair2);display:flex;align-items:center;justify-content:center;gap:24px;font-weight:600;font-size:38px;color:var(--ink);margin-top:38px;box-shadow:0 8px 20px -10px rgba(32,36,30,.2);}
+.gbtn img{width:56px;height:56px;object-fit:contain;}
+.reassure{text-align:center;font-size:24px;color:var(--mute);margin-top:26px;}
+.skipbtn{height:118px;border-radius:999px;border:2px solid var(--hair2);background:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:36px;color:var(--ink);margin-top:30px;box-shadow:0 2px 6px rgba(32,36,30,.04);}
+.skipsub{text-align:center;font-size:27px;color:var(--mute);margin-top:22px;}
+.disclaimer{text-align:center;max-width:760px;margin:42px auto 0;font-size:12px;color:var(--mute);line-height:1.55;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="mark"><span>C</span></div>
+    <div class="eyebrow grn">AgenTeams &middot; consumer onboarding &middot; mockup for approval</div>
+    <h1 style="margin-top:15px;">Recognise yourself. Then <em>keep</em> what's started.</h1>
+    <p class="sub">Two onboarding moments reworked: a recognition picker (not a blank form, not an assumed persona) and an earned signup (login to SAVE your crew, not a gate up front).</p>
+    <div class="tag"><span class="dot"></span><span class="eyebrow grn" style="letter-spacing:.1em;">Mockup-first &middot; for Fares</span></div>
+  </div>
+
+  <div class="boards">
+
+    <!-- MOMENT A -->
+    <div class="frame">
+      <div class="flbl"><span class="num">A</span><span class="t">Recognition picker<small>Pick what's yours - or just start</small></span></div>
+      <div class="shell"><div class="board"><div class="scr">
+        <div class="sb"><span>9:41</span><span style="font-size:26px;">&#9679;&#9679;&#9679;</span></div>
+        <div class="pad">
+          <div class="step"><i class="on"></i><i class="on"></i><i></i></div>
+          <div class="eb">Getting started</div>
+          <div class="h1">What should your crew take off your plate?</div>
+          <div class="sub">Pick a few. Or just start - your crew learns as you go.</div>
+          <div class="grid">
+            <div class="pc sel"><span class="ic"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#00813B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 16l9-3 9-3M4.5 10.5 11 9l-3-6 2.5-.5 5 5.5 5-1.5a1.6 1.6 0 0 1 .8 3L4 16Z"/></svg></span><span class="ck"><svg width="24" height="19" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div class="ln">The trip that got cancelled</div><div class="do">Rebook it for me</div></div>
+            <div class="pc sel"><span class="ic"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#00813B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v14H4z"/><path d="m4 6 8 6 8-6"/></svg></span><span class="ck"><svg width="24" height="19" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div class="ln">Messages I'm behind on</div><div class="do">Draft the replies</div></div>
+            <div class="pc"><span class="ic"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#565B4E" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v8a3 3 0 0 0 3 3h0a3 3 0 0 0 3-3V3M7 3v18M17 3c-1.7 0-3 2-3 5s1.3 4 3 4 3 0 3 0v9"/></svg></span><span class="ck"></span><div class="ln">Dinner + weekend plans</div><div class="do">Book it + remind me</div></div>
+            <div class="pc"><span class="ic"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#565B4E" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2zM8 8h8M8 12h8"/></svg></span><span class="ck"></span><div class="ln">A bill or renewal coming up</div><div class="do">Handle it for me</div></div>
+            <div class="pc"><span class="ic"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#565B4E" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5M4 9h11a5 5 0 0 1 5 5v1"/></svg></span><span class="ck"></span><div class="ln">A refund I never chased</div><div class="do">Chase it down</div></div>
+            <div class="pc"><span class="ic"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#565B4E" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 8.5 7 7M15.5 8.5l-7 7"/></svg></span><span class="ck"></span><div class="ln">Subscriptions I forgot</div><div class="do">Cancel them</div></div>
+          </div>
+          <div class="btn btn-green">Continue with 2 <svg width="34" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h14M13 6l6 6-6 6"/></svg></div>
+          <div class="skipbtn">Skip - just start</div>
+          <div class="skipsub">No need to pick. Your crew learns as you go.</div>
+        </div>
+      </div></div></div>
+    </div>
+
+    <!-- MOMENT B -->
+    <div class="frame">
+      <div class="flbl"><span class="num">B</span><span class="t">Earned signup<small>Log in to SAVE it, not to start</small></span></div>
+      <div class="shell"><div class="board"><div class="scr">
+        <div class="sb"><span>9:41</span><span style="font-size:26px;">&#9679;&#9679;&#9679;</span></div>
+        <div class="pad">
+          <div class="eb grn" style="margin-top:50px;">Your crew is ready</div>
+          <div class="h1">It's already <em>on it.</em></div>
+          <div class="sub">You haven't even signed up yet, and your crew started on what you picked.</div>
+          <div class="mcard">
+            <div class="mrow"><span class="mav av-niko">N<span class="st"></span></span><div><div class="nm">Niko</div><div class="ac">Rebooking your cancelled trip</div></div><span class="ld"></span></div>
+            <div class="mrow"><span class="mav av-omar">O<span class="st"></span></span><div><div class="nm">Omar</div><div class="ac">Drafting 3 of your replies</div></div><span class="ld"></span></div>
+            <div class="mrow"><span class="mtick"><svg width="40" height="31" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><div class="nm">Cancelled 2 forgotten subs &middot; done</div><div class="ac">$47 / month back in your pocket</div></div></div>
+          </div>
+        </div>
+        <div class="save">
+          <div class="saveline">Log in so you don't lose your crew.</div>
+          <div class="savesub">Keep everything it's already started.</div>
+          <div class="gbtn"><img src="logos/google.svg" alt="">Continue with Google</div>
+          <div class="reassure">Takes 2 seconds &middot; your crew carries over</div>
+        </div>
+      </div></div></div>
+    </div>
+
+  </div>
+  <p class="disclaimer">Static mockups (1080x1920) for the validated consumer onboarding surface - for Fares approval before code. Locked Crew look (kraft #FBF8F1, Grab green #00B14F, Fraunces). Build note (operator-pane): on login, the anonymous onboarding state migrates into the real account so nothing is lost. AgenTeams brand.</p>
+</div>
+</body>
+</html>
