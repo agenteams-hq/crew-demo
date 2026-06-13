@@ -1065,6 +1065,8 @@ function renderHome(){
 function agentStatus(a,key){
   if(a.paused)return{cls:"quiet",label:"Paused",st:"gry",sub:"Paused by you"};
   if(decisions.some(d=>d.agent===key))return{cls:"needs",label:"Needs you",st:"amb",sub:a.sub};
+  var rd=crewRedirects[key]; // CREW-03: redirect leaves a visible trace on the agent
+  if(rd&&(Date.now()-rd.at)<3600000)return{cls:"working",label:"On your redirect",st:"grn",sub:"Redirected · "+(rd.note.length>34?rd.note.slice(0,34)+"…":rd.note)};
   if(key==="ramy")return{cls:"working",label:"Working",st:"grn",sub:a.subCalm};
   const map={working:["working","Working","grn"],done:["done","Done","gry"],quiet:["quiet","Quiet","gry"]};
   const m=map[a.status]||map.working;
@@ -1229,13 +1231,17 @@ function sendRedirect(){
   const key=redirectFrom==="decision"?(curDecision?curDecision.agent:"ramy"):curAgent;
   const a=AGENTS[key];
   const txt=$("redfield").value.trim();
+  if(!txt){toast("Add a note for "+a.name+" first");return;} // CREW-03: block empty sends
+  crewHaptic(12);
   closeSheets();
-  toast("Sent to "+a.name+(txt?" · on it":" · on it"));
+  crewRedirects[key]={note:txt,at:Date.now()}; // CREW-03: leave a trace on the agent timeline
+  toast("Redirected to "+a.name+" · "+(txt.length>42?txt.slice(0,42)+"…":txt)); // CREW-03: distinct confirmation that reflects the note
   if(redirectFrom==="decision"&&curDecision){
     decisions=decisions.filter(x=>x.id!==curDecision.id);
     curDecision=null;
     setTimeout(popAll,300);
   }
+  renderCrew();
 }
 function closeSheets(){
   $("dim").classList.remove("on");
@@ -1295,6 +1301,7 @@ const CREW_GH="https://crew-api-two.vercel.app/api/github";
 const CREW_MEM="https://crew-api-two.vercel.app/api/memory";
 var crewToken="";
 var crewAuthedEmpty=false; // CREW-02: true when a signed-in user has no real decisions yet
+var crewRedirects={}; // CREW-03: agent key -> {note, at} last redirect, surfaced as a trace
 // AGT-159: send the verified Supabase JWT so the backend binds identity to the token,
 // not the client device_id. device_id stays for back-compat with the interim until promote.
 function crewAuthGET(){return crewToken?{headers:{Authorization:"Bearer "+crewToken}}:{};}
