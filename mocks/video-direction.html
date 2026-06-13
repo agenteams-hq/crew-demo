@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crew explainer · style direction v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..650;1,9..144,300..650&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBF8F1; --bone:#F3EFE5; --ink:#20241E; --ink2:#565B4E; --mute:#8B8F7E;
+  --hair:#E7E2D4; --hair2:#DDD7C5;
+  --green:#00B14F; --green-deep:#00813B; --green-tint:#E3F3E8; --amber:#B45309;
+  --serif:"Fraunces",Georgia,serif;
+  --grot:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+body{font-family:var(--grot);color:var(--ink);background:var(--bone);padding:0 0 90px;}
+.wrap{max-width:1280px;margin:0 auto;padding:0 28px;}
+.masthead{text-align:center;padding:60px 20px 8px;}
+.mark{width:58px;height:58px;border-radius:16px;background:var(--paper);border:1px solid var(--hair);margin:0 auto 20px;position:relative;box-shadow:0 1px 2px rgba(32,36,30,.05);}
+.mark span{font-family:var(--serif);font-style:italic;font-weight:600;font-size:36px;color:var(--ink);position:absolute;left:50%;top:50%;transform:translate(-52%,-52%);}
+.mark::after{content:"";position:absolute;right:13px;bottom:13px;width:10px;height:10px;border-radius:50%;background:var(--green);}
+.masthead h1{font-family:var(--serif);font-weight:480;font-size:38px;letter-spacing:-.02em;line-height:1.06;font-variation-settings:"opsz" 60;}
+.masthead h1 em{font-style:italic;font-weight:430;}
+.masthead .sub{font-size:15px;color:var(--ink2);margin-top:13px;line-height:1.5;max-width:620px;margin:13px auto 0;}
+.eyebrow{font-family:var(--grot);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);}
+.eyebrow.grn{color:var(--green-deep);} .eyebrow.amb{color:var(--amber);}
+.tag{display:inline-flex;align-items:center;gap:7px;margin-top:18px;background:var(--paper);border:1px solid var(--hair);border-radius:999px;padding:7px 14px;}
+.tag .dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+
+/* written direction */
+.brief{max-width:880px;margin:36px auto 0;display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.bcard{background:var(--paper);border:1px solid var(--hair);border-radius:18px;padding:20px 22px;box-shadow:0 1px 2px rgba(32,36,30,.04);}
+.bcard.full{grid-column:span 2;}
+.bcard h3{font-family:var(--grot);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--green-deep);margin-bottom:10px;}
+.bcard p{font-size:13.5px;line-height:1.6;color:var(--ink2);}
+.bcard p + p{margin-top:8px;}
+.bcard b{color:var(--ink);font-weight:600;}
+.beatrow{display:flex;gap:12px;font-size:13px;color:var(--ink2);padding:7px 0;line-height:1.45;}
+.beatrow + .beatrow{border-top:1px solid var(--hair);}
+.beatrow .tc{font-family:var(--grot);font-variant-numeric:tabular-nums;font-weight:700;color:var(--green-deep);font-size:12px;flex:none;width:54px;}
+.beatrow b{color:var(--ink);}
+
+/* board gallery */
+.galhead{text-align:center;margin:54px 0 4px;}
+.boards{display:flex;gap:26px;justify-content:center;flex-wrap:wrap;padding:30px 0 0;align-items:flex-start;}
+.frame{width:286px;}
+.flbl{display:flex;align-items:baseline;gap:9px;margin:0 4px 12px;}
+.flbl .num{font-family:var(--serif);font-style:italic;font-weight:560;font-size:18px;color:var(--green-deep);}
+.flbl .t{font-size:13px;font-weight:600;color:var(--ink);}
+.flbl .tc{margin-left:auto;font-family:var(--grot);font-size:10px;font-weight:600;color:var(--mute);letter-spacing:.08em;}
+/* the 1080x1920 artboard, scaled to fit the gallery (0.2648 -> ~286x508) */
+.shell{width:286px;height:508px;border-radius:30px;overflow:hidden;box-shadow:0 2px 4px rgba(32,36,30,.1),0 36px 60px -36px rgba(32,36,30,.5);position:relative;}
+.board{position:absolute;top:0;left:0;width:1080px;height:1920px;transform:scale(.2648);transform-origin:top left;overflow:hidden;}
+.board .grain::after{content:"";position:absolute;inset:0;pointer-events:none;background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter><rect width="120" height="120" filter="url(%23g)" opacity="0.035"/></svg>');}
+
+/* ---- board interiors (designed in true 1080x1920 px) ---- */
+.bd{position:absolute;inset:0;overflow:hidden;}
+.bd.kraft{background:var(--paper);}
+.cmark{position:absolute;top:70px;left:0;right:0;text-align:center;font-family:var(--serif);font-style:italic;font-weight:600;font-size:58px;color:var(--ink);opacity:.9;}
+.cmark .gd{display:inline-block;width:18px;height:18px;border-radius:50%;background:var(--green);margin-left:6px;vertical-align:14px;}
+
+/* board1 the ask */
+.ask{position:absolute;top:50%;left:120px;right:120px;transform:translateY(-54%);}
+.ask .q{font-family:var(--serif);font-weight:430;font-style:italic;font-size:104px;line-height:1.12;letter-spacing:-.02em;color:var(--ink);font-variation-settings:"opsz" 90;}
+.ask .meta{display:flex;align-items:center;gap:18px;margin-top:60px;}
+.ask .pulse{width:26px;height:26px;border-radius:50%;background:var(--green);box-shadow:0 0 0 10px rgba(0,177,79,.14);}
+.ask .ml{font-family:var(--grot);font-size:26px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);}
+
+/* board2 phone in scene */
+.scene{position:absolute;inset:0;background:radial-gradient(120% 70% at 50% 34%,#FFFDF8 0%,var(--paper) 46%,#F1ECE0 100%);}
+.scene .glow{position:absolute;top:300px;left:50%;transform:translateX(-50%);width:900px;height:900px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,177,79,.10),rgba(0,177,79,0));}
+.dev{position:absolute;top:300px;left:50%;transform:translateX(-50%) rotate(-2deg);width:620px;height:1300px;border-radius:78px;background:#15170F;padding:16px;box-shadow:0 60px 120px -50px rgba(32,36,30,.6);}
+.dev .scr{width:100%;height:100%;border-radius:62px;background:var(--paper);overflow:hidden;position:relative;padding:54px 40px 0;}
+.scap{position:absolute;bottom:150px;left:0;right:0;text-align:center;font-family:var(--serif);font-style:italic;font-weight:430;font-size:74px;color:var(--ink);font-variation-settings:"opsz" 80;text-shadow:0 2px 30px rgba(251,248,241,.9);}
+/* mini crew board inside phone */
+.mh{font-family:var(--serif);font-weight:500;font-size:52px;letter-spacing:-.02em;color:var(--ink);}
+.msec{font-family:var(--grot);font-size:20px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin:46px 0 16px;}
+.mcard{background:#fff;border:1px solid var(--hair);border-radius:34px;padding:6px 30px;box-shadow:0 2px 6px rgba(32,36,30,.05);}
+.mrow{display:flex;align-items:center;gap:22px;padding:26px 0;}
+.mrow + .mrow{border-top:1px solid var(--hair);}
+.mav{width:72px;height:72px;border-radius:50%;flex:none;position:relative;box-shadow:0 0 0 1px rgba(32,36,30,.08) inset;font-family:var(--serif);font-style:italic;font-weight:560;font-size:30px;display:flex;align-items:center;justify-content:center;}
+.mav .st{position:absolute;right:0;bottom:0;width:20px;height:20px;border-radius:50%;background:var(--green);border:4px solid #fff;}
+.av-devon{background:linear-gradient(135deg,#DDEDE0,#C9E2D1);color:#23513C;}
+.av-omar{background:linear-gradient(135deg,#DCE8EE,#C2DCD9);color:#1E5A56;}
+.av-iman{background:linear-gradient(135deg,#E7EBD3,#D8DFB9);color:#4D5827;}
+.mrow .nm{font-size:30px;font-weight:600;color:var(--ink);}
+.mrow .ac{font-size:25px;color:var(--ink2);margin-top:4px;}
+.mrow .ld{margin-left:auto;width:16px;height:16px;border-radius:50%;background:var(--green);}
+
+/* board3 works with */
+.ww{position:absolute;top:50%;left:90px;right:90px;transform:translateY(-50%);text-align:center;}
+.ww .lead{font-family:var(--serif);font-weight:430;font-style:italic;font-size:72px;line-height:1.18;color:var(--ink);font-variation-settings:"opsz" 80;}
+.logos{display:flex;justify-content:center;gap:46px;margin-top:90px;}
+.logo{width:200px;height:200px;border-radius:46px;background:#fff;border:1px solid var(--hair);box-shadow:0 10px 30px -16px rgba(32,36,30,.25);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;}
+.logo img{width:92px;height:92px;object-fit:contain;}
+.logo .nm{font-family:var(--grot);font-size:23px;font-weight:600;color:var(--ink2);letter-spacing:-.01em;}
+.ww .note{margin-top:64px;font-family:var(--grot);font-size:22px;color:var(--mute);letter-spacing:.04em;}
+
+/* board4 done */
+.done{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 110px;}
+.done .seal{width:150px;height:150px;border-radius:50%;background:var(--green-tint);display:flex;align-items:center;justify-content:center;margin-bottom:60px;}
+.done .big{font-family:var(--serif);font-weight:480;font-size:120px;line-height:1.0;letter-spacing:-.025em;color:var(--ink);font-variation-settings:"opsz" 90;}
+.done .big em{font-style:italic;font-weight:430;}
+.done .tagsub{font-family:var(--grot);font-size:30px;color:var(--ink2);margin-top:36px;line-height:1.5;}
+.done .brand{position:absolute;bottom:120px;left:0;right:0;text-align:center;}
+.done .brand .w{font-family:var(--serif);font-style:italic;font-weight:600;font-size:54px;color:var(--ink);}
+.done .brand .gd{display:inline-block;width:16px;height:16px;border-radius:50%;background:var(--green);margin-left:5px;vertical-align:11px;}
+.done .brand .by{font-family:var(--grot);font-size:20px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);margin-top:14px;}
+.disclaimer{text-align:center;max-width:760px;margin:40px auto 0;font-size:12px;color:var(--mute);line-height:1.55;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="mark"><span>C</span></div>
+    <div class="eyebrow grn">AgenTeams &middot; explainer film &middot; style direction v3</div>
+    <h1 style="margin-top:15px;">You ask once. It's <em>quietly handled.</em></h1>
+    <p class="sub">Not slideware, not a creature. One calm emotional arc, near-wordless, with the real Crew app as the hero. We lock the FEELING here before the full render.</p>
+    <div class="tag"><span class="dot"></span><span class="eyebrow grn" style="letter-spacing:.1em;">Direction for Fares &middot; before build</span></div>
+  </div>
+
+  <div class="brief">
+    <div class="bcard full">
+      <h3>The feeling (everything serves this)</h3>
+      <p><b>Relief.</b> You hand something off, and without fuss it is taken care of. The video should feel like an exhale - calm, premium, unhurried. We barely explain; we let you FEEL "oh, it just did it." Emotion first, features almost invisible.</p>
+    </div>
+    <div class="bcard">
+      <h3>Opening 10-15s (the hook)</h3>
+      <p>Open on near-empty kraft. A single human line appears as if just spoken - <b>"Sort out the Acme renewal."</b> - then settles. One green pulse: Crew heard you. <b>No UI yet.</b> The hook is the ease of asking, not the product. Then the phone glides up into frame and the app quietly comes alive. ~3s of ask, ~7s of the phone gliding in + the board breathing.</p>
+    </div>
+    <div class="bcard">
+      <h3>Real screens to feature</h3>
+      <p>Use the REAL app (crew-demo): <b>1. Crew-working board</b> (hero - "Omar drafting your reply", live dots). <b>2. One-tap Approve</b> (the green Approve, a thumb tap). <b>3. The calm Done state.</b> Home only as a glimpse. No settings, no menus - only the beats that carry the feeling.</p>
+    </div>
+    <div class="bcard full">
+      <h3>Motion feel &middot; pace</h3>
+      <div class="beatrow"><span class="tc">GLIDES</span><span>Slow dissolves + float, never hard cuts. The phone drifts up; cards fade in one at a time. Subtle parallax between phone and kraft.</span></div>
+      <div class="beatrow"><span class="tc">HOLDS</span><span>Let every beat breathe (2-3s holds). Silence is premium. One thing moves at a time.</span></div>
+      <div class="beatrow"><span class="tc">WORDS</span><span>Five short lines across the whole film, max. Fraunces italic, lower third, fades. The product carries it.</span></div>
+      <div class="beatrow"><span class="tc">SOUND</span><span>Soft pad + one gentle tap on Approve + a single settle/exhale on Done. ~28-32s total.</span></div>
+    </div>
+  </div>
+
+  <div class="galhead" style="text-align:center;margin:54px 0 0;">
+    <div class="eyebrow grn">The four key frames &middot; 1080 x 1920</div>
+  </div>
+
+  <div class="boards">
+
+    <!-- FRAME 1 -->
+    <div class="frame">
+      <div class="flbl"><span class="num">1</span><span class="t">The ask</span><span class="tc">0:00 - 0:04</span></div>
+      <div class="shell"><div class="board"><div class="bd kraft grain">
+        <div class="cmark">Crew<span class="gd"></span></div>
+        <div class="ask">
+          <div class="q">"Sort out the Acme renewal."</div>
+          <div class="meta"><span class="pulse"></span><span class="ml">Crew heard you</span></div>
+        </div>
+      </div></div></div>
+    </div>
+
+    <!-- FRAME 2 -->
+    <div class="frame">
+      <div class="flbl"><span class="num">2</span><span class="t">Quietly handled</span><span class="tc">0:04 - 0:16</span></div>
+      <div class="shell"><div class="board"><div class="bd grain">
+        <div class="scene"></div><div class="glow"></div>
+        <div class="dev"><div class="scr">
+          <div class="mh">Quietly on it.</div>
+          <div class="msec">Working now</div>
+          <div class="mcard">
+            <div class="mrow"><span class="mav av-omar">O<span class="st"></span></span><div><div class="nm">Omar</div><div class="ac">Drafting your Acme reply</div></div><span class="ld"></span></div>
+            <div class="mrow"><span class="mav av-iman">I<span class="st"></span></span><div><div class="nm">Iman</div><div class="ac">Watching the renewal terms</div></div><span class="ld"></span></div>
+            <div class="mrow"><span class="mav av-devon">D<span class="st"></span></span><div><div class="nm">Devon</div><div class="ac">Checking last year's rate</div></div><span class="ld"></span></div>
+          </div>
+        </div></div>
+        <div class="scap">It's being handled.</div>
+      </div></div></div>
+    </div>
+
+    <!-- FRAME 3 -->
+    <div class="frame">
+      <div class="flbl"><span class="num">3</span><span class="t">Works with</span><span class="tc">0:18 - 0:23</span></div>
+      <div class="shell"><div class="board"><div class="bd kraft grain">
+        <div class="cmark">Crew<span class="gd"></span></div>
+        <div class="ww">
+          <div class="lead">The tools you<br>already trust.</div>
+          <div class="logos">
+            <div class="logo"><img src="logos/claude.svg" alt="Claude"><span class="nm">Claude</span></div>
+            <div class="logo"><img src="logos/openai.svg" alt="ChatGPT"><span class="nm">ChatGPT</span></div>
+            <div class="logo"><img src="logos/gemini.svg" alt="Gemini"><span class="nm">Gemini</span></div>
+          </div>
+          <div class="note">real brand marks &middot; one light beat, not a logo wall</div>
+        </div>
+      </div></div></div>
+    </div>
+
+    <!-- FRAME 4 -->
+    <div class="frame">
+      <div class="flbl"><span class="num">4</span><span class="t">Done</span><span class="tc">0:24 - 0:30</span></div>
+      <div class="shell"><div class="board"><div class="bd kraft grain">
+        <div class="done">
+          <div class="seal"><svg width="76" height="58" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="big">Just ask.<br><em>Consider it handled.</em></div>
+          <div class="tagsub">The Acme renewal? Done while you read this.</div>
+          <div class="brand"><div class="w">Crew<span class="gd"></span></div><div class="by">by AgenTeams</div></div>
+        </div>
+      </div></div></div>
+    </div>
+
+  </div>
+  <p class="disclaimer">Static style-direction frames (1080x1920) for FEELING approval before the Remotion build. The real render uses live captured Crew app UI in motion (glides, not these stills) + official Claude / OpenAI / Gemini brand SVGs. Reuses the locked Crew design system - kraft #FBF8F1, Grab green #00B14F, Fraunces. AgenTeams brand, never Path.</p>
+</div>
+</body>
+</html>
