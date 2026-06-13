@@ -1718,6 +1718,7 @@ function crewHandleSession(session){
     try{localStorage.setItem("crew_account",JSON.stringify(acct));}catch(e){}
     crewApplyAccount(acct);
     crewLoadFeed(session);
+    crewRegisterBrief(session);
   }else{
     try{localStorage.removeItem("crew_account");}catch(e){}
     crewApplyAccount(null);
@@ -1739,6 +1740,14 @@ function crewLoadFeed(session){
       });
       renderHome();renderCrew();
     });
+}
+// On sign-in, ask the worker (identity-verified server-side) to ensure a daily
+// brief schedule + an initial brief, then refresh the feed once it is generated.
+var CREW_WORKER="https://crew-worker-production-c95d.up.railway.app";
+function crewRegisterBrief(session){
+  if(!session||!session.access_token)return;
+  fetch(CREW_WORKER+"/register-brief",{method:"POST",headers:{Authorization:"Bearer "+session.access_token}})
+    .then(function(){setTimeout(function(){crewLoadFeed(session);},14000);}).catch(function(){});
 }
 function crewInitAuth(){
   // hydrate from cache immediately so the UI is correct before network
