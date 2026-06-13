@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crew · approval queue (the trust layer)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..650;1,9..144,300..650&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBF8F1; --bone:#F3EFE5; --ink:#20241E; --ink2:#565B4E; --mute:#8B8F7E;
+  --hair:#E7E2D4; --hair2:#DDD7C5;
+  --green:#00B14F; --green-deep:#00813B; --green-tint:#E3F3E8; --amber:#B45309; --amber-tint:#FBF0DC; --amber-line:#EFDCBA;
+  --serif:"Fraunces",Georgia,serif;
+  --grot:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+body{font-family:var(--grot);color:var(--ink);background:var(--bone);padding:0 0 90px;}
+.wrap{max-width:1240px;margin:0 auto;padding:0 28px;}
+.masthead{text-align:center;padding:60px 20px 8px;}
+.mark{width:58px;height:58px;border-radius:16px;background:var(--paper);border:1px solid var(--hair);margin:0 auto 20px;position:relative;}
+.mark span{font-family:var(--serif);font-style:italic;font-weight:600;font-size:36px;color:var(--ink);position:absolute;left:50%;top:50%;transform:translate(-52%,-52%);}
+.mark::after{content:"";position:absolute;right:13px;bottom:13px;width:10px;height:10px;border-radius:50%;background:var(--green);}
+.masthead h1{font-family:var(--serif);font-weight:480;font-size:38px;letter-spacing:-.02em;line-height:1.06;font-variation-settings:"opsz" 60;}
+.masthead h1 em{font-style:italic;font-weight:430;}
+.masthead .sub{font-size:15px;color:var(--ink2);margin-top:13px;line-height:1.55;max-width:640px;margin:13px auto 0;}
+.eyebrow{font-family:var(--grot);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);}
+.eyebrow.grn{color:var(--green-deep);} .eyebrow.amb{color:var(--amber);}
+.tag{display:inline-flex;align-items:center;gap:7px;margin-top:18px;background:var(--paper);border:1px solid var(--hair);border-radius:999px;padding:7px 14px;}
+.tag .dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+.boards{display:flex;gap:40px;justify-content:center;flex-wrap:wrap;padding:48px 0 0;align-items:flex-start;}
+.frame{width:360px;}
+.flbl{display:flex;align-items:baseline;gap:9px;margin:0 4px 13px;}
+.flbl .num{font-family:var(--serif);font-style:italic;font-weight:560;font-size:20px;color:var(--green-deep);}
+.flbl .t{font-size:14px;font-weight:600;color:var(--ink);}
+.flbl .t small{display:block;font-weight:500;font-size:11.5px;color:var(--mute);margin-top:1px;}
+.shell{width:360px;height:640px;border-radius:36px;overflow:hidden;box-shadow:0 2px 4px rgba(32,36,30,.1),0 36px 60px -36px rgba(32,36,30,.5);position:relative;background:#000;padding:9px;}
+.board{position:absolute;top:9px;left:9px;width:1080px;height:1920px;transform:scale(.3167);transform-origin:top left;overflow:hidden;border-radius:30px;}
+.scr{position:absolute;inset:0;background:var(--paper);overflow:hidden;}
+.scr::after{content:"";position:absolute;inset:0;pointer-events:none;background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter><rect width="120" height="120" filter="url(%23g)" opacity="0.035"/></svg>');}
+.sb{display:flex;justify-content:space-between;align-items:center;padding:40px 60px 0;font-size:30px;font-weight:600;color:var(--ink);}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:30px 60px 0;}
+.back{display:inline-flex;align-items:center;gap:12px;font-family:var(--grot);font-size:24px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);background:#fff;border:1px solid var(--hair);border-radius:999px;padding:16px 26px 16px 20px;}
+.pad{padding:0 60px;}
+.eb{font-family:var(--grot);font-size:24px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin-top:40px;}
+.eb.amb{color:var(--amber);}
+.h1{font-family:var(--serif);font-weight:480;font-size:78px;line-height:1.08;letter-spacing:-.02em;color:var(--ink);margin-top:20px;font-variation-settings:"opsz" 70;}
+.h1 em{font-style:italic;font-weight:430;}
+.sub{font-size:32px;line-height:1.45;color:var(--ink2);margin-top:22px;}
+/* decision card */
+.dc{background:#fff;border:1px solid var(--hair);border-radius:34px;padding:34px 34px;margin-top:34px;box-shadow:0 2px 8px rgba(32,36,30,.05);border-left:8px solid var(--amber);}
+.dc .top{display:flex;align-items:center;gap:22px;}
+.av{width:78px;height:78px;border-radius:50%;flex:none;position:relative;font-family:var(--serif);font-style:italic;font-weight:560;font-size:34px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 1px rgba(32,36,30,.08) inset;}
+.av-niko{background:linear-gradient(135deg,#E8E1F0,#D8CEE6);color:#54456B;}
+.av-omar{background:linear-gradient(135deg,#DCE8EE,#C2DCD9);color:#1E5A56;}
+.av-sana{background:linear-gradient(135deg,#F4E3D1,#EAD0B6);color:#7A4A22;}
+.dc .who{font-family:var(--grot);font-size:24px;font-weight:600;color:var(--mute);}
+.dc .what{font-family:var(--serif);font-weight:500;font-size:42px;letter-spacing:-.01em;color:var(--ink);margin-top:4px;line-height:1.12;}
+.dc .why{font-size:28px;color:var(--ink2);line-height:1.4;margin-top:18px;}
+.dc .chip{display:inline-flex;align-items:center;gap:9px;background:var(--bone);border:1px solid var(--hair);border-radius:999px;padding:9px 18px;font-family:var(--grot);font-size:24px;font-weight:600;color:var(--ink);margin-top:20px;}
+.dc .chip.cost{color:var(--amber);background:var(--amber-tint);border-color:var(--amber-line);}
+.acts{display:flex;gap:16px;margin-top:26px;align-items:center;}
+.approve{flex:1;height:104px;border-radius:999px;background:var(--green);color:#fff;font-weight:700;font-size:34px;display:flex;align-items:center;justify-content:center;gap:14px;box-shadow:0 16px 30px -16px rgba(0,129,59,.55);}
+.minor{height:104px;padding:0 30px;border-radius:999px;background:#fff;border:1.5px solid var(--hair2);color:var(--ink2);font-weight:600;font-size:30px;display:flex;align-items:center;}
+.foot{text-align:center;font-size:27px;color:var(--mute);margin-top:40px;line-height:1.5;}
+/* expanded */
+.flagrow{display:flex;align-items:center;gap:16px;background:var(--green-tint);border:1px solid #CDE7D5;border-radius:22px;padding:22px 26px;margin-top:28px;}
+.flagrow.warn{background:var(--amber-tint);border-color:var(--amber-line);}
+.flagrow .ic{width:54px;height:54px;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;flex:none;}
+.flagrow .ft{font-size:27px;font-weight:600;color:var(--green-deep);}
+.flagrow.warn .ft{color:var(--amber);}
+.flagrow .fs{font-size:23px;color:var(--ink2);margin-top:3px;}
+.reason{background:var(--paper);border:1px solid var(--hair);border-radius:26px;padding:28px 30px;margin-top:28px;}
+.reason .rl{font-family:var(--grot);font-size:22px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green-deep);}
+.reason .rt{font-family:var(--serif);font-style:italic;font-weight:430;font-size:32px;line-height:1.45;color:var(--ink2);margin-top:14px;}
+.fact{display:flex;justify-content:space-between;align-items:baseline;padding:20px 0;border-top:1px solid var(--hair);}
+.fact:first-of-type{border-top:none;}
+.fact .k{font-size:26px;color:var(--ink2);} .fact .v{font-size:28px;font-weight:600;color:var(--ink);}
+.undo{text-align:center;font-size:24px;color:var(--mute);margin-top:22px;}
+/* empty */
+.empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 90px;}
+.empty .seal{width:150px;height:150px;border-radius:50%;background:var(--green-tint);display:flex;align-items:center;justify-content:center;margin-bottom:50px;}
+.empty .big{font-family:var(--serif);font-weight:480;font-size:74px;line-height:1.1;letter-spacing:-.02em;color:var(--ink);font-variation-settings:"opsz" 80;}
+.empty .es{font-size:33px;color:var(--ink2);margin-top:30px;line-height:1.5;}
+.empty .ehandled{position:absolute;bottom:120px;left:90px;right:90px;font-size:26px;color:var(--mute);}
+.disclaimer{text-align:center;max-width:820px;margin:42px auto 0;font-size:12px;color:var(--mute);line-height:1.55;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="mark"><span>C</span></div>
+    <div class="eyebrow grn">AgenTeams &middot; approval queue (AGT-179) &middot; the trust layer</div>
+    <h1 style="margin-top:14px;">Your crew acts. You keep the <em>yes.</em></h1>
+    <p class="sub">The trust layer: anything that spends, sends, or changes something waits for your call. Calm, never a pile - your crew only asks when it matters, and handles the rest on its own. Same pending set as the companion's amber + the Home feed.</p>
+    <div class="tag"><span class="dot"></span><span class="eyebrow grn" style="letter-spacing:.1em;">Control + trust, not friction</span></div>
+  </div>
+
+  <div class="boards">
+
+    <!-- 1 QUEUE -->
+    <div class="frame">
+      <div class="flbl"><span class="num">1</span><span class="t">The queue<small>A calm list, never a pile</small></span></div>
+      <div class="shell"><div class="board"><div class="scr">
+        <div class="sb"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+        <div class="pad">
+          <div class="eb amb">Needs your call &middot; 3</div>
+          <div class="h1">Three things<br>need a <em>yes.</em></div>
+          <div class="dc" style="padding:28px 30px;margin-top:30px;">
+            <div class="top"><span class="av av-niko">N</span><div><div class="who">Niko</div><div class="what" style="font-size:36px;">Pay the $240 fare</div></div></div>
+            <div class="why">To lock the rebooking before the seat goes.</div>
+            <span class="chip cost">$240 &middot; money out</span>
+            <div class="acts"><div class="approve" style="height:92px;font-size:30px;">Approve</div><div class="minor" style="height:92px;font-size:27px;">Hold</div><div class="minor" style="height:92px;font-size:27px;">Tweak</div></div>
+          </div>
+          <div class="dc" style="padding:28px 30px;margin-top:22px;">
+            <div class="top"><span class="av av-omar">O</span><div><div class="who">Omar</div><div class="what" style="font-size:36px;">Send the reply to Sara</div></div></div>
+            <div class="why">She asked if Friday still works - drafted in your voice.</div>
+            <span class="chip">Reversible &middot; 5s undo</span>
+            <div class="acts"><div class="approve" style="height:92px;font-size:30px;">Approve</div><div class="minor" style="height:92px;font-size:27px;">Hold</div><div class="minor" style="height:92px;font-size:27px;">Tweak</div></div>
+          </div>
+        </div>
+      </div></div></div>
+    </div>
+
+    <!-- 2 EXPANDED -->
+    <div class="frame">
+      <div class="flbl"><span class="num">2</span><span class="t">One decision, in full<small>What + why + reversible + undo</small></span></div>
+      <div class="shell"><div class="board"><div class="scr">
+        <div class="sb"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+        <div class="nav"><span class="back"><svg width="16" height="28" viewBox="0 0 7 12" fill="none"><path d="M6 1 1.5 6 6 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Queue</span><span class="eyebrow amb" style="font-size:22px;">1 of 3</span></div>
+        <div class="pad">
+          <div class="top" style="display:flex;align-items:center;gap:22px;margin-top:30px;"><span class="av av-niko">N</span><div><div class="who" style="font-family:var(--grot);font-size:24px;font-weight:600;color:var(--mute);">Niko &middot; travel</div></div></div>
+          <div class="h1" style="margin-top:24px;font-size:62px;">Pay the $240 fare?</div>
+          <div class="reason">
+            <div class="rl">Why I'm doing this</div>
+            <div class="rt">"Your 6pm was cancelled. I found a 7:40 on the same airline, aisle seat held for 20 min. Paying locks it before the seat releases."</div>
+          </div>
+          <div style="margin-top:28px;">
+            <div class="fact"><span class="k">Amount</span><span class="v">$240.00</span></div>
+            <div class="fact"><span class="k">To</span><span class="v">Skyline Air</span></div>
+            <div class="fact"><span class="k">From</span><span class="v">Your travel card</span></div>
+          </div>
+          <div class="flagrow warn"><span class="ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg></span><div><div class="ft">Money moves on approve</div><div class="fs">Not auto-reversible - your crew flagged it for a closer look.</div></div></div>
+          <div class="approve" style="margin-top:30px;"><svg width="34" height="28" viewBox="0 0 14 11" fill="none"><path d="M1.5 5.5 5.2 9.2 12.5 1.5" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Approve &amp; pay</div>
+          <div class="undo">Tap, then 5 seconds to undo before it sends.</div>
+          <div class="acts" style="justify-content:center;margin-top:24px;"><div class="minor" style="height:88px;font-size:28px;">Hold</div><div class="minor" style="height:88px;font-size:28px;">Tweak amount</div></div>
+        </div>
+      </div></div></div>
+    </div>
+
+    <!-- 3 EMPTY -->
+    <div class="frame">
+      <div class="flbl"><span class="num">3</span><span class="t">All calm<small>Only asks when it matters</small></span></div>
+      <div class="shell"><div class="board"><div class="scr">
+        <div class="sb"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+        <div class="empty">
+          <div class="seal"><svg width="76" height="58" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="big">Nothing needs<br>your call.</div>
+          <div class="es">Your crew only asks when it matters - and handles the rest on its own.</div>
+          <div class="ehandled">14 things handled today without needing you</div>
+        </div>
+      </div></div></div>
+    </div>
+
+  </div>
+  <p class="disclaimer">Static mockups (1080x1920) for AGT-179, mockup-first for Fares. Locked Crew look (kraft #FBF8F1, Grab green #00B14F, Fraunces). Same source of truth as the companion needs-you amber + the Home pending-decisions feed (the pending crew_decision set). Approve carries the CREW-01 5s undo; reversible-or-not is flagged per action. Control + trust, not friction. AgenTeams brand.</p>
+</div>
+</body>
+</html>
