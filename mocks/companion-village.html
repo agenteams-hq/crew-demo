@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crew · companion village (always-on crew, visualised)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..650;1,9..144,300..650&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBF8F1; --bone:#F3EFE5; --ink:#20241E; --ink2:#565B4E; --mute:#8B8F7E;
+  --hair:#E7E2D4; --hair2:#DDD7C5;
+  --green:#00B14F; --green-deep:#00813B; --green-tint:#E3F3E8; --amber:#B45309; --amber-tint:#FBF0DC;
+  --coral:#E08A6E; --sky:#5E9FC9; --gold:#D8A93F;
+  --serif:"Fraunces",Georgia,serif;
+  --grot:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+img{image-rendering:pixelated;image-rendering:crisp-edges;}
+body{font-family:var(--grot);color:var(--ink);background:var(--bone);padding:0 0 90px;}
+.wrap{max-width:1240px;margin:0 auto;padding:0 28px;}
+.masthead{text-align:center;padding:58px 20px 8px;}
+.mark{width:56px;height:56px;border-radius:15px;background:var(--paper);border:1px solid var(--hair);margin:0 auto 18px;position:relative;}
+.mark span{font-family:var(--serif);font-style:italic;font-weight:600;font-size:34px;color:var(--ink);position:absolute;left:50%;top:50%;transform:translate(-52%,-52%);}
+.mark::after{content:"";position:absolute;right:12px;bottom:12px;width:10px;height:10px;border-radius:50%;background:var(--green);}
+.masthead h1{font-family:var(--serif);font-weight:480;font-size:40px;letter-spacing:-.02em;line-height:1.05;font-variation-settings:"opsz" 60;}
+.masthead h1 em{font-style:italic;font-weight:430;}
+.masthead .sub{font-size:15px;color:var(--ink2);margin-top:13px;line-height:1.55;max-width:680px;margin:13px auto 0;}
+.eyebrow{font-family:var(--grot);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);}
+.eyebrow.grn{color:var(--green-deep);}
+.tag{display:inline-flex;align-items:center;gap:7px;margin-top:18px;background:var(--paper);border:1px solid var(--hair);border-radius:999px;padding:7px 14px;}
+.tag .dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+.sect{font-family:var(--grot);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--green-deep);text-align:center;margin:54px 0 18px;}
+
+/* ceiling sprite */
+.ceiling{display:flex;gap:34px;align-items:center;background:var(--paper);border:1px solid var(--hair);border-radius:24px;padding:28px 32px;max-width:920px;margin:0 auto;}
+.ceiling .spritebox{width:230px;height:230px;border-radius:18px;background:linear-gradient(180deg,#F3EFE5,#E8E2D2);border:1px solid var(--hair);flex:none;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.ceiling .spritebox img{width:200px;height:200px;object-fit:contain;}
+.ceiling .txt{flex:1;}
+.ceiling h3{font-family:var(--serif);font-weight:500;font-size:26px;letter-spacing:-.01em;}
+.ceiling p{font-size:13.5px;color:var(--ink2);line-height:1.6;margin-top:10px;}
+.ceiling p b{color:var(--ink);}
+.tints{display:flex;gap:10px;margin-top:16px;align-items:center;flex-wrap:wrap;}
+.tint{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink2);background:#fff;border:1px solid var(--hair);border-radius:999px;padding:5px 10px;}
+.tint .sw{width:12px;height:12px;border-radius:4px;}
+
+/* village frame */
+.village{max-width:1040px;margin:0 auto;position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--hair);box-shadow:0 20px 50px -28px rgba(32,36,30,.4);}
+.village img{width:100%;display:block;}
+.hud{position:absolute;top:18px;left:18px;display:flex;gap:8px;}
+.hud .pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--grot);font-size:11px;font-weight:600;border-radius:999px;padding:6px 12px;background:rgba(251,248,241,.92);backdrop-filter:blur(6px);box-shadow:0 2px 8px rgba(32,36,30,.18);}
+.hud .pill .dot{width:7px;height:7px;border-radius:50%;}
+.hud .pill.amber{color:var(--amber);} .hud .pill.amber .dot{background:var(--amber);}
+.hud .pill.on{color:var(--green-deep);} .hud .pill.on .dot{background:var(--green);}
+.hud .pill.calm{color:var(--ink2);} .hud .pill.calm .dot{background:var(--mute);}
+.vcap{text-align:center;font-size:12px;color:var(--mute);margin-top:14px;line-height:1.5;max-width:760px;margin-left:auto;margin-right:auto;}
+
+/* posture set */
+.postures{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1040px;margin:0 auto;}
+.pcard{background:var(--paper);border:1px solid var(--hair);border-radius:18px;padding:18px 18px;}
+.pcard .ph{display:flex;align-items:center;gap:12px;}
+.pcard .av{width:48px;height:48px;border-radius:12px;overflow:hidden;flex:none;background:#E8E2D2;display:flex;align-items:center;justify-content:center;position:relative;}
+.pcard .av img{width:44px;height:44px;object-fit:contain;}
+.pcard .av .ring{position:absolute;inset:0;border-radius:12px;border:2.5px solid transparent;}
+.pcard .st{font-family:var(--grot);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;}
+.pcard .posture{font-size:11px;color:var(--mute);margin-top:1px;}
+.pcard .map{font-size:12.5px;color:var(--ink2);line-height:1.5;margin-top:12px;}
+.pcard .map b{color:var(--ink);}
+.s-working{color:var(--green-deep);} .ring-working{border-color:var(--green)!important;}
+.s-done{color:var(--ink2);} .ring-done{border-color:var(--hair2)!important;}
+.s-waiting{color:var(--amber);} .ring-waiting{border-color:var(--amber)!important;}
+.s-idle{color:var(--sky);} .ring-idle{border-color:var(--sky)!important;}
+.s-paused{color:var(--mute);} .ring-paused{border-color:var(--hair2)!important;opacity:.5;}
+.s-quiet{color:var(--mute);} .ring-quiet{border-color:var(--hair2)!important;}
+.pcard.waiting{box-shadow:0 0 0 2px var(--amber-tint);}
+
+.rules{max-width:1040px;margin:30px auto 0;background:var(--green-tint);border:1px solid #CDE7D5;border-radius:18px;padding:20px 24px;}
+.rules h4{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green-deep);margin-bottom:10px;}
+.rules ul{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px 26px;}
+.rules li{font-size:12.5px;color:var(--ink2);line-height:1.5;padding-left:18px;position:relative;}
+.rules li::before{content:"";position:absolute;left:0;top:7px;width:8px;height:8px;border-radius:50%;background:var(--green);}
+.rules li b{color:var(--ink);}
+.disclaimer{text-align:center;max-width:820px;margin:38px auto 0;font-size:12px;color:var(--mute);line-height:1.55;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="mark"><span>C</span></div>
+    <div class="eyebrow grn">AgenTeams &middot; companion village &middot; AGT-171 direction</div>
+    <h1 style="margin-top:14px;">Your always-on crew, <em>visualised.</em></h1>
+    <p class="sub">The pixel energy lives HERE - the opt-in companion as a calm tended village where each creature is a real agent in its real state. It's not a game: you glance and see your crew living and working. You never tend it. The core task screens stay calm and premium (per the energy dial).</p>
+    <div class="tag"><span class="dot"></span><span class="eyebrow grn" style="letter-spacing:.1em;">Direction for Fares &middot; Thronglets-style, grounded in real status</span></div>
+  </div>
+
+  <!-- CEILING SPRITE -->
+  <div class="sect">1 &middot; The crew-creature - our pixel ceiling</div>
+  <div class="ceiling">
+    <div class="spritebox"><img src="assets/creature-hero.webp" alt="crew creature pixel sprite"></div>
+    <div class="txt">
+      <h3>One species. Per-agent identity.</h3>
+      <p>A single cohesive creature species - <b>green-led, warm, premium-adjacent, never childish</b> - so the village reads as one calm colony, not a chaotic zoo. Each agent gets identity from a <b>color tint + a tiny accessory</b> (a hat, a tool), so you still read Omar from Iman at a glance.</p>
+      <p style="font-size:12px;color:var(--mute);">Real pixel craft (recraft, pixel_art) - the "judge our ceiling" sample. Production locks one tight palette + per-agent tint; this is the quality bar.</p>
+      <div class="tints">
+        <span class="tint"><span class="sw" style="background:var(--green)"></span>Omar</span>
+        <span class="tint"><span class="sw" style="background:var(--sky)"></span>Iman</span>
+        <span class="tint"><span class="sw" style="background:var(--coral)"></span>Devon</span>
+        <span class="tint"><span class="sw" style="background:var(--gold)"></span>Sana</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VILLAGE -->
+  <div class="sect">2 &middot; The village - a glance, not a feed</div>
+  <div class="village">
+    <img src="assets/village.webp" alt="calm pixel village of crew creatures">
+    <div class="hud">
+      <span class="pill amber"><span class="dot"></span>1 needs you</span>
+      <span class="pill on"><span class="dot"></span>2 on it</span>
+      <span class="pill calm"><span class="dot"></span>rest calm</span>
+    </div>
+  </div>
+  <p class="vcap">The 2-second read (Steve's glance contract): does anything need me? (a single gentle amber, or "All calm") then is my crew working? ("N on it"). Calm is the dominant state by design - amber appears ONLY on a real pending approval. Exploration render; production uses the green species above, tinted per agent.</p>
+
+  <!-- POSTURE SET -->
+  <div class="sect">3 &middot; Every posture = a real crew state (Steve's state model)</div>
+  <div class="postures">
+    <div class="pcard"><div class="ph"><span class="av"><img src="assets/creature-hero.webp" alt=""><span class="ring ring-working"></span></span><div><div class="st s-working">Working</div><div class="posture">gently busy</div></div></div><div class="map"><b>Omar</b> - a crew_job is active right now. "Drafting your reply." Animates only while the job really runs.</div></div>
+    <div class="pcard waiting"><div class="ph"><span class="av"><img src="assets/creature-hero.webp" alt=""><span class="ring ring-waiting"></span></span><div><div class="st s-waiting">Waiting on you</div><div class="posture">looks up &middot; soft amber</div></div></div><div class="map"><b>Sana</b> - a pending approval. The one gentle amber. Count == the Home feed's needs-you, exactly.</div></div>
+    <div class="pcard"><div class="ph"><span class="av"><img src="assets/creature-hero.webp" alt=""><span class="ring ring-done"></span></span><div><div class="st s-done">Done</div><div class="posture">settled &middot; decays</div></div></div><div class="map"><b>Devon</b> - reviewed your PR, recently. Sits content, then decays to idle. Never a permanent fake "done."</div></div>
+    <div class="pcard"><div class="ph"><span class="av"><img src="assets/creature-hero.webp" alt=""><span class="ring ring-idle"></span></span><div><div class="st s-idle">Idle / scheduled</div><div class="posture">calm rest</div></div></div><div class="map"><b>Niko</b> - nothing now, but scheduled. Resting, optional "next: 6 AM" hint.</div></div>
+    <div class="pcard"><div class="ph"><span class="av"><img src="assets/creature-hero.webp" alt=""><span class="ring ring-paused"></span></span><div><div class="st s-paused">Paused</div><div class="posture">asleep</div></div></div><div class="map"><b>Kee</b> - you paused this agent. Curled asleep until you resume.</div></div>
+    <div class="pcard"><div class="ph"><span class="av"><img src="assets/creature-hero.webp" alt=""><span class="ring ring-quiet"></span></span><div><div class="st s-quiet">Quiet</div><div class="posture">calm rest</div></div></div><div class="map">Nothing active, pending, or scheduled. Calm rest - the default, dominant tone.</div></div>
+  </div>
+
+  <div class="rules">
+    <h4>The honesty rules (what keeps it status, not theatre)</h4>
+    <ul>
+      <li>Every creature state traces to a <b>real backing row</b> (job / decision / event / schedule).</li>
+      <li><b>needs-you count == pending approvals</b> the Home feed shows - exact parity.</li>
+      <li>A creature animates working <b>only when a real job is active</b> - no miming.</li>
+      <li>Done <b>decays</b> after its window - no permanent fake "done."</li>
+      <li><b>Zero game mechanics</b>: no feeding, hunger, points, streaks, levels, tending.</li>
+      <li><b>Opt-in only</b>; the calm default board is untouched for anyone who doesn't.</li>
+    </ul>
+  </div>
+
+  <p class="disclaimer">Direction frame for Fares' gut-check (AGT-171 evolution), mockup-first before build. Creature sprites + village generated with recraft (pixel_art) as the craft ceiling; production locks a tight palette + per-agent tint + distinct posture animations. Same derived villageState feeds the real iOS surfaces (Live Activity / widget / notification). Built to Steve's crew-companion-alwayson state model. AgenTeams brand, opt-in companion only - core screens stay calm per the energy dial.</p>
+</div>
+</body>
+</html>
