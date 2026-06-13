@@ -1,0 +1,7 @@
+.env
+.env.*
+*.pem
+.crew-secrets
+crew.env
+*secret*
+.vercel

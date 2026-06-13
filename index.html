@@ -397,7 +397,7 @@ input{font-family:inherit;}
         </button>
         </span>
       </div>
-      <h2 class="display" style="font-size:42px;margin:32px 0 0;">All quiet,<br><span id="homename">Farah</span>.</h2>
+      <h2 class="display" style="font-size:42px;margin:32px 0 0;"><span id="homehL">All quiet</span>,<br><span id="homename">Farah</span>.</h2>
       <div style="display:flex;align-items:center;gap:10px;margin:20px 0 0;">
         <span class="live-dot"></span>
         <span class="mono-num" style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);" id="homecount"></span>
@@ -1026,6 +1026,7 @@ function renderHome(){
     ?'<span style="color:var(--amber);">'+n+(n===1?" needs you":" need you")+"</span>"
     :'<span style="color:var(--mute);">0 need you</span>');
   $("homebdg").classList.toggle("show",n>0);
+  var _hl=$("homehL"); if(_hl)_hl.textContent=n>0?(n+(n===1?" needs you":" need you")):"All quiet"; // CREW-06: reactive headline, never contradicts the cards
   const wrap=$("homedecisions");
   wrap.innerHTML="";
   decisions.forEach(d=>{
@@ -1148,12 +1149,14 @@ function openDecision(id){
   $("dec-approve-label").textContent=d.type==="spend"?"Approve with Apple Pay":"Approve";
   push("v-decision");
 }
+function crewHaptic(p){try{if(navigator.vibrate){var rm=window.matchMedia&&matchMedia("(prefers-reduced-motion:reduce)").matches;if(!rm)navigator.vibrate(p);}}catch(e){}} // CREW-04: haptics, respects reduced-motion
 function approveCurrent(){
   if(!curDecision)return;
   if(curDecision.type==="spend"){openPaySheet();return;}
   resolveDecision(curDecision);
 }
 function resolveDecision(d){
+  crewHaptic([12,40,18]); // CREW-04: success haptic synced to the confirm pop
   decisions=decisions.filter(x=>x.id!==d.id);
   $("confirm-t").textContent=d.confirmT;
   $("confirm-s").textContent=d.confirmS;
@@ -1164,6 +1167,7 @@ function resolveDecision(d){
   },1100);
 }
 function holdCurrent(){
+  crewHaptic(12); // CREW-04
   toast("Held · it’ll wait for you");
   pop();
 }
