@@ -431,6 +431,10 @@ input{font-family:inherit;}
     <div class="vbody vtop tabpad">
       <div class="eyebrow" id="crewowner">Farah&rsquo;s Crew</div>
       <h2 class="display" style="font-size:28px;margin:8px 0 0;">Four at work, two at home.</h2>
+      <button onclick="push('v-village')" style="margin-top:13px;display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green-deep);background:#fff;border:1px solid #CFE6D8;border-radius:999px;padding:10px 15px;box-shadow:0 1px 2px rgba(32,36,30,.05);cursor:pointer;">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--green);"></span>See your crew as a village
+        <svg width="8" height="13" viewBox="0 0 9 15" fill="none" style="margin-left:1px;"><path d="M1.5 1.5 7.5 7.5 1.5 13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
 
       <!-- orchestrator hero -->
       <div class="card tappable" id="orchhero" style="margin-top:16px;border-color:#CFE6D8;background:linear-gradient(180deg,#FFFFFF,#F3FAF5);box-shadow:0 1px 2px rgba(32,36,30,.05), 0 20px 40px -22px rgba(0,129,59,.32);" onclick="openTalk()">
@@ -465,6 +469,42 @@ input{font-family:inherit;}
         <span class="zt pers">Personal</span><span class="zl"></span><span class="zc">Family &amp; home</span>
       </div>
       <div id="crew-pers" style="display:flex;flex-direction:column;gap:7px;"></div>
+    </div>
+  </div>
+
+  <!-- ================= COMPANION VILLAGE (opt-in skin) ================= -->
+  <div class="view pushview" id="v-village">
+    <div class="navrow">
+      <button class="backbtn" onclick="pop()"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1 1.5 6 6 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Crew</button>
+      <span class="eyebrow grn">Your crew &middot; on it</span>
+    </div>
+    <div class="vbody vtop" style="padding-top:30px;">
+      <h2 class="display" style="font-size:26px;margin:0 0 4px;">Quietly <em style="font-weight:430;">on it</em>.</h2>
+      <p class="sub" style="margin:0 0 16px;color:var(--ink2);">Your always-on crew, alive. You glance &mdash; they handle.</p>
+
+      <div style="position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--hair);box-shadow:0 14px 36px -22px rgba(32,36,30,.4);">
+        <img src="mocks/assets/village.webp" alt="your crew, on it" style="width:100%;display:block;">
+        <div style="position:absolute;top:14px;left:14px;display:flex;gap:7px;flex-wrap:wrap;">
+          <span style="display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:6px 11px;background:rgba(251,248,241,.93);backdrop-filter:blur(6px);box-shadow:0 2px 8px rgba(32,36,30,.18);color:var(--amber);"><span style="width:7px;height:7px;border-radius:50%;background:var(--amber);"></span>1 needs you</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:6px 11px;background:rgba(251,248,241,.93);backdrop-filter:blur(6px);box-shadow:0 2px 8px rgba(32,36,30,.18);color:var(--green-deep);"><span style="width:7px;height:7px;border-radius:50%;background:var(--green);"></span>3 on it</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:6px 11px;background:rgba(251,248,241,.93);backdrop-filter:blur(6px);box-shadow:0 2px 8px rgba(32,36,30,.18);color:var(--ink2);"><span style="width:7px;height:7px;border-radius:50%;background:var(--mute);"></span>6 handled</span>
+        </div>
+      </div>
+      <p class="sub" style="margin-top:12px;font-size:12px;color:var(--mute);">Each creature is a real agent in its real state &mdash; working, waiting on you, or resting. It is not a game; you never tend it.</p>
+
+      <div class="card" style="margin-top:14px;padding:4px 0;">
+        <div style="display:flex;align-items:center;gap:13px;padding:13px 15px;border-bottom:1px solid var(--hair);">
+          <span class="av" style="background:#FBF0DC;">O<span class="st grn"></span></span>
+          <div style="flex:1;min-width:0;"><div class="tit" style="font-size:14px;font-weight:600;">Omar &middot; working</div><div class="sub" style="font-size:12px;color:var(--mute);">Drafting your reply to Acme</div></div>
+          <span style="font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green-deep);">On it</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:13px;padding:13px 15px;">
+          <span class="av" style="background:var(--amber-tint);">S<span class="st amb"></span></span>
+          <div style="flex:1;min-width:0;"><div class="tit" style="font-size:14px;font-weight:600;">Sana &middot; needs you</div><div class="sub" style="font-size:12px;color:var(--mute);">Flagged 2 invoices over your $5k rule</div></div>
+          <span style="font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);">Review</span>
+        </div>
+      </div>
+      <div style="text-align:center;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-top:18px;">Just the one &middot; the rest is handled</div>
     </div>
   </div>
 
