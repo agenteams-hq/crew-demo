@@ -991,7 +991,7 @@ function showTab(name){
 }
 function renderMemory(){
   var el=document.getElementById("mem-learned"); if(!el)return;
-  fetch(CREW_MEM+"?device_id="+encodeURIComponent(crewDevice())).then(function(r){return r.json();}).then(function(d){
+  fetch(CREW_MEM+"?device_id="+encodeURIComponent(crewDevice()),{headers:crewAuthHeaders({})}).then(function(r){return r.json();}).then(function(d){
     var facts=(d&&d.facts)||[];
     if(!facts.length){el.innerHTML="";return;}
     var work=facts.filter(function(f){return f.zone!=="personal";});
@@ -1281,7 +1281,7 @@ const CREW_MEM="https://crew-api-two.vercel.app/api/memory";
 let TALK_HISTORY=[];
 let talkLoaded=false;
 function crewDevice(){let d;try{d=localStorage.getItem("crew_device");}catch(e){}if(!d){d=(self.crypto&&crypto.randomUUID)?crypto.randomUUID():("11111111-2222-4333-8444-"+(Date.now().toString(16)+"000000000000").slice(0,12));try{localStorage.setItem("crew_device",d);}catch(e){}}return d;}
-function loadTalkHistory(){fetch(CREW_HISTORY+"?device_id="+encodeURIComponent(crewDevice())).then(function(r){return r.json();}).then(function(d){if(d.messages&&d.messages.length){var log=$("talklog");log.innerHTML="";d.messages.forEach(function(m){var row=document.createElement("div");row.className="chatrow";if(m.role==="user"){var b=document.createElement("div");b.className="bub user";b.textContent=m.content;row.appendChild(b);}else{row.innerHTML='<span class="av av-noor sm" style="font-size:12px;">★</span><div class="bub agent"></div>';row.querySelector(".bub").textContent=m.content;}log.appendChild(row);});talkScroll();}}).catch(function(){});}
+function loadTalkHistory(){fetch(CREW_HISTORY+"?device_id="+encodeURIComponent(crewDevice()),{headers:crewAuthHeaders({})}).then(function(r){return r.json();}).then(function(d){if(d.messages&&d.messages.length){var log=$("talklog");log.innerHTML="";d.messages.forEach(function(m){var row=document.createElement("div");row.className="chatrow";if(m.role==="user"){var b=document.createElement("div");b.className="bub user";b.textContent=m.content;row.appendChild(b);}else{row.innerHTML='<span class="av av-noor sm" style="font-size:12px;">★</span><div class="bub agent"></div>';row.querySelector(".bub").textContent=m.content;}log.appendChild(row);});talkScroll();}}).catch(function(){});}
 function sendTalk(){
   const f=$("talkfield");
   const txt=f.value.trim();
@@ -1301,7 +1301,7 @@ function sendTalk(){
   r.innerHTML='<span class="av av-noor sm" style="font-size:12px;">★</span><div class="bub agent"><span class="typing"><i></i><i></i><i></i></span></div>';
   log.appendChild(r);
   talkScroll();
-  fetch(CREW_API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({device_id:crewDevice(),message:txt})})
+  fetch(CREW_API,{method:"POST",headers:crewAuthHeaders({"Content-Type":"application/json"}),body:JSON.stringify({device_id:crewDevice(),message:txt})})
     .then(x=>x.json())
     .then(d=>{
       const reply=(d&&d.reply)?d.reply:NOOR_REPLIES[noorIdx++%NOOR_REPLIES.length];
@@ -1663,6 +1663,17 @@ try{
   }
 }catch(e){console.warn("Supabase init skipped:",e);}
 
+// AGT-159: the signed-in user's verified Supabase JWT. crew-api now binds identity
+// to this token (not the client device_id), so we attach it to brain/history/memory
+// calls. When signed out it is null and those endpoints return stateless/empty - no
+// cross-tenant device path remains.
+var crewAccessToken=null;
+function crewAuthHeaders(base){
+  var h=base||{};
+  if(crewAccessToken)h.Authorization="Bearer "+crewAccessToken;
+  return h;
+}
+
 function crewGoogleSignIn(){
   if(!sbClient){toast("Sign-in unavailable right now");return;}
   var back=location.href.split("#")[0].split("?")[0];
@@ -1707,6 +1718,7 @@ function crewApplyAccount(acct){
   }
 }
 function crewHandleSession(session){
+  crewAccessToken=(session&&session.access_token)?session.access_token:null; // AGT-159
   if(session&&session.user){
     var u=session.user,m=u.user_metadata||{};
     var acct={
