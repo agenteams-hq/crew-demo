@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# AGT-159 / autocook security rail - crew-demo direct-push backstop.
+# crew-demo deploys via DIRECT PUSH to main -> GitHub Pages (no PR, no gate).
+# An autocook worker is instruction-bound to stay-on-branch + open a PR, so it never
+# pushes main. This hook is the MECHANICAL backstop: a misbehaving worker OR an accidental
+# human push to main is BLOCKED unless an explicit operator hand-ship marker is set.
+# Authorized hand-ship:  CREW_HANDSHIP=1 git push
+# Autocook / sec-review changes must reach prod via preview + Edward QA PASS, never a main push.
+z=0000000000000000000000000000000000000000
+while read local_ref local_sha remote_ref remote_sha; do
+  case "$remote_ref" in
+    refs/heads/main|refs/heads/master)
+      if [ "${CREW_HANDSHIP:-}" != "1" ]; then
+        echo "" >&2
+        echo "  BLOCKED: push to crew-demo $remote_ref deploys straight to PRODUCTION (GitHub Pages)." >&2
+        echo "  No PR, no review gate on this surface - so a direct main push is gated here." >&2
+        echo "  Intentional operator hand-ship?  ->  CREW_HANDSHIP=1 git push" >&2
+        echo "  Autocook / security changes  ->  preview + Edward QA PASS, not a main push." >&2
+        echo "" >&2
+        exit 1
+      fi
+      ;;
+  esac
+done
+exit 0
