@@ -1036,9 +1036,12 @@ function renderHome(){
     el.innerHTML='<div class="lrow" style="padding:16px 18px;">'
       +'<span class="av '+a.av+'">'+a.mark+'<span class="st amb"></span></span>'
       +'<div><div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;"><span class="needlbl">Needs your call</span><span class="ztag '+(a.zone==="work"?"work":"pers")+'">'+(a.zone==="work"?"Work":"Personal")+'</span></div>'
-      +'<div class="tit" style="font-size:15px;">'+d.cardTitle+'</div>'
-      +'<div class="sub">'+d.cardSub+'</div></div>'
+      +'<div class="tit" style="font-size:15px;"></div>'
+      +'<div class="sub"></div></div>'
       +'<svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" style="color:var(--amber);"><path d="M1.5 1.5 7.5 7.5 1.5 13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
+    // XSS-safe: dynamic text (incl. agent-generated brief bodies) rendered as DATA, never HTML.
+    el.querySelector('.tit').textContent=d.cardTitle||'';
+    el.querySelector('.sub').textContent=d.cardSub||'';
     el.onclick=()=>openDecision(d.id);
     wrap.appendChild(el);
   });
@@ -1714,10 +1717,28 @@ function crewHandleSession(session){
     };
     try{localStorage.setItem("crew_account",JSON.stringify(acct));}catch(e){}
     crewApplyAccount(acct);
+    crewLoadFeed(session);
   }else{
     try{localStorage.removeItem("crew_account");}catch(e){}
     crewApplyAccount(null);
   }
+}
+// Authenticated feed: read the signed-in user's real crew_decision rows via the
+// Supabase client. RLS (user_id = auth.uid()) returns ONLY their own rows - no
+// device_id in the query, no cross-tenant exposure. Body rendered as DATA (see renderHome).
+function crewLoadFeed(session){
+  if(!sbClient||!session||!session.user)return;
+  sbClient.from("crew_decision").select("id,type,title,body,status")
+    .eq("status","pending").order("created_at",{ascending:false}).limit(20)
+    .then(function(res){
+      if(res.error||!res.data||!res.data.length)return; // keep seeded fallback if empty
+      decisions=res.data.map(function(r){
+        var txt=(r.body&&typeof r.body==="object")?(r.body.text||""):"";
+        return {id:r.id,agent:"ramy",dbBacked:true,type:r.type||"brief",
+          cardTitle:r.title||"Update from your crew",cardSub:txt,body:txt};
+      });
+      renderHome();renderCrew();
+    });
 }
 function crewInitAuth(){
   // hydrate from cache immediately so the UI is correct before network
