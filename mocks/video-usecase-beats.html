@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crew explainer v4 · consumer use-case beats (head-start)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..650;1,9..144,300..650&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBF8F1; --bone:#F3EFE5; --ink:#20241E; --ink2:#565B4E; --mute:#8B8F7E;
+  --hair:#E7E2D4; --hair2:#DDD7C5;
+  --green:#00B14F; --green-deep:#00813B; --green-tint:#E3F3E8; --amber:#B45309;
+  --serif:"Fraunces",Georgia,serif;
+  --grot:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+body{font-family:var(--grot);color:var(--ink);background:var(--bone);padding:0 0 90px;}
+.wrap{max-width:1320px;margin:0 auto;padding:0 28px;}
+.masthead{text-align:center;padding:60px 20px 8px;}
+.mark{width:58px;height:58px;border-radius:16px;background:var(--paper);border:1px solid var(--hair);margin:0 auto 20px;position:relative;box-shadow:0 1px 2px rgba(32,36,30,.05);}
+.mark span{font-family:var(--serif);font-style:italic;font-weight:600;font-size:36px;color:var(--ink);position:absolute;left:50%;top:50%;transform:translate(-52%,-52%);}
+.mark::after{content:"";position:absolute;right:13px;bottom:13px;width:10px;height:10px;border-radius:50%;background:var(--green);}
+.masthead h1{font-family:var(--serif);font-weight:480;font-size:36px;letter-spacing:-.02em;line-height:1.07;font-variation-settings:"opsz" 60;}
+.masthead h1 em{font-style:italic;font-weight:430;}
+.masthead .sub{font-size:15px;color:var(--ink2);margin-top:13px;line-height:1.5;max-width:660px;margin:13px auto 0;}
+.eyebrow{font-family:var(--grot);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);}
+.eyebrow.grn{color:var(--green-deep);}
+.tag{display:inline-flex;align-items:center;gap:7px;margin-top:18px;background:var(--paper);border:1px solid var(--hair);border-radius:999px;padding:7px 14px;}
+.tag .dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+.note{max-width:760px;margin:24px auto 0;font-size:13px;color:var(--ink2);line-height:1.6;background:var(--paper);border:1px solid var(--hair);border-radius:16px;padding:16px 20px;}
+.note b{color:var(--ink);}
+
+.boards{display:flex;gap:26px;justify-content:center;flex-wrap:wrap;padding:44px 0 0;align-items:flex-start;}
+.frame{width:286px;}
+.flbl{display:flex;align-items:baseline;gap:9px;margin:0 4px 12px;}
+.flbl .num{font-family:var(--serif);font-style:italic;font-weight:560;font-size:18px;color:var(--green-deep);}
+.flbl .t{font-size:13px;font-weight:600;color:var(--ink);}
+.shell{width:286px;height:508px;border-radius:30px;overflow:hidden;box-shadow:0 2px 4px rgba(32,36,30,.1),0 36px 60px -36px rgba(32,36,30,.5);position:relative;}
+.board{position:absolute;top:0;left:0;width:1080px;height:1920px;transform:scale(.2648);transform-origin:top left;overflow:hidden;}
+.bd{position:absolute;inset:0;overflow:hidden;}
+.bd::after{content:"";position:absolute;inset:0;pointer-events:none;background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter><rect width="120" height="120" filter="url(%23g)" opacity="0.035"/></svg>');}
+.scene{position:absolute;inset:0;background:radial-gradient(120% 70% at 50% 32%,#FFFDF8 0%,var(--paper) 46%,#F1ECE0 100%);}
+.glow{position:absolute;top:250px;left:50%;transform:translateX(-50%);width:860px;height:860px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,177,79,.10),rgba(0,177,79,0));}
+/* problem line top */
+.prob{position:absolute;top:120px;left:96px;right:96px;text-align:center;font-family:var(--serif);font-style:italic;font-weight:430;font-size:60px;line-height:1.18;color:var(--ink2);font-variation-settings:"opsz" 70;}
+.dev{position:absolute;top:330px;left:50%;transform:translateX(-50%) rotate(-1.5deg);width:600px;height:1180px;border-radius:74px;background:#15170F;padding:15px;box-shadow:0 60px 120px -50px rgba(32,36,30,.6);}
+.scr{width:100%;height:100%;border-radius:60px;background:var(--paper);overflow:hidden;position:relative;padding:50px 38px 0;}
+.mh{font-family:var(--serif);font-weight:500;font-size:48px;letter-spacing:-.02em;color:var(--ink);}
+.msec{font-family:var(--grot);font-size:19px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin:40px 0 16px;}
+.mcard{background:#fff;border:1px solid var(--hair);border-radius:32px;padding:6px 28px;box-shadow:0 2px 6px rgba(32,36,30,.05);}
+.mrow{display:flex;align-items:center;gap:20px;padding:24px 0;}
+.mrow + .mrow{border-top:1px solid var(--hair);}
+.mav{width:68px;height:68px;border-radius:50%;flex:none;position:relative;box-shadow:0 0 0 1px rgba(32,36,30,.08) inset;font-family:var(--serif);font-style:italic;font-weight:560;font-size:28px;display:flex;align-items:center;justify-content:center;}
+.mav .st{position:absolute;right:0;bottom:0;width:18px;height:18px;border-radius:50%;background:var(--green);border:4px solid #fff;}
+.av-omar{background:linear-gradient(135deg,#DCE8EE,#C2DCD9);color:#1E5A56;}
+.av-niko{background:linear-gradient(135deg,#E8E1F0,#D8CEE6);color:#54456B;}
+.av-sana{background:linear-gradient(135deg,#F4E3D1,#EAD0B6);color:#7A4A22;}
+.av-iman{background:linear-gradient(135deg,#E7EBD3,#D8DFB9);color:#4D5827;}
+.mrow .nm{font-size:28px;font-weight:600;color:var(--ink);}
+.mrow .ac{font-size:23px;color:var(--ink2);margin-top:3px;}
+.mrow .ld{margin-left:auto;width:15px;height:15px;border-radius:50%;background:var(--green);}
+.mtick{width:50px;height:50px;border-radius:50%;background:var(--green-tint);display:flex;align-items:center;justify-content:center;flex:none;}
+.scap{position:absolute;bottom:130px;left:0;right:0;text-align:center;font-family:var(--serif);font-style:italic;font-weight:430;font-size:66px;color:var(--ink);font-variation-settings:"opsz" 80;text-shadow:0 2px 30px rgba(251,248,241,.95);}
+.disclaimer{text-align:center;max-width:760px;margin:40px auto 0;font-size:12px;color:var(--mute);line-height:1.55;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="mark"><span>C</span></div>
+    <div class="eyebrow grn">AgenTeams &middot; explainer v4 &middot; use-case beats (head-start)</div>
+    <h1 style="margin-top:15px;">The same look. A <em>clearer</em> message.</h1>
+    <p class="sub">v3 nailed the feel but went too wordless. These are pre-staged consumer use-case beats in the SAME phone-in-scene language, ready to slot under Steve's v4 narrative - each a tiny "everyday problem -> quietly handled" story.</p>
+    <div class="tag"><span class="dot"></span><span class="eyebrow grn" style="letter-spacing:.1em;">Head-start for Steve + the v4 build</span></div>
+    <div class="note"><b>How to use:</b> pick 2-3 of these as the middle beats of the ~30s film, between "the ask" and the "works with / done" close. Each follows problem line (top) -> phone shows the crew handling it -> calm payoff line (bottom). Copy is placeholder for Steve to tune; the TREATMENT is the locked v3 visual language. Everyday consumer cases per Fares, not B2B.</div>
+  </div>
+
+  <div class="boards">
+
+    <!-- 1 REPLIES BACKLOG -->
+    <div class="frame">
+      <div class="flbl"><span class="num">1</span><span class="t">Replies backlog</span></div>
+      <div class="shell"><div class="board"><div class="bd">
+        <div class="scene"></div><div class="glow"></div>
+        <div class="prob">40 messages you<br>keep meaning to answer.</div>
+        <div class="dev"><div class="scr">
+          <div class="mh">On your inbox.</div>
+          <div class="msec">Working now</div>
+          <div class="mcard">
+            <div class="mrow"><span class="mav av-omar">O<span class="st"></span></span><div><div class="nm">Omar</div><div class="ac">Drafting 31 replies in your voice</div></div><span class="ld"></span></div>
+            <div class="mrow"><span class="mtick"><svg width="26" height="20" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><div class="nm">4 need a quick yes</div><div class="ac">The rest are ready to send</div></div></div>
+          </div>
+        </div></div>
+        <div class="scap">Inbox, handled.</div>
+      </div></div></div>
+    </div>
+
+    <!-- 2 REBOOK FLIGHT -->
+    <div class="frame">
+      <div class="flbl"><span class="num">2</span><span class="t">Rebook a cancelled flight</span></div>
+      <div class="shell"><div class="board"><div class="bd">
+        <div class="scene"></div><div class="glow"></div>
+        <div class="prob">Your flight got<br>cancelled at 11pm.</div>
+        <div class="dev"><div class="scr">
+          <div class="mh">On it already.</div>
+          <div class="msec">Working now</div>
+          <div class="mcard">
+            <div class="mrow"><span class="mav av-niko">N<span class="st"></span></span><div><div class="nm">Niko</div><div class="ac">Found 2 rebookings before 9am</div></div><span class="ld"></span></div>
+            <div class="mrow"><span class="mtick"><svg width="26" height="20" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><div class="nm">Aisle seat held</div><div class="ac">One tap to confirm</div></div></div>
+          </div>
+        </div></div>
+        <div class="scap">Rebooked while you slept.</div>
+      </div></div></div>
+    </div>
+
+    <!-- 3 CANCEL SUBSCRIPTION -->
+    <div class="frame">
+      <div class="flbl"><span class="num">3</span><span class="t">Cancel a subscription</span></div>
+      <div class="shell"><div class="board"><div class="bd">
+        <div class="scene"></div><div class="glow"></div>
+        <div class="prob">3 subscriptions<br>you forgot you had.</div>
+        <div class="dev"><div class="scr">
+          <div class="mh">Sorting it out.</div>
+          <div class="msec">Working now</div>
+          <div class="mcard">
+            <div class="mrow"><span class="mav av-sana">S<span class="st"></span></span><div><div class="nm">Sana</div><div class="ac">Cancelling all 3 for you</div></div><span class="ld"></span></div>
+            <div class="mrow"><span class="mtick"><svg width="26" height="20" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><div class="nm">$47 / month back</div><div class="ac">No hold music, no forms</div></div></div>
+          </div>
+        </div></div>
+        <div class="scap">Cancelled. Money back.</div>
+      </div></div></div>
+    </div>
+
+    <!-- 4 CHASE REFUND -->
+    <div class="frame">
+      <div class="flbl"><span class="num">4</span><span class="t">Chase a refund</span></div>
+      <div class="shell"><div class="board"><div class="bd">
+        <div class="scene"></div><div class="glow"></div>
+        <div class="prob">That $84 refund<br>never showed up.</div>
+        <div class="dev"><div class="scr">
+          <div class="mh">Chasing it down.</div>
+          <div class="msec">Working now</div>
+          <div class="mcard">
+            <div class="mrow"><span class="mav av-iman">I<span class="st"></span></span><div><div class="nm">Iman</div><div class="ac">Emailed support, opened a case</div></div><span class="ld"></span></div>
+            <div class="mrow"><span class="mtick"><svg width="26" height="20" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><div class="nm">Refund confirmed</div><div class="ac">$84 back in 3 days</div></div></div>
+          </div>
+        </div></div>
+        <div class="scap">Got your $84 back.</div>
+      </div></div></div>
+    </div>
+
+  </div>
+  <p class="disclaimer">Pre-staged use-case beats (1080x1920) for explainer v4 - same locked phone-in-scene treatment as the v3 direction deck (kraft #FBF8F1, Grab green #00B14F, Fraunces). Copy is placeholder for Steve to tune; the visual language is fixed. Real render captures live app UI in motion. AgenTeams brand.</p>
+</div>
+</body>
+</html>
