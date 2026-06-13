@@ -878,6 +878,7 @@ input{font-family:inherit;}
     <span class="bigtick"><svg width="30" height="24" viewBox="0 0 14 11" fill="none"><path d="M1.5 5.5 5.2 9.2 12.5 1.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
     <div class="display" id="confirm-t">Done.</div>
     <div class="sub2" id="confirm-s"></div>
+    <button id="confirm-undo" onclick="crewUndoAction()" style="display:none;margin-top:16px;padding:9px 24px;border-radius:999px;border:1.5px solid rgba(255,255,255,.55);background:rgba(255,255,255,.14);color:#fff;font:600 14px/1 -apple-system,system-ui;-webkit-tap-highlight-color:transparent;cursor:pointer;">Undo</button>
   </div>
 
   <!-- toast -->
@@ -1157,16 +1158,32 @@ function approveCurrent(){
   if(curDecision.type==="spend"){openPaySheet();return;}
   resolveDecision(curDecision);
 }
-function resolveDecision(d){
+var crewUndo=null; // CREW-01: {d, commit, timer} pending undo window
+function resolveDecision(d,commitFn){
   crewHaptic([12,40,18]); // CREW-04: success haptic synced to the confirm pop
   decisions=decisions.filter(x=>x.id!==d.id);
+  renderHome();renderCrew();
   $("confirm-t").textContent=d.confirmT;
   $("confirm-s").textContent=d.confirmS;
+  var ub=$("confirm-undo"); if(ub)ub.style.display="inline-flex"; // CREW-01
   $("confirm").classList.add("on");
-  setTimeout(()=>{
+  if(crewUndo&&crewUndo.timer)clearTimeout(crewUndo.timer);
+  // CREW-01: the REAL action (e.g. GitHub merge) fires ONLY after the 5s window - undo cancels it.
+  crewUndo={d:d,commit:commitFn||null,timer:setTimeout(function(){
     $("confirm").classList.remove("on");
+    var cu=crewUndo; crewUndo=null;
+    if(cu&&cu.commit){try{cu.commit();}catch(e){}}
     popAll();
-  },1100);
+  },5000)};
+}
+function crewUndoAction(){ // CREW-01: undo within the window - restores the decision, fires NO downstream action
+  if(!crewUndo)return;
+  clearTimeout(crewUndo.timer);
+  var d=crewUndo.d; crewUndo=null;
+  decisions.unshift(d); renderHome();renderCrew();
+  $("confirm").classList.remove("on");
+  crewHaptic(10);
+  toast("Undone · nothing was sent");
 }
 function holdCurrent(){
   crewHaptic(12); // CREW-04
