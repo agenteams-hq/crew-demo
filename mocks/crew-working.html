@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crew · Working (in-app ambient reassurance)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..650;1,9..144,300..650&display=swap" rel="stylesheet">
+<style>
+/* Crew design system (locked v2) - tokens + components from crew-demo/index.html */
+:root{
+  --paper:#FBF8F1; --bone:#F3EFE5;
+  --ink:#20241E; --ink2:#565B4E; --mute:#8B8F7E;
+  --hair:#E7E2D4; --hair2:#DDD7C5;
+  --green:#00B14F; --green-deep:#00813B; --green-tint:#E3F3E8;
+  --amber:#B45309; --amber-tint:#FBF0DC; --amber-line:#EFDCBA;
+  --serif:"Fraunces",Georgia,serif;
+  --grot:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+body{font-family:var(--grot);color:var(--ink);background:var(--bone);text-rendering:optimizeLegibility;padding:0 0 80px;}
+.wrap{max-width:1200px;margin:0 auto;padding:0 28px;}
+.masthead{text-align:center;padding:64px 20px 18px;}
+.mark{width:60px;height:60px;border-radius:16px;background:var(--paper);border:1px solid var(--hair);margin:0 auto 22px;position:relative;box-shadow:0 1px 2px rgba(32,36,30,.05);}
+.mark span{font-family:var(--serif);font-style:italic;font-weight:600;font-size:38px;color:var(--ink);position:absolute;left:50%;top:50%;transform:translate(-52%,-52%);}
+.mark::after{content:"";position:absolute;right:13px;bottom:14px;width:11px;height:11px;border-radius:50%;background:var(--green);}
+.masthead h1{font-family:var(--serif);font-weight:480;font-size:40px;letter-spacing:-.02em;line-height:1.05;font-variation-settings:"opsz" 60;}
+.masthead h1 em{font-style:italic;font-weight:430;}
+.masthead .sub{font-size:15px;color:var(--ink2);margin-top:14px;line-height:1.5;max-width:560px;margin-left:auto;margin-right:auto;}
+.eyebrow{font-family:var(--grot);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);}
+.eyebrow.grn{color:var(--green-deep);} .eyebrow.amb{color:var(--amber);}
+.masthead .tag{display:inline-flex;align-items:center;gap:7px;margin-top:20px;background:var(--paper);border:1px solid var(--hair);border-radius:999px;padding:7px 14px;}
+.masthead .tag .dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+.rail{display:flex;gap:34px;justify-content:center;flex-wrap:wrap;padding:46px 8px 30px;align-items:flex-start;}
+.step{width:344px;}
+.steplbl{display:flex;align-items:center;gap:10px;margin:0 6px 14px;}
+.stepnum{font-family:var(--serif);font-style:italic;font-weight:560;font-size:18px;color:var(--green-deep);width:22px;}
+.steplbl .t{font-size:13px;font-weight:600;color:var(--ink);}
+.steplbl .t small{display:block;font-family:var(--grot);font-weight:500;font-size:11px;color:var(--mute);margin-top:1px;}
+.phone{width:344px;height:746px;border-radius:46px;background:#15170F;padding:9px;box-shadow:0 2px 4px rgba(32,36,30,.1),0 40px 70px -40px rgba(32,36,30,.55);}
+.screen{width:100%;height:100%;border-radius:38px;background:var(--paper);overflow:hidden;position:relative;display:flex;flex-direction:column;}
+.screen::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:60;background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter><rect width="120" height="120" filter="url(%23g)" opacity="0.03"/></svg>');}
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:16px 26px 0;font-size:12px;font-weight:600;color:var(--ink);flex:none;}
+.navrow{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 4px;flex:none;}
+.backbtn{display:inline-flex;align-items:center;gap:6px;font-family:var(--grot);font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);background:#fff;border:1px solid var(--hair);border-radius:999px;padding:9px 14px 9px 11px;box-shadow:0 1px 2px rgba(32,36,30,.05);}
+.vbody{flex:1;overflow:hidden;padding:0 20px;display:flex;flex-direction:column;min-height:0;}
+.display{font-family:var(--serif);font-weight:480;letter-spacing:-.015em;line-height:1.08;font-variation-settings:"opsz" 60;}
+.display em{font-style:italic;font-weight:430;}
+.body-t{font-size:13.5px;line-height:1.5;color:var(--ink2);}
+.card{background:#fff;border:1px solid var(--hair);border-radius:22px;box-shadow:0 1px 2px rgba(32,36,30,.04),0 10px 24px -18px rgba(32,36,30,.18);}
+.card.soft{background:rgba(255,255,255,.62);box-shadow:none;}
+.av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;flex:none;font-family:var(--serif);font-style:italic;font-weight:560;font-size:15px;letter-spacing:-.02em;box-shadow:0 0 0 1px rgba(32,36,30,.08) inset,0 1px 2px rgba(32,36,30,.08);}
+.av::before{content:"";position:absolute;inset:3px;border-radius:50%;border:1px solid rgba(255,255,255,.55);}
+.av .st{position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;border:2.5px solid #fff;}
+.av .st.grn{background:var(--green);} .av .st.amb{background:var(--amber);}
+.av-devon{background:linear-gradient(135deg,#DDEDE0,#C9E2D1);color:#23513C;}
+.av-omar{background:linear-gradient(135deg,#DCE8EE,#C2DCD9);color:#1E5A56;}
+.av-sana{background:linear-gradient(135deg,#F4E3D1,#EAD0B6);color:#7A4A22;}
+.av-niko{background:linear-gradient(135deg,#E8E1F0,#D8CEE6);color:#54456B;}
+.av-iman{background:linear-gradient(135deg,#E7EBD3,#D8DFB9);color:#4D5827;}
+.row{display:flex;align-items:center;gap:12px;padding:13px 4px;}
+.row + .row{border-top:1px solid var(--hair);}
+.row .nm{font-size:13px;font-weight:600;color:var(--ink);letter-spacing:-.005em;}
+.row .ac{font-size:12.5px;color:var(--ink2);margin-top:1px;line-height:1.35;}
+.row .meta{margin-left:auto;flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.row .time{font-family:var(--grot);font-size:9.5px;font-weight:500;color:var(--mute);letter-spacing:.06em;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex:none;}
+@keyframes breathe{0%,100%{box-shadow:0 0 0 0 rgba(0,177,79,.32);}50%{box-shadow:0 0 0 6px rgba(0,177,79,0);}}
+.row .live-dot{animation:breathe 2.8s ease-in-out infinite;}
+.pill{display:inline-flex;align-items:center;gap:5px;font-family:var(--grot);font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;border-radius:999px;padding:4px 9px;white-space:nowrap;}
+.pill .dot{width:5px;height:5px;border-radius:50%;}
+.pill.working{background:var(--green-tint);color:var(--green-deep);} .pill.working .dot{background:var(--green);}
+.pill.needs{background:var(--amber-tint);color:var(--amber);} .pill.needs .dot{background:var(--amber);}
+.pill.done{background:var(--bone);color:var(--ink2);} .pill.done .dot{background:var(--ink2);}
+.tick{width:18px;height:18px;border-radius:50%;background:var(--green-tint);display:flex;align-items:center;justify-content:center;flex:none;}
+.sect{font-family:var(--grot);font-size:9.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin:20px 4px 6px;}
+.valuebar{display:flex;align-items:center;gap:14px;padding:14px 16px;}
+.valuebar .n{font-family:var(--serif);font-weight:520;font-size:26px;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums;}
+.valuebar .l{font-size:11px;color:var(--mute);line-height:1.35;}
+.footline{text-align:center;font-size:11.5px;color:var(--mute);margin:14px 0;line-height:1.45;}
+.disclaimer{text-align:center;max-width:640px;margin:8px auto 0;font-size:12px;color:var(--mute);line-height:1.5;}
+.chev{margin-left:auto;flex:none;color:#C5C1B0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="mark"><span>C</span></div>
+    <div class="eyebrow grn">AgenTeams &middot; in-app &middot; mockup for approval</div>
+    <h1 style="margin-top:16px;">Your crew, <em>on it.</em></h1>
+    <p class="sub">A calm, glanceable board of what your team is really doing right now - quietly handling work and creating value. Real activity, never a pile, never anxiety. You glance, you feel "they are on it," you put the phone down.</p>
+    <div class="tag"><span class="dot"></span><span class="eyebrow grn" style="letter-spacing:.1em;">Calm reassurance &middot; real activity</span></div>
+  </div>
+
+  <div class="rail">
+
+    <!-- MAIN BOARD -->
+    <div class="step">
+      <div class="steplbl"><span class="stepnum">1</span><span class="t">Crew working<small>The glance: real activity, calm</small></span></div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="dots"><svg width="17" height="11" viewBox="0 0 17 11" fill="none"><rect x="0" y="6" width="3" height="5" rx="1" fill="#20241E"/><rect x="4.5" y="4" width="3" height="7" rx="1" fill="#20241E"/><rect x="9" y="2" width="3" height="9" rx="1" fill="#20241E"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="#20241E" opacity=".3"/></svg></span></div>
+        <div class="navrow"><span class="backbtn"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1 1.5 6 6 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Home</span><span class="eyebrow grn">Crew &middot; working</span></div>
+        <div class="vbody">
+          <h2 class="display" style="font-size:26px;margin:8px 2px 0;">Quietly on it.</h2>
+          <div class="card soft" style="margin-top:14px;border:1px solid var(--hair);background:#fff;">
+            <div class="valuebar">
+              <div style="text-align:center;"><div class="n" style="color:var(--green-deep);">3</div><div class="l">on it now</div></div>
+              <div style="width:1px;height:34px;background:var(--hair);"></div>
+              <div style="text-align:center;"><div class="n">6</div><div class="l">handled<br>today</div></div>
+              <div style="width:1px;height:34px;background:var(--hair);"></div>
+              <div style="text-align:center;"><div class="n" style="color:var(--amber);">1</div><div class="l">needs<br>you</div></div>
+            </div>
+          </div>
+          <div class="sect">Working now</div>
+          <div class="card" style="padding:4px 14px;">
+            <div class="row"><span class="av av-devon">D<span class="st grn"></span></span><div><div class="nm">Devon</div><div class="ac">Reviewing your PR #142</div></div><div class="meta"><span class="pill working"><span class="dot"></span>Working</span><span class="time">now</span></div></div>
+            <div class="row"><span class="av av-omar">O<span class="st grn"></span></span><div><div class="nm">Omar</div><div class="ac">Drafting your reply to Acme</div></div><div class="meta"><span class="live-dot"></span><span class="time">2m</span></div></div>
+            <div class="row"><span class="av av-iman">I<span class="st grn"></span></span><div><div class="nm">Iman</div><div class="ac">Watching 3 invoices clear</div></div><div class="meta"><span class="live-dot"></span><span class="time">live</span></div></div>
+          </div>
+          <div class="sect">Done today</div>
+          <div class="card soft" style="padding:4px 14px;border:1px solid var(--hair);">
+            <div class="row"><span class="tick"><svg width="9" height="7" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><div class="nm">Niko</div><div class="ac">Booked the Fri 7pm table</div></div><span class="time" style="margin-left:auto;">8:02</span></div>
+            <div class="row"><span class="tick"><svg width="9" height="7" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><div class="nm">Your morning brief</div><div class="ac">Ready - 4 things worth knowing</div></div><svg class="chev" width="8" height="13" viewBox="0 0 9 15" fill="none"><path d="M1.5 1.5 7.5 7.5 1.5 13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          </div>
+          <div style="flex:1;"></div>
+          <div class="footline">Quietly handling things.<br>Nothing else needs you right now.</div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- NEEDS-YOU (gentle, single) -->
+    <div class="step">
+      <div class="steplbl"><span class="stepnum">2</span><span class="t">One needs you<small>Gentle, never a pile</small></span></div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="dots"><svg width="17" height="11" viewBox="0 0 17 11" fill="none"><rect x="0" y="6" width="3" height="5" rx="1" fill="#20241E"/><rect x="4.5" y="4" width="3" height="7" rx="1" fill="#20241E"/><rect x="9" y="2" width="3" height="9" rx="1" fill="#20241E"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="#20241E" opacity=".3"/></svg></span></div>
+        <div class="navrow"><span class="backbtn"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1 1.5 6 6 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Home</span><span class="eyebrow grn">Crew &middot; working</span></div>
+        <div class="vbody">
+          <h2 class="display" style="font-size:26px;margin:8px 2px 0;">One thing, <em>when you have a sec.</em></h2>
+          <div class="card" style="margin-top:16px;padding:16px 17px;border-left:3px solid var(--amber);">
+            <div style="display:flex;align-items:center;gap:11px;"><span class="av av-sana">S<span class="st amb"></span></span><div style="flex:1;"><div class="nm">Sana</div><div class="ac">Flagged 2 invoices over your $5k rule</div></div><span class="pill needs"><span class="dot"></span>Needs you</span></div>
+            <div style="margin-top:13px;display:flex;gap:9px;"><button style="flex:1;height:42px;border-radius:999px;background:var(--green);color:#fff;font-weight:700;font-size:13px;border:none;">Review 2</button><button style="height:42px;padding:0 16px;border-radius:999px;background:#fff;border:1px solid var(--hair2);color:var(--ink2);font-weight:600;font-size:13px;">Later</button></div>
+          </div>
+          <div class="sect">Everyone else</div>
+          <div class="card soft" style="padding:4px 14px;border:1px solid var(--hair);">
+            <div class="row"><span class="av av-devon">D<span class="st grn"></span></span><div><div class="nm">Devon</div><div class="ac">Reviewing your PR #142</div></div><span class="pill working" style="margin-left:auto;"><span class="dot"></span>On it</span></div>
+            <div class="row"><span class="av av-omar">O<span class="st grn"></span></span><div><div class="nm">Omar</div><div class="ac">Drafting your reply to Acme</div></div><span class="pill working" style="margin-left:auto;"><span class="dot"></span>On it</span></div>
+          </div>
+          <div style="flex:1;"></div>
+          <div class="footline">Just the one. The rest is handled.</div>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+  <p class="disclaimer">Static mockup for direction only. Reads the same live agent-status feed as the calm crew view; every row is REAL activity (LIVE-data discipline), never fabricated busywork. Brand: AgenTeams.</p>
+</div>
+</body>
+</html>

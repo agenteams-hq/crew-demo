@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crew · iOS ambient (Live Activity / Widget / Notification)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..650;1,9..144,300..650&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBF8F1; --bone:#F3EFE5; --ink:#20241E; --ink2:#565B4E; --mute:#8B8F7E;
+  --hair:#E7E2D4; --hair2:#DDD7C5;
+  --green:#00B14F; --green-deep:#00813B; --green-tint:#E3F3E8; --amber:#B45309;
+  --serif:"Fraunces",Georgia,serif;
+  --grot:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+body{font-family:var(--grot);color:var(--ink);background:var(--bone);padding:0 0 80px;}
+.wrap{max-width:1700px;margin:0 auto;padding:0 28px;}
+.masthead{text-align:center;padding:64px 20px 18px;}
+.mark{width:60px;height:60px;border-radius:16px;background:var(--paper);border:1px solid var(--hair);margin:0 auto 22px;position:relative;box-shadow:0 1px 2px rgba(32,36,30,.05);}
+.mark span{font-family:var(--serif);font-style:italic;font-weight:600;font-size:38px;color:var(--ink);position:absolute;left:50%;top:50%;transform:translate(-52%,-52%);}
+.mark::after{content:"";position:absolute;right:13px;bottom:14px;width:11px;height:11px;border-radius:50%;background:var(--green);}
+.masthead h1{font-family:var(--serif);font-weight:480;font-size:38px;letter-spacing:-.02em;line-height:1.06;font-variation-settings:"opsz" 60;}
+.masthead h1 em{font-style:italic;font-weight:430;}
+.masthead .sub{font-size:15px;color:var(--ink2);margin-top:14px;line-height:1.5;max-width:600px;margin-left:auto;margin-right:auto;}
+.eyebrow{font-family:var(--grot);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);}
+.eyebrow.grn{color:var(--green-deep);}
+.masthead .tag{display:inline-flex;align-items:center;gap:7px;margin-top:20px;background:var(--paper);border:1px solid var(--hair);border-radius:999px;padding:7px 14px;}
+.masthead .tag .dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+.rail{display:flex;gap:30px;justify-content:center;flex-wrap:wrap;padding:46px 8px 30px;align-items:flex-start;}
+.step{width:340px;}
+.steplbl{margin:0 4px 14px;}
+.steplbl .t{font-size:13px;font-weight:600;color:var(--ink);}
+.steplbl .t b{color:var(--green-deep);}
+.steplbl .s{font-size:11.5px;color:var(--mute);margin-top:2px;line-height:1.4;}
+
+/* iPhone + iOS surfaces */
+.phone{width:340px;height:738px;border-radius:52px;background:#000;padding:11px;box-shadow:0 2px 4px rgba(32,36,30,.12),0 40px 70px -40px rgba(32,36,30,.6);position:relative;}
+.ios{width:100%;height:100%;border-radius:42px;overflow:hidden;position:relative;}
+.wall-night{background:linear-gradient(170deg,#1d2b22 0%,#16201b 48%,#0e1411 100%);}
+.wall-day{background:linear-gradient(165deg,#cfe3d4 0%,#bcd6c2 40%,#a9c7b2 100%);}
+.island{position:absolute;top:13px;left:50%;transform:translateX(-50%);height:34px;background:#000;border-radius:20px;z-index:20;display:flex;align-items:center;}
+.island.compact{width:124px;justify-content:space-between;padding:0 13px;}
+.lc-time{position:absolute;top:62px;left:0;right:0;text-align:center;color:#fff;}
+.lc-time .t{font-size:74px;font-weight:300;letter-spacing:-.02em;line-height:1;}
+.lc-time .d{font-size:15px;font-weight:600;opacity:.92;margin-top:2px;letter-spacing:.01em;}
+/* accessory (lock) widgets - tinted monochrome, below clock */
+.acc-row{position:absolute;top:172px;left:0;right:0;display:flex;justify-content:center;gap:12px;padding:0 26px;}
+.acc{color:rgba(255,255,255,.92);}
+.acc-circ{width:56px;height:56px;border-radius:50%;border:2px solid rgba(255,255,255,.22);display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,.07);}
+.acc-circ .ic{margin-bottom:1px;}
+.acc-circ .lbl{font-size:8px;font-weight:600;letter-spacing:.04em;}
+.acc-rect{flex:1;max-width:170px;height:56px;border-radius:14px;background:rgba(255,255,255,.09);padding:9px 12px;display:flex;flex-direction:column;justify-content:center;gap:3px;}
+.acc-rect .h{display:flex;align-items:center;gap:5px;font-size:9.5px;font-weight:700;letter-spacing:.04em;opacity:.85;}
+.acc-rect .m{font-size:13px;font-weight:600;letter-spacing:-.01em;}
+.acc-rect .s{font-size:9.5px;opacity:.62;}
+/* Live Activity card (lock screen, bottom) */
+.la{position:absolute;left:14px;right:14px;bottom:74px;background:rgba(20,26,22,.72);backdrop-filter:blur(20px);border:.5px solid rgba(255,255,255,.1);border-radius:22px;padding:15px 16px;color:#fff;z-index:15;}
+.la-top{display:flex;align-items:center;gap:10px;}
+.la-glyph{width:30px;height:30px;border-radius:9px;background:var(--green);display:flex;align-items:center;justify-content:center;flex:none;font-family:var(--serif);font-style:italic;font-weight:600;font-size:18px;color:#fff;}
+.la-ttl{font-size:14px;font-weight:600;letter-spacing:-.01em;}
+.la-sub{font-size:11px;color:rgba(255,255,255,.6);margin-top:1px;}
+.la-step{margin-left:auto;text-align:right;}
+.la-step .n{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;}
+.la-step .c{font-size:9px;color:rgba(255,255,255,.55);letter-spacing:.08em;text-transform:uppercase;}
+.prog{height:5px;border-radius:3px;background:rgba(255,255,255,.16);margin-top:13px;overflow:hidden;}
+.prog i{display:block;height:100%;width:66%;background:var(--green);border-radius:3px;}
+.la-legs{display:flex;justify-content:space-between;margin-top:9px;font-size:10px;color:rgba(255,255,255,.7);}
+.la-legs b{color:#fff;font-weight:600;}
+.tray{position:absolute;left:0;right:0;bottom:0;height:30px;display:flex;align-items:center;justify-content:center;}
+.tray .bar{width:128px;height:5px;border-radius:3px;background:rgba(255,255,255,.4);}
+.hint{position:absolute;left:14px;right:14px;bottom:46px;text-align:center;font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.04em;z-index:15;}
+
+/* Dynamic Island detail canvas */
+.di-canvas{background:#0c100d;border-radius:30px;padding:30px 18px;display:flex;flex-direction:column;gap:26px;align-items:center;}
+.di-lbl{font-size:9.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.45);align-self:flex-start;margin-left:6px;}
+.di-pill{height:37px;background:#000;border-radius:21px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;color:#fff;box-shadow:0 0 0 1px rgba(255,255,255,.06);}
+.di-pill.compact{width:172px;}
+.di-dot{width:18px;height:18px;border-radius:6px;background:var(--green);display:flex;align-items:center;justify-content:center;flex:none;font-family:var(--serif);font-style:italic;font-weight:600;font-size:11px;}
+.di-ring{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;}
+.di-exp{width:248px;background:#000;border-radius:28px;padding:16px 18px;color:#fff;}
+.di-exp .h{display:flex;align-items:center;gap:10px;}
+.di-exp .ttl{font-size:13px;font-weight:600;}
+.di-exp .sub{font-size:10.5px;color:rgba(255,255,255,.6);margin-top:1px;}
+.di-exp .n{margin-left:auto;font-size:13px;font-weight:700;}
+.di-exp .prog{margin-top:13px;}
+
+/* Home-screen widget */
+.hs-grid{position:absolute;inset:0;padding:60px 22px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:20px 18px;align-content:start;}
+.icn{width:100%;aspect-ratio:1;border-radius:15px;background:rgba(255,255,255,.45);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+.widget{grid-column:span 4;aspect-ratio:auto;background:var(--paper);border-radius:22px;padding:16px 17px;box-shadow:0 6px 18px -8px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:11px;}
+.widget .wh{display:flex;align-items:center;gap:8px;}
+.widget .wglyph{width:22px;height:22px;border-radius:7px;background:var(--green);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-style:italic;font-weight:600;font-size:13px;color:#fff;}
+.widget .wt{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--ink);}
+.widget .wbudget{margin-left:auto;font-size:9px;color:var(--mute);}
+.widget .wmain{font-family:var(--serif);font-weight:500;font-size:23px;letter-spacing:-.015em;color:var(--ink);}
+.widget .wsub{display:flex;gap:14px;}
+.widget .wsub div{font-size:10.5px;color:var(--ink2);}
+.widget .wsub b{color:var(--green-deep);}
+.hs-time{position:absolute;top:64px;left:0;right:0;text-align:center;color:#1d2b22;}
+.hs-time .t{font-size:60px;font-weight:300;letter-spacing:-.02em;}
+.dock{position:absolute;left:18px;right:18px;bottom:18px;height:84px;border-radius:30px;background:rgba(255,255,255,.32);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:space-around;padding:0 18px;}
+.dock .icn{width:54px;flex:none;}
+
+/* Notification */
+.notif{position:absolute;left:12px;right:12px;background:rgba(245,245,242,.82);backdrop-filter:blur(20px);border-radius:20px;padding:13px 14px;display:flex;gap:11px;align-items:flex-start;box-shadow:0 8px 20px -8px rgba(0,0,0,.4);}
+.notif .ng{width:34px;height:34px;border-radius:9px;background:var(--green);display:flex;align-items:center;justify-content:center;flex:none;font-family:var(--serif);font-style:italic;font-weight:600;font-size:19px;color:#fff;}
+.notif .nt{font-size:12.5px;font-weight:700;color:#111;letter-spacing:-.01em;}
+.notif .nb{font-size:12px;color:#333;margin-top:2px;line-height:1.35;}
+.notif .nm{margin-left:auto;font-size:10px;color:#888;flex:none;}
+.disclaimer{text-align:center;max-width:760px;margin:8px auto 0;font-size:12px;color:var(--mute);line-height:1.55;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="mark"><span>C</span></div>
+    <div class="eyebrow grn">AgenTeams &middot; iOS ambient &middot; faithful renditions</div>
+    <h1 style="margin-top:16px;">"We're <em>on it</em>" - on your lock screen.</h1>
+    <p class="sub">The same calm reassurance, on the real iOS surfaces. A Live Activity for an active task (lead), a glanceable widget snapshot, and one gentle ping. Honest to how iOS actually works - no invented animation.</p>
+    <div class="tag"><span class="dot"></span><span class="eyebrow grn" style="letter-spacing:.1em;">Live Activity &middot; WidgetKit &middot; Notification</span></div>
+  </div>
+
+  <div class="rail">
+
+    <!-- 1 LIVE ACTIVITY (lock screen) -->
+    <div class="step">
+      <div class="steplbl"><div class="t"><b>Live Activity</b> &middot; lock screen</div><div class="s">ActivityKit. An ACTIVE task progressing live: "2 of 3 done". The strongest we-are-on-it moment. ~8h, ends on done.</div></div>
+      <div class="phone"><div class="ios wall-night">
+        <div class="island compact"><span class="di-dot" style="width:16px;height:16px;font-size:10px;border-radius:5px;">C</span><span class="di-ring" style="font-size:11px;">2/3</span></div>
+        <div class="lc-time"><div class="t">9:41</div><div class="d">Friday, 14 June</div></div>
+        <div class="acc-row">
+          <div class="acc acc-circ"><span class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".92"><path d="M12 3 5 6v5c0 4.4 3 8.4 7 9.5 4-1.1 7-5.1 7-9.5V6l-7-3Z"/><path d="m9 11.5 2 2 4-4"/></svg></span><span class="lbl">All calm</span></div>
+          <div class="acc acc-rect"><div class="h"><span style="width:9px;height:9px;border-radius:3px;background:var(--green);display:inline-block;"></span>CREW</div><div class="m">All calm</div><div class="s">6 handled &middot; 0 need you</div></div>
+        </div>
+        <div class="la">
+          <div class="la-top"><span class="la-glyph">C</span><div><div class="la-ttl">Booking your flight</div><div class="la-sub">Omar &middot; SFO to JFK</div></div><div class="la-step"><div class="n">2 / 3</div><div class="c">done</div></div></div>
+          <div class="prog"><i></i></div>
+          <div class="la-legs"><span><b>Seats picked</b></span><span><b>Fare locked</b></span><span>Paying</span></div>
+        </div>
+        <div class="hint">Updates as Omar progresses &middot; ends when booked</div>
+        <div class="tray"><span class="bar"></span></div>
+      </div></div>
+    </div>
+
+    <!-- 2 DYNAMIC ISLAND -->
+    <div class="step">
+      <div class="steplbl"><div class="t"><b>Dynamic Island</b> &middot; compact + expanded</div><div class="s">Same Live Activity, glanced from any screen. Compact pill around the camera; tap to expand. Push/timer updated.</div></div>
+      <div class="phone"><div class="ios" style="background:#0c100d;">
+        <div class="di-canvas" style="height:100%;border-radius:42px;justify-content:center;">
+          <div style="width:100%;"><div class="di-lbl">Compact</div>
+            <div class="di-pill compact" style="margin:8px auto 0;"><span class="di-dot">C</span><span class="di-ring"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#2c3530" stroke-width="3"/><path d="M12 3a9 9 0 0 1 7.8 4.5" stroke="#00B14F" stroke-width="3" stroke-linecap="round"/></svg>2/3</span></div>
+          </div>
+          <div style="width:100%;"><div class="di-lbl">Expanded &middot; on tap</div>
+            <div class="di-exp" style="margin:8px auto 0;">
+              <div class="h"><span class="di-dot" style="width:26px;height:26px;font-size:15px;border-radius:8px;">C</span><div><div class="ttl">Booking your flight</div><div class="sub">Omar &middot; SFO to JFK</div></div><span class="n">2/3</span></div>
+              <div class="prog"><i></i></div>
+              <div class="la-legs" style="color:rgba(255,255,255,.7);"><span><b style="color:#fff;">Seats</b></span><span><b style="color:#fff;">Fare</b></span><span>Paying</span></div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- 3 HOME WIDGET -->
+    <div class="step">
+      <div class="steplbl"><div class="t"><b>WidgetKit</b> &middot; home / lock tile</div><div class="s">A calm status SNAPSHOT, not a live feed - WidgetKit refreshes on a timeline budget (periodic). "Updated 4m ago" is honest.</div></div>
+      <div class="phone"><div class="ios wall-day">
+        <div class="hs-time" style="display:none;"></div>
+        <div class="hs-grid">
+          <div class="widget">
+            <div class="wh"><span class="wglyph">C</span><span class="wt">CREW</span><span class="wbudget">updated 4m ago</span></div>
+            <div class="wmain">All calm.</div>
+            <div class="wsub"><div><b>3</b> on it</div><div><b>6</b> handled today</div><div>0 need you</div></div>
+          </div>
+          <div class="icn"></div><div class="icn"></div><div class="icn"></div><div class="icn"></div>
+          <div class="icn"></div><div class="icn"></div><div class="icn"></div><div class="icn"></div>
+        </div>
+        <div class="dock"><div class="icn"></div><div class="icn"></div><div class="icn"></div><div class="icn"></div></div>
+      </div></div>
+    </div>
+
+    <!-- 4 NOTIFICATION -->
+    <div class="step">
+      <div class="steplbl"><div class="t"><b>Notification</b> &middot; one gentle ping</div><div class="s">Only when something just got DONE or genuinely NEEDS you. Never a stream. Calm by default.</div></div>
+      <div class="phone"><div class="ios wall-night">
+        <div class="island compact"><span class="di-dot" style="width:16px;height:16px;font-size:10px;border-radius:5px;">C</span><span class="di-ring" style="font-size:11px;">2/3</span></div>
+        <div class="lc-time"><div class="t">9:41</div><div class="d">Friday, 14 June</div></div>
+        <div style="position:absolute;left:0;right:0;top:228px;">
+          <div class="notif"><span class="ng">C</span><div><div class="nt">Crew &middot; Omar</div><div class="nb">Finished your reply to Acme - ready to send when you are.</div></div><span class="nm">now</span></div>
+          <div class="notif" style="margin-top:9px;opacity:.62;transform:scale(.97);"><span class="ng" style="background:#B45309;">C</span><div><div class="nt">Crew &middot; Sana</div><div class="nb">Flagged 2 invoices over your $5k rule.</div></div><span class="nm">8:30</span></div>
+        </div>
+        <div class="tray"><span class="bar"></span></div>
+      </div></div>
+    </div>
+
+  </div>
+  <p class="disclaimer">Static mockups for direction only, not native impl. Directionally honest to iOS: Live Activity (ActivityKit) = an active time-bound task progressing; WidgetKit lock/home tiles = periodic timeline-budgeted snapshots (NOT real-time), shown as "updated Nm ago"; one notification only on done / needs-you. Exact refresh budgets + push cadence to be verified against Apple docs before any native build. Brand: AgenTeams.</p>
+</div>
+</body>
+</html>
