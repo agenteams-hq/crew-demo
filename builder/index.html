@@ -1048,9 +1048,13 @@ function renderHome(){
   if(n===0){
     const el=document.createElement("div");
     el.className="card soft";
+    var et=crewAuthedEmpty?"Your crew is learning you":"Nothing needs you";
+    var es=crewAuthedEmpty?"Your first brief lands tonight. Nothing needs you yet.":"Your crew keeps working. You’ll feel a tap if that changes.";
     el.innerHTML='<div class="lrow" style="padding:16px 18px;">'
       +'<span class="tick" style="width:34px;height:34px;"><svg width="13" height="11" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
-      +'<div><div class="tit" style="font-size:14.5px;">Nothing needs you</div><div class="sub">Your crew keeps working. You’ll feel a tap if that changes.</div></div></div>';
+      +'<div><div class="tit" style="font-size:14.5px;"></div><div class="sub"></div></div></div>';
+    el.querySelector(".tit").textContent=et;
+    el.querySelector(".sub").textContent=es;
     wrap.appendChild(el);
   }
   $("homefoot").textContent=n>0?"One tap and you’re back to your day.":"That’s everything. Go live your day.";
@@ -1286,6 +1290,7 @@ const CREW_API="https://crew-api-two.vercel.app/api/noor";
 const CREW_GH="https://crew-api-two.vercel.app/api/github";
 const CREW_MEM="https://crew-api-two.vercel.app/api/memory";
 var crewToken="";
+var crewAuthedEmpty=false; // CREW-02: true when a signed-in user has no real decisions yet
 // AGT-159: send the verified Supabase JWT so the backend binds identity to the token,
 // not the client device_id. device_id stays for back-compat with the interim until promote.
 function crewAuthGET(){return crewToken?{headers:{Authorization:"Bearer "+crewToken}}:{};}
@@ -1749,7 +1754,9 @@ function crewLoadFeed(session){
   sbClient.from("crew_decision").select("id,type,title,body,status")
     .eq("status","pending").order("created_at",{ascending:false}).limit(20)
     .then(function(res){
-      if(res.error||!res.data||!res.data.length)return; // keep seeded fallback if empty
+      if(res.error)return;
+      if(!res.data||!res.data.length){ decisions=[]; crewAuthedEmpty=true; renderHome();renderCrew(); return; } // CREW-02: authed + empty -> real empty state, never seeded fiction
+      crewAuthedEmpty=false;
       decisions=res.data.map(function(r){
         var txt=(r.body&&typeof r.body==="object")?(r.body.text||""):"";
         return {id:r.id,agent:"ramy",dbBacked:true,type:r.type||"brief",
