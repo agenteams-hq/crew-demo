@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crew · brand-energy exploration (direction)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..650;1,9..144,300..650&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBF8F1; --bone:#F3EFE5; --ink:#20241E; --ink2:#565B4E; --mute:#8B8F7E;
+  --hair:#E7E2D4; --hair2:#DDD7C5;
+  --green:#00B14F; --green-deep:#00813B; --green-tint:#E3F3E8; --amber:#B45309;
+  /* friendly secondary accents (soft, harmonised with kraft - NOT a rainbow) */
+  --coral:#E08A6E; --coral-tint:#F8E7DF; --sky:#5E9FC9; --sky-tint:#E2EEF5; --gold:#D8A93F; --gold-tint:#F6ECD2;
+  --serif:"Fraunces",Georgia,serif;
+  --grot:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+body{font-family:var(--grot);color:var(--ink);background:var(--bone);padding:0 0 90px;}
+.wrap{max-width:1500px;margin:0 auto;padding:0 28px;}
+.masthead{text-align:center;padding:58px 20px 8px;}
+.mark{width:56px;height:56px;border-radius:15px;background:var(--paper);border:1px solid var(--hair);margin:0 auto 18px;position:relative;}
+.mark span{font-family:var(--serif);font-style:italic;font-weight:600;font-size:34px;color:var(--ink);position:absolute;left:50%;top:50%;transform:translate(-52%,-52%);}
+.mark::after{content:"";position:absolute;right:12px;bottom:12px;width:10px;height:10px;border-radius:50%;background:var(--green);}
+.masthead h1{font-family:var(--serif);font-weight:480;font-size:38px;letter-spacing:-.02em;line-height:1.06;font-variation-settings:"opsz" 60;}
+.masthead h1 em{font-style:italic;font-weight:430;}
+.masthead .sub{font-size:15px;color:var(--ink2);margin-top:13px;line-height:1.55;max-width:680px;margin:13px auto 0;}
+.eyebrow{font-family:var(--grot);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);}
+.eyebrow.grn{color:var(--green-deep);}
+.tag{display:inline-flex;align-items:center;gap:7px;margin-top:16px;background:var(--paper);border:1px solid var(--hair);border-radius:999px;padding:7px 14px;}
+.tag .dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+
+/* the DIAL */
+.dial{max-width:980px;margin:40px auto 0;background:var(--paper);border:1px solid var(--hair);border-radius:20px;padding:26px 30px 30px;}
+.dial h3{font-family:var(--grot);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--green-deep);text-align:center;}
+.track{position:relative;height:8px;border-radius:6px;margin:46px 40px 0;background:linear-gradient(90deg,var(--bone),var(--green-tint) 40%,var(--gold-tint) 72%,var(--coral-tint));}
+.zone{position:absolute;top:-6px;height:20px;border-radius:10px;left:14%;width:52%;background:rgba(0,177,79,.14);border:1.5px solid var(--green);}
+.zlbl{position:absolute;top:-34px;left:38%;transform:translateX(-50%);font-family:var(--grot);font-size:11px;font-weight:700;color:var(--green-deep);white-space:nowrap;}
+.ticks{display:flex;justify-content:space-between;margin:18px 8px 0;}
+.tk{flex:1;text-align:center;position:relative;}
+.tk .d{width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid var(--hair2);margin:0 auto 8px;}
+.tk.pick .d{background:var(--green);border-color:var(--green);}
+.tk .n{font-family:var(--grot);font-size:12.5px;font-weight:700;color:var(--ink);}
+.tk .v{font-size:11px;color:var(--mute);margin-top:2px;line-height:1.35;}
+.tk.pick .v{color:var(--green-deep);font-weight:600;}
+.dialnote{text-align:center;font-size:13px;color:var(--ink2);margin-top:24px;line-height:1.55;max-width:760px;margin-left:auto;margin-right:auto;}
+.dialnote b{color:var(--ink);}
+
+/* columns */
+.cols{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;padding:48px 0 0;align-items:flex-start;}
+.col{width:300px;}
+.clbl{margin:0 2px 12px;}
+.clbl .n{font-family:var(--grot);font-size:13px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:8px;}
+.clbl .badge{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:5px;padding:3px 7px;}
+.badge.adopt{background:var(--green-tint);color:var(--green-deep);}
+.badge.base{background:var(--bone);color:var(--mute);}
+.badge.reserve{background:var(--gold-tint);color:#9A7B1E;}
+.clbl .v{font-size:11.5px;color:var(--ink2);margin-top:5px;line-height:1.45;}
+
+.phone{width:300px;height:600px;border-radius:40px;background:#15170F;padding:8px;box-shadow:0 2px 4px rgba(32,36,30,.1),0 30px 54px -34px rgba(32,36,30,.5);}
+.scr{width:100%;height:100%;border-radius:33px;background:var(--paper);overflow:hidden;position:relative;display:flex;flex-direction:column;}
+.sb{display:flex;justify-content:space-between;align-items:center;padding:14px 22px 0;font-size:11px;font-weight:600;color:var(--ink);flex:none;}
+.body{flex:1;padding:0 18px;overflow:hidden;}
+.h{font-family:var(--serif);font-weight:500;font-size:23px;letter-spacing:-.015em;color:var(--ink);margin-top:12px;}
+.eb{font-family:var(--grot);font-size:8.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin:16px 0 8px;}
+.glance{display:flex;gap:10px;background:#fff;border:1px solid var(--hair);border-radius:16px;padding:11px 14px;margin-top:12px;}
+.glance .g{flex:1;text-align:center;}
+.glance .n{font-family:var(--serif);font-weight:520;font-size:20px;color:var(--ink);}
+.glance .l{font-size:8.5px;color:var(--mute);margin-top:1px;line-height:1.2;}
+.glance .sep{width:1px;background:var(--hair);}
+.card{background:#fff;border:1px solid var(--hair);border-radius:16px;padding:2px 13px;}
+.row{display:flex;align-items:center;gap:11px;padding:10px 0;}
+.row + .row{border-top:1px solid var(--hair);}
+.av{width:32px;height:32px;border-radius:50%;flex:none;position:relative;font-family:var(--serif);font-style:italic;font-weight:560;font-size:13px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 1px rgba(32,36,30,.08) inset;}
+.av .st{position:absolute;right:-1px;bottom:-1px;width:10px;height:10px;border-radius:50%;background:var(--green);border:2px solid #fff;}
+.av-d{background:linear-gradient(135deg,#DDEDE0,#C9E2D1);color:#23513C;}
+.av-o{background:linear-gradient(135deg,#DCE8EE,#C2DCD9);color:#1E5A56;}
+.av-i{background:linear-gradient(135deg,#E7EBD3,#D8DFB9);color:#4D5827;}
+.nm{font-size:12px;font-weight:600;color:var(--ink);}
+.ac{font-size:10.5px;color:var(--ink2);margin-top:1px;}
+.ld{margin-left:auto;width:7px;height:7px;border-radius:50%;background:var(--green);}
+.tick{width:24px;height:24px;border-radius:50%;background:var(--green-tint);display:flex;align-items:center;justify-content:center;flex:none;}
+.foot{text-align:center;font-size:10px;color:var(--mute);margin-top:14px;line-height:1.4;}
+
+/* ---- BREATHABLE overrides ---- */
+.breathe .body{padding:0 26px;}
+.breathe .h{font-size:27px;margin-top:26px;}
+.breathe .eb{margin:30px 0 12px;}
+.breathe .row{padding:17px 0;}
+.breathe .card{border-radius:20px;padding:4px 16px;}
+
+/* ---- COLORFUL overrides (green leads, soft accents for categories) ---- */
+.colorful .av-d{box-shadow:0 0 0 2px var(--sky) inset,0 0 0 4px var(--sky-tint);}
+.colorful .av-o{box-shadow:0 0 0 2px var(--coral) inset,0 0 0 4px var(--coral-tint);}
+.colorful .av-i{box-shadow:0 0 0 2px var(--gold) inset,0 0 0 4px var(--gold-tint);}
+.colorful .cat{display:inline-block;font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:5px;padding:2px 6px;margin-left:6px;vertical-align:1px;}
+.colorful .cat.travel{background:var(--sky-tint);color:#2E6A92;}
+.colorful .cat.inbox{background:var(--coral-tint);color:#A6543A;}
+.colorful .cat.money{background:var(--gold-tint);color:#8A6A18;}
+.colorful .glance .n.a1{color:var(--green-deep);} .colorful .glance .n.a2{color:var(--sky);} .colorful .glance .n.a3{color:var(--coral);}
+
+/* ---- PIXEL overrides ---- */
+.pixel .pxhead{height:96px;margin:10px -18px 0;position:relative;overflow:hidden;}
+.pixel svg, .pixel .spr{shape-rendering:crispEdges;image-rendering:pixelated;}
+.pixel .spr{width:32px;height:32px;flex:none;}
+.pixel .h{margin-top:14px;}
+.pixel .pxstar{margin-left:auto;}
+.disclaimer{text-align:center;max-width:820px;margin:42px auto 0;font-size:12px;color:var(--mute);line-height:1.55;}
+.legend{max-width:980px;margin:30px auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.lc{background:var(--paper);border:1px solid var(--hair);border-radius:14px;padding:14px 16px;}
+.lc h4{font-size:11px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+.lc p{font-size:11.5px;color:var(--ink2);line-height:1.5;}
+.lc .chip{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:3px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="mark"><span>C</span></div>
+    <div class="eyebrow grn">AgenTeams &middot; brand-energy exploration &middot; direction, not a commitment</div>
+    <h1 style="margin-top:14px;">How much <em>lift</em> feels right?</h1>
+    <p class="sub">Fares liked cofounder.co's pixelised + colorful + breathable, game-like energy ("as easy as playing a video game"). Our locked look is premium + calm but reads a touch quiet. Same hero screen (the crew-working board), one baseline + three controlled treatments. We inject energy - we do not rebrand.</p>
+    <div class="tag"><span class="dot"></span><span class="eyebrow grn" style="letter-spacing:.1em;">Dial it with Fares before we touch the system</span></div>
+  </div>
+
+  <!-- THE DIAL -->
+  <div class="dial">
+    <h3>The energy dial &middot; my recommendation marked</h3>
+    <div class="track"><div class="zone"></div><div class="zlbl">my pick: breathable + a little color</div></div>
+    <div class="ticks">
+      <div class="tk"><div class="d"></div><div class="n">Baseline</div><div class="v">today<br>calm, quiet</div></div>
+      <div class="tk pick"><div class="d"></div><div class="n">Breathable</div><div class="v">ADOPT<br>pure win</div></div>
+      <div class="tk pick"><div class="d"></div><div class="n">Colorful</div><div class="v">ADOPT, restrained<br>green leads</div></div>
+      <div class="tk"><div class="d"></div><div class="n">Playful / Pixel</div><div class="v">RESERVE<br>delight moments only</div></div>
+    </div>
+    <div class="dialnote"><b>My read:</b> take Breathable now (more air = instant lift, zero palette risk) and a <b>restrained</b> slice of Colorful (green stays lead, 2-3 soft accents for categories/states). Keep the pixel charm as a <b>seasoning</b> - celebrations, empty states, the opt-in companion surface - NOT on the core working screens, or it cheapens the intelligence-driven calm. The sweet spot is "calm with personality," not "game."</div>
+  </div>
+
+  <div class="legend">
+    <div class="lc"><h4>1 &middot; Breathable</h4><p>More air, bigger margins, fewer elements per screen. No palette change. The biggest perceived lift for the least risk.</p></div>
+    <div class="lc"><h4>2 &middot; Colorful</h4><p><span class="chip" style="background:var(--green)"></span><span class="chip" style="background:var(--sky)"></span><span class="chip" style="background:var(--coral)"></span><span class="chip" style="background:var(--gold)"></span> Green leads + a small warm accent set for categories / states. Controlled, never a rainbow.</p></div>
+    <div class="lc"><h4>3 &middot; Playful / Pixel</h4><p>A sparing pixel-art motif - crew as little characters, a celebration moment. Personality without cheapening the premium calm.</p></div>
+  </div>
+
+  <div class="cols">
+
+    <!-- BASELINE -->
+    <div class="col">
+      <div class="clbl"><div class="n">Baseline <span class="badge base">today</span></div><div class="v">The locked look - calm, premium, a touch quiet.</div></div>
+      <div class="phone"><div class="scr">
+        <div class="sb"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+        <div class="body">
+          <div class="h">Quietly on it.</div>
+          <div class="glance"><div class="g"><div class="n">3</div><div class="l">on it</div></div><div class="sep"></div><div class="g"><div class="n">6</div><div class="l">handled</div></div><div class="sep"></div><div class="g"><div class="n">1</div><div class="l">needs you</div></div></div>
+          <div class="eb">Working now</div>
+          <div class="card">
+            <div class="row"><span class="av av-d">D<span class="st"></span></span><div><div class="nm">Devon</div><div class="ac">Reviewing your PR</div></div><span class="ld"></span></div>
+            <div class="row"><span class="av av-o">O<span class="st"></span></span><div><div class="nm">Omar</div><div class="ac">Drafting your reply</div></div><span class="ld"></span></div>
+            <div class="row"><span class="av av-i">I<span class="st"></span></span><div><div class="nm">Iman</div><div class="ac">Watching invoices</div></div><span class="ld"></span></div>
+          </div>
+          <div class="eb">Done today</div>
+          <div class="card"><div class="row"><span class="tick"><svg width="12" height="9" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><div class="nm">Booked the table</div><div class="ac">Fri 7pm</div></div></div></div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- BREATHABLE -->
+    <div class="col">
+      <div class="clbl"><div class="n">1 &middot; Breathable <span class="badge adopt">adopt</span></div><div class="v">More air, fewer rows, bigger type. Same palette. Instant calm lift.</div></div>
+      <div class="phone"><div class="scr breathe">
+        <div class="sb"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+        <div class="body">
+          <div class="h">Quietly on it.</div>
+          <div class="eb">Working now</div>
+          <div class="card">
+            <div class="row"><span class="av av-o">O<span class="st"></span></span><div><div class="nm">Omar</div><div class="ac">Drafting your reply</div></div><span class="ld"></span></div>
+            <div class="row"><span class="av av-i">I<span class="st"></span></span><div><div class="nm">Iman</div><div class="ac">Watching invoices</div></div><span class="ld"></span></div>
+          </div>
+          <div class="foot" style="margin-top:30px;">3 on it &middot; 6 handled today<br>nothing else needs you</div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- COLORFUL -->
+    <div class="col">
+      <div class="clbl"><div class="n">2 &middot; Colorful <span class="badge adopt">adopt, restrained</span></div><div class="v">Green leads; soft accents tag categories. Friendly, still premium.</div></div>
+      <div class="phone"><div class="scr colorful">
+        <div class="sb"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+        <div class="body">
+          <div class="h">Quietly on it.</div>
+          <div class="glance"><div class="g"><div class="n a1">3</div><div class="l">on it</div></div><div class="sep"></div><div class="g"><div class="n a2">6</div><div class="l">handled</div></div><div class="sep"></div><div class="g"><div class="n a3">1</div><div class="l">needs you</div></div></div>
+          <div class="eb">Working now</div>
+          <div class="card">
+            <div class="row"><span class="av av-d">D<span class="st"></span></span><div><div class="nm">Devon <span class="cat travel">Travel</span></div><div class="ac">Rebooking your trip</div></div><span class="ld"></span></div>
+            <div class="row"><span class="av av-o">O<span class="st"></span></span><div><div class="nm">Omar <span class="cat inbox">Inbox</span></div><div class="ac">Drafting your reply</div></div><span class="ld"></span></div>
+            <div class="row"><span class="av av-i">I<span class="st"></span></span><div><div class="nm">Iman <span class="cat money">Money</span></div><div class="ac">Watching invoices</div></div><span class="ld"></span></div>
+          </div>
+          <div class="eb">Done today</div>
+          <div class="card"><div class="row"><span class="tick"><svg width="12" height="9" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><div class="nm">Booked the table <span class="cat travel">Plans</span></div><div class="ac">Fri 7pm</div></div></div></div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- PIXEL -->
+    <div class="col">
+      <div class="clbl"><div class="n">3 &middot; Playful / Pixel <span class="badge reserve">reserve</span></div><div class="v">Pixel crew + a tiny world. Charm - but keep it to delight moments.</div></div>
+      <div class="phone"><div class="scr pixel">
+        <div class="sb"><span>9:41</span><span>&#9679;&#9679;&#9679;</span></div>
+        <div class="pxhead">
+          <svg width="300" height="96" viewBox="0 0 75 24" preserveAspectRatio="xMidYMid slice"><rect width="75" height="24" fill="#BFE3F2"/><rect x="56" y="3" width="6" height="6" fill="#F4D24A"/><rect x="10" y="5" width="9" height="3" fill="#fff"/><rect x="12" y="3" width="5" height="3" fill="#fff"/><rect x="38" y="8" width="8" height="2" fill="#fff"/><rect y="16" width="75" height="8" fill="#7FB85A"/><rect y="15" width="75" height="2" fill="#92C96B"/><rect x="24" y="11" width="4" height="6" fill="#7A4B2A"/><rect x="22" y="6" width="8" height="6" fill="#4F9A3C"/></svg>
+        </div>
+        <div class="body" style="margin-top:-6px;">
+          <div class="h">Your crew, on it.</div>
+          <div class="eb">Working now</div>
+          <div class="card">
+            <div class="row"><svg class="spr" viewBox="0 0 11 11"><rect x="2" y="2" width="7" height="7" fill="#1E5A56"/><rect x="3" y="1" width="5" height="2" fill="#1E5A56"/><rect x="3" y="4" width="2" height="2" fill="#fff"/><rect x="6" y="4" width="2" height="2" fill="#fff"/><rect x="9" y="5" width="1" height="3" fill="#1E5A56"/></svg><div><div class="nm">Omar</div><div class="ac">Drafting your reply</div></div><span class="ld"></span></div>
+            <div class="row"><svg class="spr" viewBox="0 0 11 11"><rect x="2" y="2" width="7" height="7" fill="#4D5827"/><rect x="3" y="1" width="5" height="2" fill="#4D5827"/><rect x="3" y="4" width="2" height="2" fill="#fff"/><rect x="6" y="4" width="2" height="2" fill="#fff"/><rect x="1" y="5" width="1" height="3" fill="#4D5827"/></svg><div><div class="nm">Iman</div><div class="ac">Watching invoices</div></div><span class="ld"></span></div>
+          </div>
+          <div class="eb">Just done</div>
+          <div class="card"><div class="row"><svg class="spr" viewBox="0 0 11 11"><rect x="4" y="1" width="3" height="3" fill="#D8A93F"/><rect x="1" y="4" width="3" height="3" fill="#D8A93F"/><rect x="7" y="4" width="3" height="3" fill="#D8A93F"/><rect x="4" y="7" width="3" height="3" fill="#D8A93F"/></svg><div><div class="nm">Booked the table</div><div class="ac">Fri 7pm &middot; nice one</div></div><svg class="spr pxstar" viewBox="0 0 11 11"><rect x="5" y="1" width="1" height="9" fill="#00B14F"/><rect x="1" y="5" width="9" height="1" fill="#00B14F"/><rect x="3" y="3" width="5" height="5" fill="#3CCB6E"/></svg></div></div>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+  <p class="disclaimer">Exploration only, not a commitment - direction for Fares to dial before we touch the locked design system. Same hero screen across all four. Built on the locked look (kraft #FBF8F1, Grab green #00B14F, Fraunces); accents + pixel motif are additive seasoning. Cues studied from cofounder.co (pixel-art world, breathable sky, bright optimistic palette). AgenTeams brand.</p>
+</div>
+</body>
+</html>
