@@ -1655,7 +1655,9 @@ function obNext(){
     log.appendChild(row);
     obScroll();
   }else if(step.t==="name"){
-    const known=crewUserFirst();
+    // Onboarding only runs signed-out -> ALWAYS ask the name. Never pre-fill from a
+    // stale localStorage cache (was showing a prior tester's name as "preselected").
+    const known="";
     if(known){
       obi++;
       const u=document.createElement("div");
