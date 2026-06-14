@@ -306,77 +306,105 @@ input{font-family:inherit;}
 .callctl.mute.on{background:var(--ink);border-color:var(--ink);color:#F3EFE5;}
 .callctl.end{background:#D6453D;color:#fff;box-shadow:0 16px 30px -12px rgba(214,69,61,.65);}
 .callctl-label{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-top:9px;text-align:center;}
+
+/* ============================================================
+   ONBOARDING REWORK · recognition picker + earned signup
+   (replaces the scripted chat). On-brand: kraft, Grab green,
+   Fraunces. Sized for the 520px app shell, not the mock board.
+   ============================================================ */
+.obstep{display:none;flex:1;flex-direction:column;min-height:0;}
+.obstep.on{display:flex;animation:bubin .42s cubic-bezier(.21,1.02,.45,1) both;}
+.ob-eb{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);margin-top:6px;}
+.ob-eb.grn{color:var(--green-deep);}
+.ob-h{font-family:var(--serif);font-weight:480;font-size:30px;line-height:1.1;letter-spacing:-.018em;color:var(--ink);margin-top:12px;font-variation-settings:"opsz" 60;}
+.ob-h em{font-style:italic;font-weight:430;}
+.ob-sub{font-size:14px;line-height:1.5;color:var(--ink2);margin-top:11px;}
+/* recognition picker cards */
+.pickgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:20px;}
+.pcard{position:relative;background:#fff;border:1.5px solid var(--hair);border-radius:20px;padding:15px 14px 16px;box-shadow:0 1px 2px rgba(32,36,30,.04);display:flex;flex-direction:column;min-height:118px;transition:border-color .2s ease,box-shadow .2s ease,transform .3s var(--spring);text-align:left;}
+.pcard:active{transform:scale(.98);transition-duration:.08s;}
+.pcard.sel{border-color:var(--green);box-shadow:0 0 0 3px var(--green-tint),0 1px 2px rgba(32,36,30,.04);}
+.pcard .pic{width:38px;height:38px;border-radius:12px;background:var(--bone);display:flex;align-items:center;justify-content:center;color:var(--ink2);transition:background .2s ease,color .2s ease;}
+.pcard.sel .pic{background:var(--green-tint);color:var(--green-deep);}
+.pcard .pck{position:absolute;top:13px;right:13px;width:21px;height:21px;border-radius:50%;border:2px solid var(--hair2);display:flex;align-items:center;justify-content:center;transition:background .2s ease,border-color .2s ease;}
+.pcard.sel .pck{background:var(--green);border-color:var(--green);}
+.pcard .pck svg{opacity:0;transition:opacity .2s ease;}
+.pcard.sel .pck svg{opacity:1;}
+.pcard .pln{font-family:var(--serif);font-weight:500;font-size:15px;line-height:1.22;letter-spacing:-.01em;color:var(--ink);margin-top:13px;}
+.pcard .pdo{font-size:11.5px;color:var(--mute);margin-top:4px;}
+.ob-skip{display:block;width:100%;text-align:center;margin-top:18px;font-size:13.5px;font-weight:600;color:var(--ink2);padding:8px 0;}
+.ob-skip span{color:var(--mute);font-weight:500;}
+/* earned signup */
+.readygrid{display:flex;flex-direction:column;gap:9px;margin-top:20px;}
+.readyrow{display:flex;align-items:center;gap:13px;background:#fff;border:1px solid var(--hair);border-radius:18px;padding:13px 15px;box-shadow:0 1px 2px rgba(32,36,30,.04);}
+.readyrow .ric{width:34px;height:34px;border-radius:11px;background:var(--green-tint);color:var(--green-deep);display:flex;align-items:center;justify-content:center;flex:none;}
+.readyrow .rtx{font-size:14px;font-weight:600;color:var(--ink);letter-spacing:-.005em;}
+.readyrow .rsb{font-size:11.5px;color:var(--mute);margin-top:2px;}
+.readycta{background:rgba(255,255,255,.55);border:1px solid var(--hair);border-radius:20px;padding:17px 16px 16px;margin-top:auto;}
+.readycta .rl{font-family:var(--serif);font-weight:480;font-size:18px;line-height:1.25;color:var(--ink);text-align:center;}
+.readycta .rls{text-align:center;font-size:12.5px;color:var(--ink2);margin-top:6px;line-height:1.45;}
+.readycta .reassure{text-align:center;font-size:11px;color:var(--mute);margin-top:11px;}
 </style>
 </head>
 <body>
 <div id="app" class="onb">
 
-  <!-- ================= ONBOARDING · CHAT ================= -->
+  <!-- ===== ONBOARDING · recognition picker + earned signup (rework) ===== -->
   <div class="view tabview" id="v-onb">
     <div class="vbody vtop">
       <div style="display:flex;align-items:center;">
         <div class="obdots" id="obdots" style="margin-bottom:0;"><span class="on"></span><span></span><span></span></div>
-        <button class="skipbtn" onclick="finishOnb()">Skip</button>
+        <button class="skipbtn" id="ob-topskip" onclick="finishOnb()" style="display:none;">Skip</button>
       </div>
-      <div class="ob-google">
-        <button class="gbtn" onclick="crewGoogleSignIn()" aria-label="Continue with Google">
-          <svg class="gico" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62Z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18Z"/><path fill="#FBBC05" d="M3.97 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.82.96 4.05l3.01-2.33Z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58A9 9 0 0 0 9 0 9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58Z"/></svg>
-          Continue with Google
-        </button>
-        <div class="or">or continue below</div>
+
+      <!-- STEP 1 · RECOGNITION PICKER -->
+      <div class="obstep on" id="ob-step-pick">
+        <div class="ob-eb grn">Getting started</div>
+        <h2 class="ob-h">What should your crew take off your plate?</h2>
+        <p class="ob-sub">Pick a few. Or just start - your crew learns as you go.</p>
+        <div class="pickgrid" id="ob-pickgrid"></div>
+        <div style="flex:1;min-height:14px;"></div>
+        <button class="btn btn-approve" id="ob-pickcontinue" style="margin-top:18px;">Continue</button>
+        <button class="ob-skip" onclick="obSkipPicks()">Skip <span>- your crew learns as you go</span></button>
+        <div style="height:calc(14px + var(--sab));"></div>
       </div>
-      <div style="display:flex;align-items:center;gap:11px;margin-top:18px;">
-        <span class="av av-crew sm">C</span>
-        <div>
-          <div class="eyebrow grn">Your Crew</div>
-          <div style="font-family:var(--serif);font-size:19px;font-weight:520;margin-top:2px;" id="obtitle">Getting to know you</div>
+
+      <!-- STEP 2 · NAME -->
+      <div class="obstep" id="ob-step-name">
+        <div class="ob-eb grn">One thing</div>
+        <h2 class="ob-h">What should we <em>call</em> you?</h2>
+        <p class="ob-sub">First name is plenty. It is how your crew greets you.</p>
+        <div class="chiprow" style="flex-wrap:nowrap;margin-top:22px;">
+          <input id="obnamefield" type="text" placeholder="Your first name" autocomplete="given-name" style="flex:1;background:#fff;border:1.5px solid var(--hair2);border-radius:999px;padding:13px 18px;font-size:16px;color:var(--ink);outline:none;min-width:0;">
+          <button class="sendbtn" id="ob-namesend" aria-label="Save name"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F3EFE5" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
         </div>
-      </div>
-      <div id="chatlog" style="margin-top:8px;padding-bottom:18px;"></div>
-      <div style="flex:1;"></div>
-      <div class="sparkline" style="margin-bottom:10px;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 14 9l6.5 2-6.5 2-2 6.5L10 13l-6.5-2L10 9l2-6.5Z" stroke="#565B4E" stroke-width="1.6" stroke-linejoin="round"/></svg>
-        <span>Filled in on-device · nothing leaves your phone</span>
-      </div>
-      <div style="height:calc(18px + var(--sab));"></div>
-    </div>
-  </div>
-
-  <!-- ================= ONBOARDING · DISCOVERY ================= -->
-  <div class="view pushview" id="v-disc">
-    <div class="vbody vtop">
-      <div class="obdots"><span class="on" style="width:5px;"></span><span class="on" style="width:5px;"></span><span class="on"></span></div>
-      <div class="eyebrow grn">Last step</div>
-      <h2 class="display" style="font-size:30px;margin:12px 0 8px;">Here&rsquo;s what your crew <em>can do</em>.</h2>
-      <p class="body-t" style="font-size:13.5px;">Tap what sounds useful. They start tonight.</p>
-
-      <div class="zonehead" style="margin-top:18px;">
-        <span class="zicon work"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2.5"/><path d="M9 8V6.5A2.5 2.5 0 0 1 11.5 4h1A2.5 2.5 0 0 1 15 6.5V8"/></svg></span>
-        <span class="zt">Work</span><span class="zl"></span>
-      </div>
-      <div class="card" id="disc-work-rows">
-        <div class="lrow" style="padding:12px 15px;"><span class="av av-sufi sm">S</span>
-          <div style="flex:1;"><div class="tit" style="font-size:13.5px;">Reply to order DMs</div><div class="sub">Sufi · Support · in your voice</div></div><span class="tgl on" onclick="this.classList.toggle('on')"></span></div>
-        <div class="lrow" style="padding:12px 15px;"><span class="av av-kee sm">K</span>
-          <div style="flex:1;"><div class="tit" style="font-size:13.5px;">Chase overdue invoices</div><div class="sub">Kee · Books · politely</div></div><span class="tgl on" onclick="this.classList.toggle('on')"></span></div>
-        <div class="lrow" style="padding:12px 15px;"><span class="av av-mara sm">M</span>
-          <div style="flex:1;"><div class="tit" style="font-size:13.5px;">Draft the Raya promo</div><div class="sub">Mara · Marketing</div></div><span class="tgl" onclick="this.classList.toggle('on')"></span></div>
+        <div style="flex:1;"></div>
+        <div class="sparkline" style="margin-bottom:10px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 14 9l6.5 2-6.5 2-2 6.5L10 13l-6.5-2L10 9l2-6.5Z" stroke="#565B4E" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <span>Stays on your device · nothing leaves your phone</span>
+        </div>
+        <div style="height:calc(14px + var(--sab));"></div>
       </div>
 
-      <div class="zonehead" style="margin-top:16px;">
-        <span class="zicon pers"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5 12 3.8l8.5 6.7V20a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1v-9.5Z"/></svg></span>
-        <span class="zt pers">Personal</span><span class="zl"></span>
+      <!-- STEP 3 · EARNED SIGNUP -->
+      <div class="obstep" id="ob-step-ready">
+        <div class="ob-eb grn">Your crew is ready</div>
+        <h2 class="ob-h">Your crew is <em>ready.</em></h2>
+        <p class="ob-sub" id="ob-readysub">Here is what they will start taking off your plate.</p>
+        <div class="readygrid" id="ob-readygrid"></div>
+        <div style="flex:1;min-height:16px;"></div>
+        <div class="readycta">
+          <div class="rl">Log in so you don&rsquo;t lose your crew.</div>
+          <div class="rls">Keep everything you just set up.</div>
+          <button class="gbtn" style="margin-top:13px;" onclick="crewGoogleSignIn()" aria-label="Continue with Google">
+            <svg class="gico" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62Z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18Z"/><path fill="#FBBC05" d="M3.97 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.82.96 4.05l3.01-2.33Z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58A9 9 0 0 0 9 0 9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58Z"/></svg>
+            Continue with Google
+          </button>
+          <div class="reassure">Takes 2 seconds · your crew carries over</div>
+        </div>
+        <button class="ob-skip" onclick="finishOnb()" style="margin-top:14px;">Skip for now <span>- set up login later</span></button>
+        <div style="height:calc(14px + var(--sab));"></div>
       </div>
-      <div class="card" id="disc-pers-rows">
-        <div class="lrow" style="padding:12px 15px;"><span class="av av-talia sm">T</span>
-          <div style="flex:1;"><div class="tit" style="font-size:13.5px;">Watch KUL&rarr;BKK fares</div><div class="sub">Talia · Travel · for Mak visits</div></div><span class="tgl on" onclick="this.classList.toggle('on')"></span></div>
-        <div class="lrow" style="padding:12px 15px;"><span class="av av-iman sm">I</span>
-          <div style="flex:1;"><div class="tit" style="font-size:13.5px;">Book Atok&rsquo;s clinic, Tuesdays</div><div class="sub">Iman · Errands</div></div><span class="tgl" onclick="this.classList.toggle('on')"></span></div>
-      </div>
-
-      <div style="flex:1;min-height:22px;"></div>
-      <button class="btn btn-approve" style="margin-bottom:8px;" onclick="finishOnb()">Start my Crew</button>
-      <div style="text-align:center;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:calc(18px + var(--sab));">Change everything later</div>
     </div>
   </div>
 
@@ -1129,6 +1157,27 @@ function renderHome(){
     el.querySelector(".tit").textContent=et;
     el.querySelector(".sub").textContent=es;
     wrap.appendChild(el);
+    // Honest reflection of the recognition-picker choices (real accounts only).
+    // No fabricated results - just what the user asked the crew to start on.
+    if(!CREW_DEMO){
+      var picks=(typeof CREW_PICKS!=="undefined")?CREW_PICKS.filter(function(p){return obPicks.indexOf(p.key)>-1;}):[];
+      if(picks.length){
+        var pc=document.createElement("div");
+        pc.className="card soft";
+        pc.style.marginTop="12px";
+        var rows='<div class="lrow" style="padding:13px 16px 4px;"><div class="eyebrow grn">Your crew starts here</div></div>';
+        picks.forEach(function(p){
+          var ta=document.createElement("textarea");ta.innerHTML=p.ln;var label=ta.value;
+          rows+='<div class="lrow" style="padding:11px 16px;"><span class="tick" style="width:26px;height:26px;flex:none;"><svg width="11" height="9" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+            +'<div class="tit pickrow" style="font-size:13.5px;font-weight:500;"></div></div>';
+          pc._labels=(pc._labels||[]);pc._labels.push(label);
+        });
+        pc.innerHTML=rows;
+        var rowEls=pc.querySelectorAll(".pickrow");
+        for(var i=0;i<rowEls.length && i<pc._labels.length;i++){rowEls[i].textContent=pc._labels[i];}
+        wrap.appendChild(pc);
+      }
+    }
   }
   // Fictional ledger peek shows only in demo mode.
   var led=$("homeledger"); if(led)led.style.display=CREW_DEMO?"":"none";
@@ -1476,310 +1525,145 @@ function endCall(){
   toast("Call ended · your main agent keeps the notes");
 }
 
-/* ============ ONBOARDING ============ */
-/* Intent-first: the very first question is what you want Crew for.
-   The choice (crew_intent) tailors the follow-up questions and the
-   discovery list. Additive - OB/obNext keep their names. */
-const CREW_INTENT_DEFAULT="business";
-function crewIntentGet(){try{return localStorage.getItem("crew_intent")||"";}catch(e){return "";}}
-const CREW_INTENTS=[
-  {id:"work",label:"My work",reply:"For my work."},
-  {id:"business",label:"My business",reply:"For my business."},
-  {id:"personal",label:"Personal life",reply:"For my personal life."},
-  {id:"everything",label:"A bit of everything",reply:"A bit of everything, honestly."}
+/* ============ ONBOARDING (rework) ============ */
+/* Recognition picker -> name -> earned signup. Three .obstep panels live
+   inside #v-onb; obStep() swaps them. Picks (crew_picks) and first name
+   (crew_username) are stored in localStorage and surfaced honestly on Home.
+   No fabricated completed tasks: "ready" reflects only what was picked. */
+
+/* Everyday, first-person recognition cards. key = stable id stored in crew_picks. */
+const CREW_PICKS=[
+  {key:"trip",     ln:"The trip that got cancelled", do:"Rebook it for me",
+    icon:'<path d="M2 16l9-3 9-3M4.5 10.5 11 9l-3-6 2.5-.5 5 5.5 5-1.5a1.6 1.6 0 0 1 .8 3L4 16Z"/>'},
+  {key:"messages", ln:"Messages I&rsquo;m behind on", do:"Draft the replies",
+    icon:'<path d="M4 5h16v14H4z"/><path d="m4 6 8 6 8-6"/>'},
+  {key:"plans",    ln:"Dinner &amp; weekend plans", do:"Book it + remind me",
+    icon:'<path d="M4 3v8a3 3 0 0 0 3 3h0a3 3 0 0 0 3-3V3M7 3v18M17 3c-1.7 0-3 2-3 5s1.3 4 3 4 3 0 3 0v9"/>'},
+  {key:"bill",     ln:"A bill or renewal coming up", do:"Handle it for me",
+    icon:'<path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2zM8 8h8M8 12h8"/>'},
+  {key:"refund",   ln:"A refund I never chased", do:"Chase it down",
+    icon:'<path d="M9 14 4 9l5-5M4 9h11a5 5 0 0 1 5 5v1"/>'},
+  {key:"subs",     ln:"Subscriptions I forgot", do:"Find &amp; cancel them",
+    icon:'<circle cx="12" cy="12" r="9"/><path d="m8.5 8.5 7 7M15.5 8.5l-7 7"/>'}
 ];
-const OB_FLOWS={
-  work:[
-    {t:"agent",text:"Good choice. What should we call you?"},
-    {t:"name"},
-    {t:"agent",text:"Nice to meet you. What does a normal week look like?"},
-    {t:"chips",opts:[
-      {label:"Shipping code and reviews",reply:"Mostly shipping - code, reviews, the odd deploy."},
-      {label:"Meetings, docs and a team",reply:"Meetings, docs and keeping a team moving."}]},
-    {t:"agent",text:"So PRs, deploys and standup prep probably eat your focus. Want your Crew to take those first?"},
-    {t:"chips",dots:2,opts:[
-      {label:"Yes, take them",reply:"Yes, take them."},
-      {label:"Let me pick",reply:"Let me pick which ones."}]},
-    {t:"agent",text:"And outside work, anything you’d quietly hand off?"},
-    {t:"chips",opts:[
-      {label:"Travel and life admin",reply:"Flights, reminders, the odd booking."},
-      {label:"Not much, keep it work",reply:"Not much for now, keep it to work."}]},
-    {t:"agent",text:"Noted. I’ll keep work and personal <b>strictly apart</b>: separate agents, separate memory."},
-    {t:"brain"},
-    {t:"cta",label:"Looks right, meet my Crew"}
-  ],
-  business:[
-    {t:"agent",text:"Love it. What should we call you?"},
-    {t:"name"},
-    {t:"agent",text:"Nice to meet you. What kind of business is it?"},
-    {t:"chips",opts:[
-      {label:"A shop that sells online",reply:"A shop - online orders, mostly through Instagram."},
-      {label:"Services and clients",reply:"Services - clients, quotes, invoices."}]},
-    {t:"agent",text:"So customer DMs, invoices and promos probably eat your evenings. Want your Crew to take those first?"},
-    {t:"chips",dots:2,opts:[
-      {label:"Yes, take them",reply:"Yes, take them."},
-      {label:"Let me pick",reply:"Let me pick which ones."}]},
-    {t:"agent",text:"And outside the business, anything you’d quietly hand off?"},
-    {t:"chips",opts:[
-      {label:"Trips and appointments",reply:"Flights to see family, the recurring appointments."},
-      {label:"Not much, keep it business",reply:"Not much for now, keep it to the business."}]},
-    {t:"agent",text:"Noted. I’ll keep work and personal <b>strictly apart</b>: separate agents, separate memory."},
-    {t:"brain"},
-    {t:"cta",label:"Looks right, meet my Crew"}
-  ],
-  personal:[
-    {t:"agent",text:"The good stuff. What should we call you?"},
-    {t:"name"},
-    {t:"agent",text:"Nice to meet you. What eats your week the most?"},
-    {t:"chips",opts:[
-      {label:"Trips and bookings",reply:"Trips, mostly - fares, holds, bookings."},
-      {label:"Reminders and errands",reply:"Reminders and errands. The little things pile up."}]},
-    {t:"agent",text:"Easy. Your Crew can watch fares, book appointments and nudge you at the right moment. Want them on it?"},
-    {t:"chips",dots:2,opts:[
-      {label:"Yes, all of it",reply:"Yes, all of it."},
-      {label:"Let me pick",reply:"Let me pick which ones."}]},
-    {t:"agent",text:"Done. Everything stays in your <b>personal</b> memory - separate from anything work, if that ever joins."},
-    {t:"brain"},
-    {t:"cta",label:"Looks right, meet my Crew"}
-  ],
-  everything:[
-    {t:"agent",text:"A full plate, then. What should we call you?"},
-    {t:"name"},
-    {t:"agent",text:"Nice to meet you. What’s loudest right now?"},
-    {t:"chips",opts:[
-      {label:"Work things",reply:"Work, mostly. It spills into everything."},
-      {label:"Life things",reply:"Life things - trips, errands, the family calendar."}]},
-    {t:"agent",text:"Got it. Your Crew can spread out - some on work, some on life. Want them to start broad?"},
-    {t:"chips",dots:2,opts:[
-      {label:"Yes, start broad",reply:"Yes, start broad."},
-      {label:"Let me pick",reply:"Let me pick which ones."}]},
-    {t:"agent",text:"Noted. I’ll keep work and personal <b>strictly apart</b>: separate agents, separate memory."},
-    {t:"brain"},
-    {t:"cta",label:"Looks right, meet my Crew"}
-  ]
-};
-const OB_BRAIN={
-  work:{work:"Ships software · PRs, deploys<br>you review what matters",pers:"Flights and life admin<br>watched in the background"},
-  business:{work:"Sells online · DMs, invoices<br>promos wait for your nod",pers:"Trips and reminders<br>handled quietly"},
-  personal:{work:"Inbox and subscriptions<br>only what matters gets through",pers:"Trips, bookings, reminders<br>right time, every time"},
-  everything:{work:"Work and business busywork<br>asks before anything big",pers:"Trips, errands, reminders<br>quietly handled"}
-};
-/* Discovery list ("Here's what your crew can do") per intent */
-const DISC_BY_INTENT={
-  work:{work:[
-      ["ramy","Open review-ready PRs","keeps main green",1],
-      ["mara","Stage tonight’s deploy","ships when you say",1],
-      ["sufi","Prep your standup notes","ready by 8 AM",0]],
-    pers:[
-      ["talia","Watch flight fares","for the next trip",1],
-      ["iman","Guard your focus hours","calendar kept honest",0]]},
-  business:{work:[
-      ["sufi","Reply to order DMs","in your voice",1],
-      ["kee","Chase overdue invoices","politely",1],
-      ["mara","Draft the next promo","ready for your nod",0]],
-    pers:[
-      ["talia","Watch flight fares","for family visits",1],
-      ["iman","Book the recurring appointments","Tuesdays handled",0]]},
-  personal:{work:[
-      ["kee","Keep an eye on subscriptions","flags the creep",1],
-      ["sufi","Tidy the inbox each morning","only what matters",0]],
-    pers:[
-      ["talia","Plan the next trip","fares, holds, bookings",1],
-      ["iman","Run reminders and errands","right time, every time",1],
-      ["mara","Book tables and tickets","one line from you",0]]},
-  everything:{work:[
-      ["ramy","Take the work busywork","quotes, follow-ups, drafts",1],
-      ["kee","Watch the money","invoices and subscriptions",1]],
-    pers:[
-      ["talia","Watch trips and fares","books when you nod",1],
-      ["iman","Reminders and errands","quietly handled",1]]}
-};
-function renderDisc(){
-  var d=DISC_BY_INTENT[crewIntentGet()]||DISC_BY_INTENT[CREW_INTENT_DEFAULT];
-  function rows(arr){
-    var h="";
-    arr.forEach(function(r){
-      var a=AGENTS[r[0]];if(!a)return;
-      h+='<div class="lrow" style="padding:12px 15px;"><span class="av '+a.av+' sm">'+a.mark+'</span>'
-        +'<div style="flex:1;"><div class="tit" style="font-size:13.5px;">'+r[1]+'</div><div class="sub">'+a.name+' · '+r[2]+'</div></div>'
-        +'<span class="tgl'+(r[3]?" on":"")+'" onclick="this.classList.toggle(\'on\')"></span></div>';
-    });
-    return h;
-  }
-  var w=$("disc-work-rows");if(w)w.innerHTML=rows(d.work);
-  var p=$("disc-pers-rows");if(p)p.innerHTML=rows(d.pers);
-}
-const OB=[
-  {t:"agent",text:"Hi, we’re your Crew. First things first - what do you want us for?"},
-  {t:"intent"}
-];
-let obi=0;
-function obNext(){
-  if(obi>=OB.length)return;
-  const step=OB[obi];
-  const log=$("chatlog");
-  if(step.t==="agent"){
-    obi++;
-    const row=document.createElement("div");
-    row.className="chatrow";
-    row.innerHTML='<span class="av av-crew sm" style="font-size:12px;">C</span><div class="bub agent"><span class="typing"><i></i><i></i><i></i></span></div>';
-    log.appendChild(row);
-    obScroll();
-    setTimeout(()=>{
-      row.querySelector(".bub").innerHTML=step.text;
-      obScroll();
-      setTimeout(obNext,420);
-    },620);
-  }else if(step.t==="intent"){
-    const row=document.createElement("div");
-    row.className="chiprow";
-    CREW_INTENTS.forEach(o=>{
-      const b=document.createElement("button");
-      b.className="qchip";b.textContent=o.label;
-      b.onclick=()=>{
-        row.remove();
-        try{localStorage.setItem("crew_intent",o.id);}catch(e){}
-        const u=document.createElement("div");
-        u.className="chatrow";
-        u.innerHTML='<div class="bub user"></div>';
-        u.querySelector(".bub").textContent=o.reply;
-        log.appendChild(u);
-        OB.length=obi+1;
-        (OB_FLOWS[o.id]||OB_FLOWS[CREW_INTENT_DEFAULT]).forEach(s=>OB.push(s));
-        obi++;
-        obScroll();
-        setTimeout(obNext,460);
-      };
-      row.appendChild(b);
-    });
-    log.appendChild(row);
-    obScroll();
-  }else if(step.t==="name"){
-    // Onboarding only runs signed-out -> ALWAYS ask the name. Never pre-fill from a
-    // stale localStorage cache (was showing a prior tester's name as "preselected").
-    const known="";
-    if(known){
-      obi++;
-      const u=document.createElement("div");
-      u.className="chatrow";
-      u.innerHTML='<div class="bub user"></div>';
-      u.querySelector(".bub").textContent=known;
-      log.appendChild(u);
-      obScroll();
-      setTimeout(obNext,460);
-    }else{
-      const row=document.createElement("div");
-      row.className="chiprow";
-      row.style.flexWrap="nowrap";
-      row.innerHTML='<input id="obnamefield" type="text" placeholder="Your first name" autocomplete="given-name" style="flex:1;background:#fff;border:1.5px solid var(--hair2);border-radius:999px;padding:11px 16px;font-size:16px;color:var(--ink);outline:none;min-width:0;">'
-        +'<button class="sendbtn" style="width:44px;height:44px;" aria-label="Send name"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F3EFE5" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg></button>';
-      const fld=row.querySelector("input");
-      const go=()=>{
-        const v=fld.value.trim();
-        if(!v)return;
-        const first=v.split(/\s+/)[0];
-        try{localStorage.setItem("crew_username",first);}catch(e){}
-        row.remove();
-        const u=document.createElement("div");
-        u.className="chatrow";
-        u.innerHTML='<div class="bub user"></div>';
-        u.querySelector(".bub").textContent=first;
-        log.appendChild(u);
-        crewApplyUserName(first);
-        applyCrewNames();
-        obi++;
-        obScroll();
-        setTimeout(obNext,460);
-      };
-      fld.addEventListener("keydown",e=>{if(e.key==="Enter")go();});
-      row.querySelector("button").onclick=go;
-      log.appendChild(row);
-      obScroll();
-      setTimeout(()=>{try{fld.focus({preventScroll:true});}catch(e){}},380);
-    }
-  }else if(step.t==="chips"){
-    const row=document.createElement("div");
-    row.className="chiprow";
-    step.opts.forEach(o=>{
-      const b=document.createElement("button");
-      b.className="qchip";b.textContent=o.label;
-      b.onclick=()=>{
-        row.remove();
-        const u=document.createElement("div");
-        u.className="chatrow";
-        u.innerHTML='<div class="bub user">'+o.reply+"</div>";
-        log.appendChild(u);
-        if(step.dots)setDots(step.dots);
-        obi++;
-        obScroll();
-        setTimeout(obNext,460);
-      };
-      row.appendChild(b);
-    });
-    log.appendChild(row);
-    obScroll();
-  }else if(step.t==="brain"){
-    obi++;
-    const bi=OB_BRAIN[crewIntentGet()]||OB_BRAIN[CREW_INTENT_DEFAULT];
-    const c=document.createElement("div");
-    c.className="card chatrow";
-    c.style.cssText="margin-top:12px;padding:15px 17px 13px;display:block;";
-    c.innerHTML='<div style="display:flex;align-items:center;gap:8px;">'
-      +'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.2C10 4.6 6.4 4.6 4 5.6V19c2.4-1 6-1 8 .6 2-1.6 5.6-1.6 8-.6V5.6c-2.4-1-6-1-8 .6Z"/><path d="M12 6.2v13.4"/></svg>'
-      +'<span class="eyebrow grn">What I’ve learned so far</span></div>'
-      +'<div style="display:flex;align-items:center;gap:8px;margin:13px 0 7px;"><span class="ztag work">Work</span><span style="flex:1;height:1px;background:var(--hair);"></span></div>'
-      +'<div style="font-size:13px;line-height:1.7;color:var(--ink);">'+bi.work+'</div>'
-      +'<div style="display:flex;align-items:center;gap:8px;margin:13px 0 7px;"><span class="ztag pers">Personal</span><span style="flex:1;height:1px;background:var(--hair);"></span></div>'
-      +'<div style="font-size:13px;line-height:1.7;color:var(--ink);">'+bi.pers+'</div>';
-    log.appendChild(c);
-    obScroll();
-    setTimeout(obNext,650);
-  }else if(step.t==="cta"){
-    obi++;
-    setDots(3);
-    const w=document.createElement("div");
-    w.className="chatrow";
-    w.style.display="block";
-    w.innerHTML='<button class="btn btn-approve" style="margin-top:16px;">'+step.label+'</button>'
-      +'<button class="obfix" onclick="restartOnb()">Not quite - let me fix something</button>';
-    w.querySelector("button").onclick=()=>{renderDisc();push("v-disc");};
-    log.appendChild(w);
-    obScroll();
-  }
+const CREW_PICK_PRESEL=["trip","messages"]; // a couple pre-selected, per the mock
+let obPicks=[];        // current selection (card keys)
+function crewPicksGet(){try{var p=JSON.parse(localStorage.getItem("crew_picks")||"[]");return Array.isArray(p)?p:[];}catch(e){return [];}}
+function crewPicksSave(){try{localStorage.setItem("crew_picks",JSON.stringify(obPicks));}catch(e){}}
+
+/* show one onboarding step panel + sync the progress dots */
+function obStep(n){
+  var steps=["ob-step-pick","ob-step-name","ob-step-ready"];
+  steps.forEach(function(id,i){var el=$(id);if(el)el.classList.toggle("on",i===(n-1));});
+  setDots(n);
+  var ts=$("ob-topskip");if(ts)ts.style.display=(n===2)?"":"none"; // name step is the only skippable mid-step
+  var vb=$("v-onb").querySelector(".vbody");if(vb)vb.scrollTop=0;
 }
 function setDots(n){
-  const dots=$("obdots").children;
-  for(let i=0;i<3;i++)dots[i].classList.toggle("on",i===n-1);
-  for(let i=0;i<n-1;i++)dots[i].classList.add("on");
-  for(let i=0;i<3;i++)dots[i].style.width=(i===n-1)?"22px":"5px";
-  $("obtitle").textContent=n===1?"Getting to know you":n===2?"Work & life, apart":"Meet your Crew";
+  var dots=$("obdots").children;
+  for(var i=0;i<3;i++){
+    dots[i].classList.toggle("on",i<=n-1);
+    dots[i].style.width=(i===n-1)?"22px":"5px";
+  }
 }
-function obScroll(){
-  const v=$("v-onb").querySelector(".vbody");
-  requestAnimationFrame(()=>{v.scrollTop=v.scrollHeight;});
+
+/* STEP 1 · recognition picker -------------------------------------------- */
+function renderPicks(){
+  var g=$("ob-pickgrid");if(!g)return;
+  g.innerHTML="";
+  CREW_PICKS.forEach(function(p){
+    var b=document.createElement("button");
+    b.className="pcard"+(obPicks.indexOf(p.key)>-1?" sel":"");
+    b.setAttribute("data-key",p.key);
+    b.innerHTML='<span class="pck"><svg width="11" height="9" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+      +'<span class="pic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+p.icon+'</svg></span>'
+      +'<span class="pln">'+p.ln+'</span><span class="pdo">'+p.do+'</span>';
+    b.onclick=function(){
+      var i=obPicks.indexOf(p.key);
+      if(i>-1)obPicks.splice(i,1);else obPicks.push(p.key);
+      b.classList.toggle("sel",obPicks.indexOf(p.key)>-1);
+      updatePickCta();
+    };
+    g.appendChild(b);
+  });
+  updatePickCta();
 }
-function restartOnb(){
-  $("chatlog").innerHTML="";
-  OB.length=2;
-  obi=0;setDots(1);
-  setTimeout(obNext,420);
+function updatePickCta(){
+  var cta=$("ob-pickcontinue");if(!cta)return;
+  cta.textContent=obPicks.length?("Continue with "+obPicks.length):"Continue";
 }
-function startOnb(){
-  document.getElementById("app").classList.add("onb");
-  OB.length=2;
-  $("chatlog").innerHTML="";obi=0;setDots(1);
-  $("v-onb").classList.add("on");
-  setTimeout(obNext,500);
+function obPicksContinue(){
+  crewPicksSave();
+  obStep(2);
+  setTimeout(function(){try{$("obnamefield").focus({preventScroll:true});}catch(e){}},380);
 }
-function finishOnb(){
-  // Real app: don't lose the crew - finish must lead to Google sign-in + a real account.
-  if(!CREW_DEMO && !crewSignedIn()){
-    crewGateSignIn();
+function obSkipPicks(){
+  obPicks=[];
+  crewPicksSave();
+  obStep(2);
+  setTimeout(function(){try{$("obnamefield").focus({preventScroll:true});}catch(e){}},380);
+}
+
+/* STEP 2 · name (always asks · never pre-filled, mirrors obnamefield pattern) */
+function obNameSubmit(){
+  var fld=$("obnamefield");if(!fld)return;
+  var v=(fld.value||"").trim();
+  if(!v)return;
+  var first=v.split(/\s+/)[0];
+  try{localStorage.setItem("crew_username",first);}catch(e){}
+  crewApplyUserName(first);
+  applyCrewNames();
+  renderReady();
+  obStep(3);
+}
+
+/* STEP 3 · earned signup · reflects picks HONESTLY (no fake completed tasks) */
+function renderReady(){
+  var sub=$("ob-readysub"), grid=$("ob-readygrid");
+  var first=crewUserFirst();
+  if(sub)sub.textContent=(first?(first+", your"):"Your")+" crew is set up. Here is what they will start taking off your plate.";
+  if(!grid)return;
+  grid.innerHTML="";
+  var chosen=CREW_PICKS.filter(function(p){return obPicks.indexOf(p.key)>-1;});
+  if(!chosen.length){
+    var row=document.createElement("div");
+    row.className="readyrow";
+    row.innerHTML='<span class="ric"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2.5"/></svg></span>'
+      +'<div><div class="rtx"></div><div class="rsb"></div></div>';
+    row.querySelector(".rtx").textContent="Ready when you are";
+    row.querySelector(".rsb").textContent="Tell your crew what to take, anytime - it learns as you go.";
+    grid.appendChild(row);
     return;
   }
+  chosen.forEach(function(p){
+    var row=document.createElement("div");
+    row.className="readyrow";
+    row.innerHTML='<span class="ric"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+p.icon+'</svg></span>'
+      +'<div><div class="rtx"></div><div class="rsb"></div></div>';
+    // text inserted as DATA (decode the few HTML entities used in labels)
+    var tmp=document.createElement("textarea");tmp.innerHTML=p.ln;row.querySelector(".rtx").textContent=tmp.value;
+    row.querySelector(".rsb").textContent="Ready to take off your plate";
+    grid.appendChild(row);
+  });
+}
+
+function startOnb(){
+  document.getElementById("app").classList.add("onb");
+  obPicks=CREW_PICK_PRESEL.slice(); // a couple pre-selected per the mock
+  var nf=$("obnamefield");if(nf)nf.value="";  // NEVER pre-fill the name
+  renderPicks();
+  obStep(1);
+  $("v-onb").classList.add("on");
+}
+
+/* --- (legacy scripted-chat data removed; superseded by the picker flow) --- */
+function finishOnb(){
+  // Land on the real Home carrying name + picks. Login is EARNED, not forced: the
+  // earned-signup step (step 3) is where Google sign-in is offered; "Skip for now"
+  // lands the user unsigned on a real (honest, empty) home, never a fictional one.
+  crewPicksSave();
   try{localStorage.setItem("crew_onboarded","1");}catch(e){}
   document.getElementById("app").classList.remove("onb");
-  $("v-disc").classList.remove("on");
   $("v-onb").classList.remove("on");
   stack=[];
   showTab("home");
@@ -1847,7 +1731,6 @@ function crewApplyAccount(acct){
     if(app.classList.contains("onb")){
       try{localStorage.setItem("crew_onboarded","1");}catch(e){}
       app.classList.remove("onb");
-      $("v-disc").classList.remove("on");
       $("v-onb").classList.remove("on");
       stack=[];
       showTab("home");
@@ -2033,6 +1916,7 @@ function crewSignedIn(){
     var vf=$("village-foot");if(vf)vf.style.display="block";
   }
 
+  obPicks=crewPicksGet(); // carry recognition-picker choices into Home
   crewApplyUserName(CREW_DEMO?demoName:crewUserFirst());
   applyCrewNames();
   renderHome();renderCrew();
@@ -2047,6 +1931,12 @@ function crewSignedIn(){
     startOnb();
   }
   $("redfield").addEventListener("keydown",e=>{if(e.key==="Enter")sendRedirect();});
+  /* onboarding-rework wiring: picker continue + name submit (click + Enter) */
+  (function(){
+    var pc=$("ob-pickcontinue");if(pc)pc.addEventListener("click",obPicksContinue);
+    var ns=$("ob-namesend");if(ns)ns.addEventListener("click",obNameSubmit);
+    var nf=$("obnamefield");if(nf)nf.addEventListener("keydown",function(e){if(e.key==="Enter")obNameSubmit();});
+  })();
   /* CREW-05: real drag-to-dismiss on sheets (works on the .grab handle of whichever sheet is open) */
   (function(){
     var dragging=false,startY=0;
