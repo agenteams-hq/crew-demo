@@ -335,11 +335,14 @@ input{font-family:inherit;}
   <!-- ===== ONBOARDING · conversational chat (user does 1%, agent does 99%) ===== -->
   <div class="view tabview" id="v-onb">
     <div class="vbody" id="ob-chatbody" style="padding-top:calc(var(--sat) + 14px);">
-      <!-- meet your main agent: the creature, front and centre on first contact -->
+      <!-- meet Noor: the creature, front and centre on first contact -->
       <div style="display:flex;flex-direction:column;align-items:center;text-align:center;flex:none;padding:6px 0 2px;">
-        <span class="orb av-noor" style="width:88px;height:88px;font-size:36px;">&#9733;<span class="st grn" style="width:15px;height:15px;right:5px;bottom:5px;"></span></span>
-        <div class="tit" style="font-size:16px;font-weight:600;margin-top:13px;">Your main agent</div>
-        <div class="sub" style="font-size:12.5px;color:var(--mute);margin-top:3px;max-width:25em;">A quick chat to find your one big thing - then you're in. You do 1%, it does the rest.</div>
+        <span style="position:relative;width:94px;height:94px;border-radius:50%;overflow:hidden;display:block;border:2.5px solid #fff;box-shadow:0 8px 22px -8px rgba(32,36,30,.45);background:var(--green-tint);">
+          <img src="mocks/assets/creature-hero.webp" alt="Noor" style="width:100%;height:100%;object-fit:cover;object-position:center 40%;image-rendering:pixelated;">
+          <span class="st grn" style="position:absolute;right:6px;bottom:6px;width:15px;height:15px;border:2.5px solid var(--paper);"></span>
+        </span>
+        <div class="tit" style="font-size:17px;font-weight:600;margin-top:13px;">Noor</div>
+        <div class="sub" style="font-size:11.5px;color:var(--mute);margin-top:1px;letter-spacing:.06em;text-transform:lowercase;">your main agent</div>
       </div>
       <div id="ob-chatlog" style="padding:8px 0 18px;flex:none;"></div>
       <!-- earned signup card · appears only after the questions (hidden until then) -->
@@ -1716,7 +1719,7 @@ let obBusy=false;     // true while the agent is "thinking"/typing (locks the co
 
 // The agent opens by STATING ITS MISSION (Fares: tell the user what we're doing),
 // then leads. This opener is our controlled copy; every later turn is the LLM.
-const OB_OPENER="I&rsquo;m your main agent, and I run a crew that&rsquo;s here to help you. Let&rsquo;s find the one thing on your mind that matters most right now. What&rsquo;s been weighing on you lately?";
+const OB_OPENER="Hi, I&rsquo;m Noor - your main agent. I run a crew that&rsquo;s here to help you. Let&rsquo;s find the one thing on your mind that matters most right now. What&rsquo;s been weighing on you lately?";
 const OB_OPENER_SUGGEST=["Finding a job","My inbox is chaos","Money & bills","Planning something big","Something else"];
 
 /* context store (a small object of free-text answers) */
