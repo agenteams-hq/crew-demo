@@ -333,7 +333,7 @@ input{font-family:inherit;}
    see a stale build right after a deploy. On load we fetch the page fresh (no-store,
    bypassing the cache) and compare the build id; if ours is stale, reload once via a
    cache-busting param so the latest UI always wins. */
-window.CREW_BUILD="20260615-013915";
+window.CREW_BUILD="20260615-014411";
 (function(){
   try{
     if(/[?&]fresh=/.test(location.search))return;
@@ -1898,8 +1898,7 @@ function obFinishSmart(d){
       +'<img src="mocks/assets/creature-hero.webp" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center 40%;image-rendering:pixelated;">'
       +'<span class="st grn" style="position:absolute;right:8px;bottom:8px;width:16px;height:16px;border:3px solid var(--paper);"></span>'
       +'</span>'
-      +'<div class="tit" id="ob-revname" style="font-size:19px;font-weight:600;margin-top:13px;"></div>'
-      +'<div class="sub" style="font-size:12.5px;color:var(--mute);margin-top:2px;">your main agent</div>'
+      +'<div style="margin-top:13px;line-height:1.3;"><span class="tit" id="ob-revname" style="font-size:18px;font-weight:600;"></span><span class="sub" style="font-size:12.5px;color:var(--mute);font-weight:400;">  ·  your main agent</span></div>'
       +'</div>';
     log.appendChild(rev);
     var rn=rev.querySelector("#ob-revname");if(rn)rn.textContent="Meet "+agentName; // DATA - safe
