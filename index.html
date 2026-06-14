@@ -331,7 +331,7 @@ input{font-family:inherit;}
         <span class="av av-noor sm">&#9733;<span class="st grn"></span></span>
         <div>
           <div class="tit" style="font-size:15px;font-weight:600;">Your main agent</div>
-          <div class="sub" style="font-size:12px;color:var(--mute);">A couple of questions. You do 1%, it does the rest.</div>
+          <div class="sub" style="font-size:12px;color:var(--mute);">A quick chat to find your one big thing. You do 1%, it does the rest.</div>
         </div>
       </div>
       <div id="ob-chatlog" style="padding:8px 0 18px;flex:none;"></div>
@@ -1122,7 +1122,9 @@ function renderHome(){
     // start on. Renders the captured context as plain DATA, never HTML.
     if(!CREW_DEMO){
       var ctx=crewOnbContextGet();
-      var lines=crewOnbStartLines(ctx);
+      var lines=[];
+      if(ctx.goal)lines.push(ctx.goal);
+      if(ctx.first_action)lines.push("Starting on: "+ctx.first_action);
       if(lines.length){
         var pc=document.createElement("div");
         pc.className="card soft";
@@ -1535,26 +1537,19 @@ function endCall(){
 
 /* The script. Each step: q = agent question; ack(answer) = warm acknowledgement
    that reflects the answer back; key = where the answer is stored in context. */
-const OB_QUESTIONS=[
-  {key:"timesink", multi:true,
-   q:"Hey - I&rsquo;m your main agent. In a sentence or two, what&rsquo;s eating most of your time right now?",
-   suggest:["Emails & messages","Admin & errands","Planning & scheduling"],
-   ack:function(a){return "Got it - so "+obQuote(a)+" is taking the hit. I&rsquo;ll start there.";}},
-  {key:"sphere",
-   q:"Makes sense. Is that more work, life, or a bit of both?",
-   suggest:["Mostly work","Mostly life","A bit of both"],
-   ack:function(a){return "Noted - "+obQuote(a)+". I&rsquo;ll keep that in mind.";}},
-  {key:"offplate",
-   q:"What&rsquo;s one thing on your plate this week you&rsquo;d love off it?",
-   suggest:["My inbox","Booking something","Chasing a payment"],
-   ack:function(a){return "Perfect - "+obQuote(a)+". Consider it on my list.";}},
-  {key:"name", name:true,
-   q:"Last thing - what should I call you?",
-   ack:function(a){return "Nice to meet you, "+obQuote(a)+".";}}
-];
+// ===== Smart goal-seeking onboarding (LLM-driven) =====
+// The first conversation has ONE goal: find the single most important thing in
+// the user's life right now the crew can start on TODAY, drawn out with sharp,
+// adaptive follow-ups (job hunting -> ask for the LinkedIn + target roles). The
+// agent reasons server-side (/api/onboard); the client just renders the dialogue.
+const CREW_ONBOARD="https://crew-api-two.vercel.app/api/onboard";
+let obMessages=[];    // running [{role,content}] conversation (client-held)
+let obBusy=false;     // true while the agent is "thinking"/typing (locks the composer)
 
-let obQ=0;            // index of the question currently awaiting an answer
-let obBusy=false;     // true while the agent is "typing" (locks the composer)
+// The agent opens by STATING ITS MISSION (Fares: tell the user what we're doing),
+// then leads. This opener is our controlled copy; every later turn is the LLM.
+const OB_OPENER="I&rsquo;m your main agent. My job is simple: find the one thing I can take off your hands that matters most right now, and actually start on it today. So - what&rsquo;s been weighing on you lately?";
+const OB_OPENER_SUGGEST=["Finding a job","My inbox is chaos","Money & bills","Planning something big"];
 
 /* context store (a small object of free-text answers) */
 function crewOnbContextGet(){try{var c=JSON.parse(localStorage.getItem("crew_onboarding_context")||"{}");return (c&&typeof c==="object")?c:{};}catch(e){return {};}}
@@ -1599,113 +1594,138 @@ function obAgentSay(html,then,delay){
 
 /* suggested replies: tappable quick answers next to the free-text input (tap or type) */
 function obClearSuggest(){var log=$("ob-chatlog");if(!log)return;var ex=log.querySelectorAll(".ob-suggest");for(var i=0;i<ex.length;i++)ex[i].remove();}
-function obSelectedSuggest(){
-  var log=$("ob-chatlog");if(!log)return [];
-  var sel=[];var btns=log.querySelectorAll(".ob-suggest .obsugg");
-  for(var i=0;i<btns.length;i++){if(btns[i].dataset.sel==="1")sel.push(btns[i].dataset.val);}
-  return sel;
+// text-safe agent bubble (for the LLM's own untrusted copy + transcript replay)
+function obAddAgentText(text){
+  var log=$("ob-chatlog");if(!log)return;
+  var row=document.createElement("div");row.className="chatrow";
+  row.innerHTML='<span class="av av-noor sm" style="font-size:12px;">&#9733;</span><div class="bub agent"></div>';
+  row.querySelector(".bub").textContent=text; // DATA - safe
+  log.appendChild(row);obScroll();
 }
-function obRenderSuggest(q){
+// suggested replies: tap any chip to answer instantly (the agent suggests these)
+function obShowSuggest(arr){
   obClearSuggest();
-  if(!q||!q.suggest||!q.suggest.length)return;
+  if(!arr||!arr.length)return;
   var log=$("ob-chatlog");if(!log)return;
   var row=document.createElement("div");row.className="chiprow ob-suggest";
-  q.suggest.forEach(function(s){
-    var b=document.createElement("button");b.type="button";b.className="obsugg";b.dataset.val=s;b.dataset.sel="0";
+  arr.forEach(function(s){
+    var b=document.createElement("button");b.type="button";b.className="obsugg";b.dataset.val=s;
     b.style.cssText="font-family:var(--grot);font-size:13px;font-weight:500;color:var(--ink);background:#fff;border:1px solid var(--hair2);border-radius:999px;padding:9px 15px;cursor:pointer;transition:all .15s;";
     b.textContent=s; // DATA
-    b.onclick=function(){ if(obBusy)return;
-      if(!q.multi){ // SINGLE-select (exclusive options like work/life/both): one tap answers
-        var fld=$("obnamefield"); if(fld){fld.value=s;} obNameSubmit(); return;
-      }
-      // MULTI-select (additive, e.g. time-sinks): toggle; the send button submits the combined picks (+ any typed text)
-      var on=b.dataset.sel==="1"; b.dataset.sel=on?"0":"1";
-      if(on){b.style.background="#fff";b.style.borderColor="var(--hair2)";b.style.color="var(--ink)";}
-      else{b.style.background="var(--green-tint)";b.style.borderColor="var(--green)";b.style.color="var(--green-deep)";}
-    };
+    b.onclick=function(){ if(obBusy)return; obSubmitAnswer(s); };
     row.appendChild(b);
   });
   log.appendChild(row);obScroll();
 }
 
-/* ask the question at index obQ (or wrap up if we are past the end) */
-function obAskCurrent(){
-  if(obQ>=OB_QUESTIONS.length){obFinishQuestions();return;}
-  var q=OB_QUESTIONS[obQ];
-  obAgentSay(q.q,function(){
-    var f=$("obnamefield");if(f){f.disabled=false;try{f.focus({preventScroll:true});}catch(e){}}
-    obRenderSuggest(q); // tappable suggestions alongside the free-text input
+/* agent opens with its mission, then leads (no auth needed to READ the opener) */
+function obStartSmart(){
+  obMessages=[];
+  obAgentSay(OB_OPENER,function(){
+    var f=$("obnamefield");if(f){f.disabled=false;f.placeholder="Tell me what's on your mind…";try{f.focus({preventScroll:true});}catch(e){}}
+    obShowSuggest(OB_OPENER_SUGGEST);
   });
 }
 
-/* user submitted an answer to the current question */
-function obNameSubmit(){ // name kept for the existing boot wiring; handles every answer
+/* user answered (typed or tapped a chip) -> drive the goal-seeking LLM loop */
+function obSubmitAnswer(forced){
   if(obBusy)return;
-  var fld=$("obnamefield");if(!fld)return;
-  var typed=(fld.value||"").trim();
-  var sel=obSelectedSuggest();                       // multi-select picks
-  var v=sel.concat(typed?[typed]:[]).join(", ");     // combine tapped + typed
+  var fld=$("obnamefield");
+  var v=(forced!=null?forced:((fld&&fld.value)||"")).trim();
   if(!v)return;
-  var q=OB_QUESTIONS[obQ];if(!q)return;
-
-  obClearSuggest(); // remove the tappable suggestions once answered
+  obClearSuggest();
   obAddUser(v);
-  fld.value="";fld.disabled=true;
+  if(fld){fld.value="";fld.disabled=true;}
+  obMessages.push({role:"user",content:v});
 
-  var ctx=crewOnbContextGet();
-  if(q.name){
-    var first=v.split(/\s+/)[0];
-    ctx[q.key]=first;
-    try{localStorage.setItem("crew_username",first);}catch(e){}
-    crewApplyUserName(first);
-    applyCrewNames();
-  }else{
-    ctx[q.key]=v;
+  // The smart loop does REAL work, so it needs a real account (spend-gated). If
+  // not signed in yet, save the conversation and do the one-tap Google sign-in,
+  // then resume the exact dialogue (crewApplyAccount -> obResumeAfterSignin).
+  if(!crewSignedIn()){
+    try{localStorage.setItem("crew_onb_resume",JSON.stringify(obMessages));}catch(e){}
+    obAgentSay("Love it - that's exactly what I'm for. One tap to sign in so I can actually start working on this, then I'm on it.",function(){
+      setTimeout(crewGoogleSignIn,820);
+    },560);
+    return;
   }
-  crewOnbContextSave(ctx);
-
-  var ack=q.ack(q.name?(ctx[q.key]):v);
-  obQ++;
-  // acknowledge briefly, then ask the next question (or wrap up)
-  obAgentSay(ack,function(){
-    setTimeout(function(){
-      if(obQ<OB_QUESTIONS.length)obAskCurrent();else obFinishQuestions();
-    },360);
-  },620);
+  obTurn();
 }
 
-/* honest, plain-language lines summarizing what the user told us (no fiction) */
-function crewOnbStartLines(ctx){
-  ctx=ctx||{};
-  var lines=[];
-  if(ctx.timesink)lines.push("Free up time from: "+obQuote(ctx.timesink));
-  if(ctx.offplate)lines.push("Take off your plate this week: "+obQuote(ctx.offplate));
-  if(ctx.sphere&&!ctx.timesink&&!ctx.offplate)lines.push("Focus: "+obQuote(ctx.sphere));
-  return lines;
+/* ask the agent for the next turn (a question, or the committed goal) */
+function obTurn(){
+  obBusy=true;
+  var log=$("ob-chatlog");var row=null;
+  if(log){row=document.createElement("div");row.className="chatrow";
+    row.innerHTML='<span class="av av-noor sm" style="font-size:12px;">&#9733;</span><div class="bub agent"><span class="typing"><i></i><i></i><i></i></span></div>';
+    log.appendChild(row);obScroll();}
+  fetch(CREW_ONBOARD,crewAuthPOST({device_id:crewDevice(),messages:obMessages}))
+    .then(function(r){return r.json();})
+    .then(function(d){
+      obBusy=false;
+      if(!d||!d.ok){ if(row)row.querySelector(".bub").textContent="Hmm, I lost that for a second - say it once more?"; var fe=$("obnamefield");if(fe){fe.disabled=false;} return; }
+      var reply=d.reply||"Tell me a bit more.";
+      if(row)row.querySelector(".bub").textContent=reply; else obAddAgentText(reply); // DATA - safe
+      obMessages.push({role:"assistant",content:reply});
+      if(d.done){ setTimeout(function(){obFinishSmart(d);},620); return; }
+      var f=$("obnamefield");if(f){f.disabled=false;try{f.focus({preventScroll:true});}catch(e){}}
+      obShowSuggest(d.suggest||[]);
+    })
+    .catch(function(){
+      obBusy=false;
+      if(row)row.querySelector(".bub").textContent="Connection hiccup - try that again?";
+      var f=$("obnamefield");if(f)f.disabled=false;
+    });
 }
 
-/* after the questions: hide the composer, show the earned-signup card */
-function obFinishQuestions(){
+/* resume the smart onboarding after the mid-flow Google sign-in redirect */
+function obResumeAfterSignin(){
+  var saved=null;try{saved=JSON.parse(localStorage.getItem("crew_onb_resume")||"null");}catch(e){}
+  try{localStorage.removeItem("crew_onb_resume");}catch(e){}
+  if(!saved||!saved.length)return false;
+  document.getElementById("app").classList.add("onb");
+  $("v-onb").classList.add("on");
+  var log=$("ob-chatlog");if(log)log.innerHTML="";
+  obMessages=saved.slice();
+  obMessages.forEach(function(m){ if(m.role==="user")obAddUser(m.content); else obAddAgentText(m.content); }); // replay transcript
+  var comp=$("ob-composer");if(comp)comp.classList.remove("hide");
+  var card=$("ob-readycta");if(card)card.style.display="none";
+  obBusy=false;
+  obTurn(); // last turn was the user's -> continue
+  return true;
+}
+
+/* the agent committed to a goal: record it, KICK OFF the first real task now,
+   and show the "on it" card. The user finishes onboarding with work already moving. */
+function obFinishSmart(d){
   var comp=$("ob-composer");if(comp)comp.classList.add("hide");
-  var ctx=crewOnbContextGet();
   var first=crewUserFirst();
+  var ctx=crewOnbContextGet();ctx.goal=d.goal||"";ctx.first_action=d.first_action||"";crewOnbContextSave(ctx);
 
-  // warm wrap-up bubble (honest: only reflects what they said)
-  var bigOne=ctx.timesink?obQuote(ctx.timesink):(ctx.offplate?obQuote(ctx.offplate):"");
-  var wrap="Your crew is ready"+(first?(", "+first):"")+"."+(bigOne?(" The big one&rsquo;s "+bigOne+" - that&rsquo;s where I&rsquo;ll start."):"");
-  obAgentSay(wrap,function(){
-    var card=$("ob-readycta");
-    if(card){
-      var t=$("ob-readytitle");if(t)t.textContent=(first?(first+", ")+"your crew is ready.":"Your crew is ready.");
-      var s=$("ob-readysum");
-      if(s){
-        var lines=crewOnbStartLines(ctx);
-        s.textContent=lines.length?("Here&#x2019;s what I picked up - "+lines.join("; ")+".").replace(/&#x2019;/g,"’"):"Tell me what to take next, anytime - I learn as you go.";
-      }
-      card.style.display="";
-      setTimeout(obScroll,40);
-    }
-  },760);
+  // fire the first real task in the background (the agent does, not just talks)
+  obKickoff(d);
+
+  var card=$("ob-readycta");
+  if(card){
+    var t=$("ob-readytitle");if(t)t.textContent=(first?(first+", "):"")+"I'm on it.";
+    var s=$("ob-readysum");
+    if(s){ s.textContent=(d.goal||"Your crew is ready.")+(d.first_action?(" Starting now: "+d.first_action):""); } // DATA
+    // the user is already signed in by this point -> swap the CTA to "go in"
+    var g=card.querySelector(".gbtn");if(g){g.textContent="See what I've started";g.onclick=finishOnb;}
+    var sk=card.querySelector(".ob-skip");if(sk)sk.style.display="none";
+    card.style.display="";
+    setTimeout(obScroll,40);
+  }
+}
+
+/* hand the committed goal to the execution loop (/api/task) so a real artifact
+   is waiting on Home. Self-contained LLM work only - no connector surface. */
+function obKickoff(d){
+  if(!crewToken)return;
+  var req=d.first_action||d.goal;if(!req)return;
+  try{
+    fetch(CREW_TASK,crewAuthPOST({device_id:crewDevice(),request:req}))
+      .then(function(r){return r.json();}).catch(function(){});
+  }catch(e){}
 }
 
 function startOnb(){
@@ -1715,9 +1735,9 @@ function startOnb(){
   var card=$("ob-readycta");if(card)card.style.display="none";
   var comp=$("ob-composer");if(comp)comp.classList.remove("hide");
   var nf=$("obnamefield");if(nf){nf.value="";nf.disabled=true;nf.placeholder="Type your answer…";}
-  obQ=0;obBusy=false;
+  obBusy=false;
   $("v-onb").classList.add("on");
-  setTimeout(obAskCurrent,420); // agent leads
+  setTimeout(obStartSmart,420); // agent leads with its mission
 }
 
 function finishOnb(){
@@ -1788,7 +1808,11 @@ function crewApplyAccount(acct){
       crewApplyUserName(acct.firstName);
       applyCrewNames();
     }
-    // A real account exists now: leave onboarding and land on the real home.
+    // Mid-onboarding sign-in (the smart loop needs an account to do real work):
+    // resume the exact dialogue instead of dropping the user on Home.
+    var resumePending=false;try{resumePending=!!localStorage.getItem("crew_onb_resume");}catch(e){}
+    if(resumePending){ obResumeAfterSignin(); return; }
+    // Otherwise a real account exists now: leave onboarding and land on the real home.
     var app=document.getElementById("app");
     if(app.classList.contains("onb")){
       try{localStorage.setItem("crew_onboarded","1");}catch(e){}
@@ -1994,8 +2018,8 @@ function crewSignedIn(){
   $("redfield").addEventListener("keydown",e=>{if(e.key==="Enter")sendRedirect();});
   /* conversational-onboarding wiring: free-text answer submit (send button + Enter) */
   (function(){
-    var ns=$("ob-namesend");if(ns)ns.addEventListener("click",obNameSubmit);
-    var nf=$("obnamefield");if(nf)nf.addEventListener("keydown",function(e){if(e.key==="Enter")obNameSubmit();});
+    var ns=$("ob-namesend");if(ns)ns.addEventListener("click",function(){obSubmitAnswer();});
+    var nf=$("obnamefield");if(nf)nf.addEventListener("keydown",function(e){if(e.key==="Enter")obSubmitAnswer();});
   })();
   /* CREW-05: real drag-to-dismiss on sheets (works on the .grab handle of whichever sheet is open) */
   (function(){
