@@ -1778,7 +1778,14 @@ function obShowSuggest(arr){
     var b=document.createElement("button");b.type="button";b.className="obsugg";b.dataset.val=s;
     b.style.cssText="font-family:var(--grot);font-size:13px;font-weight:500;color:var(--ink);background:#fff;border:1px solid var(--hair2);border-radius:999px;padding:9px 15px;cursor:pointer;transition:all .15s;";
     b.textContent=s; // DATA
-    b.onclick=function(){ if(obBusy)return; obSubmitAnswer(s); };
+    b.onclick=function(){ if(obBusy)return;
+      if(/^(something else|other)$/i.test(s)){ // don't submit the literal chip - let them write
+        obClearSuggest();
+        var f=$("obnamefield");if(f){f.disabled=false;f.placeholder="Tell me in your own words…";try{f.focus();}catch(e){}}
+        return;
+      }
+      obSubmitAnswer(s);
+    };
     row.appendChild(b);
   });
   log.appendChild(row);obScroll();
@@ -1828,7 +1835,7 @@ function obTurn(attempt){
       if(row)row.querySelector(".bub").textContent=cleanMd(reply); else obAddAgentText(reply); // DATA - safe
       obMessages.push({role:"assistant",content:reply});
       if(d.done){ setTimeout(function(){obFinishSmart(d);},620); return; }
-      var f=$("obnamefield");if(f){f.disabled=false;try{f.focus({preventScroll:true});}catch(e){}}
+      var f=$("obnamefield");if(f){f.disabled=false;f.placeholder="Type your answer…";try{f.focus({preventScroll:true});}catch(e){}} // no longer "Your name…"
       obShowSuggest(d.suggest||[]);
     })
     .catch(function(){
