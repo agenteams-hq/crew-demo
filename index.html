@@ -333,7 +333,7 @@ input{font-family:inherit;}
    see a stale build right after a deploy. On load we fetch the page fresh (no-store,
    bypassing the cache) and compare the build id; if ours is stale, reload once via a
    cache-busting param so the latest UI always wins. */
-window.CREW_BUILD="20260615-013423";
+window.CREW_BUILD="20260615-013915";
 (function(){
   try{
     if(/[?&]fresh=/.test(location.search))return;
@@ -1884,6 +1884,9 @@ function obFinishSmart(d){
   // goal as context, but do NOT auto-start any task - the user starts work inside the app.
   var ctx=crewOnbContextGet();ctx.goal=d.goal||"";crewOnbContextSave(ctx);
   var nm=crewUserFirst()||"";
+  // the agent's name, derived to correspond to the user's (Fares) - stored + used everywhere
+  var agentName=(d.agent_name||"Noor").replace(/[<>]/g,"").slice(0,40);
+  try{localStorage.setItem("crew_agent_name",agentName);ctx.agent_name=agentName;crewOnbContextSave(ctx);}catch(e){}
 
   // THE REVEAL (Fares' new flow): now that we understand the goal, you MEET your main
   // agent - the creature, as the payoff at the end (not the top).
@@ -1895,10 +1898,12 @@ function obFinishSmart(d){
       +'<img src="mocks/assets/creature-hero.webp" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center 40%;image-rendering:pixelated;">'
       +'<span class="st grn" style="position:absolute;right:8px;bottom:8px;width:16px;height:16px;border:3px solid var(--paper);"></span>'
       +'</span>'
-      +'<div class="tit" style="font-size:19px;font-weight:600;margin-top:13px;">Meet Noor</div>'
+      +'<div class="tit" id="ob-revname" style="font-size:19px;font-weight:600;margin-top:13px;"></div>'
       +'<div class="sub" style="font-size:12.5px;color:var(--mute);margin-top:2px;">your main agent</div>'
       +'</div>';
-    log.appendChild(rev);obScroll();
+    log.appendChild(rev);
+    var rn=rev.querySelector("#ob-revname");if(rn)rn.textContent="Meet "+agentName; // DATA - safe
+    obScroll();
   }
 
   // Already signed in: linger on the reveal, then land them in - no auto-work.
@@ -1909,7 +1914,7 @@ function obFinishSmart(d){
   if(card){
     var t=$("ob-readytitle");if(t)t.textContent=d.goal?("Got it"+(nm?", "+nm:"")+" - "+d.goal+"."):"Your crew is ready.";
     var s=$("ob-readysum");
-    if(s){ s.textContent="Noor and your crew are ready whenever you are. Sign in to come in."; } // DATA
+    if(s){ s.textContent=agentName+" and your crew are ready whenever you are. Sign in to come in."; } // DATA
     var g=card.querySelector(".gbtn");if(g){g.textContent="Sign in to meet your crew";g.onclick=crewGoogleSignIn;}
     var sk=card.querySelector(".ob-skip");if(sk)sk.style.display="";
     card.style.display="";
