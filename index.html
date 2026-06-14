@@ -1523,7 +1523,7 @@ function endCall(){
 /* The script. Each step: q = agent question; ack(answer) = warm acknowledgement
    that reflects the answer back; key = where the answer is stored in context. */
 const OB_QUESTIONS=[
-  {key:"timesink",
+  {key:"timesink", multi:true,
    q:"Hey - I&rsquo;m your main agent. In a sentence or two, what&rsquo;s eating most of your time right now?",
    suggest:["Emails & messages","Admin & errands","Planning & scheduling"],
    ack:function(a){return "Got it - so "+obQuote(a)+" is taking the hit. I&rsquo;ll start there.";}},
@@ -1601,7 +1601,11 @@ function obRenderSuggest(q){
     var b=document.createElement("button");b.type="button";b.className="obsugg";b.dataset.val=s;b.dataset.sel="0";
     b.style.cssText="font-family:var(--grot);font-size:13px;font-weight:500;color:var(--ink);background:#fff;border:1px solid var(--hair2);border-radius:999px;padding:9px 15px;cursor:pointer;transition:all .15s;";
     b.textContent=s; // DATA
-    b.onclick=function(){ if(obBusy)return; // multi-select: tap toggles; the send button submits the combined picks + any typed text
+    b.onclick=function(){ if(obBusy)return;
+      if(!q.multi){ // SINGLE-select (exclusive options like work/life/both): one tap answers
+        var fld=$("obnamefield"); if(fld){fld.value=s;} obNameSubmit(); return;
+      }
+      // MULTI-select (additive, e.g. time-sinks): toggle; the send button submits the combined picks (+ any typed text)
       var on=b.dataset.sel==="1"; b.dataset.sel=on?"0":"1";
       if(on){b.style.background="#fff";b.style.borderColor="var(--hair2)";b.style.color="var(--ink)";}
       else{b.style.background="var(--green-tint)";b.style.borderColor="var(--green)";b.style.color="var(--green-deep)";}
