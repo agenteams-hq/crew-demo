@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Crew - Mockups for review</title>
+<title>Crew - Latest, live</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@400;500&display=swap');
-  :root{ --kraft:#FBF8F1; --ink:#1C1B17; --muted:#6B675C; --green:#00B14F; --line:#E7E0D2; }
+  :root{ --kraft:#FBF8F1; --ink:#1C1B17; --muted:#6B675C; --green:#00B14F; --green-deep:#00813B; --line:#E7E0D2; }
   *{ box-sizing:border-box; margin:0; padding:0; }
   body{ background:var(--kraft); color:var(--ink); font-family:Inter,system-ui,sans-serif;
     line-height:1.5; padding:56px 22px 90px; }
@@ -16,18 +16,22 @@
   h1{ font-family:Fraunces,Georgia,serif; font-weight:400; font-size:34px; line-height:1.12;
     letter-spacing:-.01em; margin-bottom:10px; }
   h1 em{ font-style:italic; }
-  .lede{ color:var(--muted); font-size:15px; max-width:30em; margin-bottom:34px; }
+  .lede{ color:var(--muted); font-size:15px; max-width:32em; margin-bottom:34px; }
   a.card{ display:block; text-decoration:none; color:inherit; background:#fff;
     border:1px solid var(--line); border-radius:16px; padding:18px 20px; margin-bottom:12px;
     transition:transform .12s ease, box-shadow .12s ease; }
   a.card:hover{ transform:translateY(-2px); box-shadow:0 8px 24px rgba(28,27,23,.06); }
-  .ct{ display:flex; align-items:baseline; gap:10px; margin-bottom:4px; }
+  .ct{ display:flex; align-items:baseline; gap:10px; margin-bottom:4px; flex-wrap:wrap; }
   .ct h2{ font-family:Fraunces,Georgia,serif; font-weight:500; font-size:18px; letter-spacing:-.01em; }
   .tag{ font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:10px; letter-spacing:.08em;
     text-transform:uppercase; color:var(--green); border:1px solid var(--green);
     border-radius:999px; padding:2px 8px; }
   .tag.new{ color:#B26A00; border-color:#E0C9A0; }
   .cd{ color:var(--muted); font-size:13.5px; }
+  .sec{ font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:11px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--muted); margin:30px 0 12px; }
+  .ab{ display:flex; gap:10px; }
+  .ab a{ flex:1; text-align:center; }
   .foot{ margin-top:30px; font-size:12.5px; color:var(--muted); }
   .grain{ position:fixed; inset:0; pointer-events:none; opacity:.5; mix-blend-mode:multiply;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E"); }
@@ -36,36 +40,57 @@
 <body>
 <div class="grain"></div>
 <div class="wrap">
-  <div class="eyebrow">Crew &middot; Mockups for approval</div>
-  <h1>Things to look at before we <em>build them</em>.</h1>
-  <p class="lede">Every one of these is a static mockup, not the live app. Nothing here is wired in yet. Tap any to open the full frames.</p>
+  <div class="eyebrow">Crew &middot; Latest build</div>
+  <h1>The latest - and it's all <em>live</em>.</h1>
+  <p class="lede">These aren't static frames anymore. Every card opens the real app and you can actually use it. Best on a phone. The onboarding and the call have a real agent behind them.</p>
 
-  <a class="card" href="./crew-working.html">
-    <div class="ct"><h2>Companion, redesigned</h2><span class="tag new">Replaces v1</span></div>
-    <div class="cd">The calm "your crew is quietly on it" status board. Real activity, no creature. This is the redo of the companion view you didn't like.</div>
+  <div class="sec">Talk to it</div>
+
+  <a class="card" href="../?forceonb=1">
+    <div class="ct"><h2>Smart onboarding</h2><span class="tag new">New</span></div>
+    <div class="cd">A real agent conversation, not a form. It states its mission, finds the one thing that matters most to you right now, and starts on it. Tell it "I'm looking for a job" and watch it chase the specifics.</div>
   </a>
 
-  <a class="card" href="./ambient-ios.html">
-    <div class="ct"><h2>On your lock screen</h2><span class="tag new">Replaces v1</span></div>
-    <div class="cd">The same calm, grounded in how iOS actually works: Live Activity, Dynamic Island, a widget tile, a notification. Honest "updated 4m ago" timing.</div>
+  <a class="card" href="../?demo=1&skiponb=1&view=call">
+    <div class="ct"><h2>Live voice call</h2><span class="tag new">New</span></div>
+    <div class="cd">Actually talk to your main agent out loud. It listens, validates what you want, and confirms back - "understood, that's happening now". Tap the call, allow the mic, and speak.</div>
   </a>
 
-  <a class="card" href="./ledger.html">
-    <div class="ct"><h2>What your crew handled</h2><span class="tag">New screen</span></div>
-    <div class="cd">A weekly ledger of everything done for you, with the time and money it saved. The "look at all this" moment.</div>
+  <div class="sec">The app</div>
+
+  <a class="card" href="../?demo=1&skiponb=1&view=home">
+    <div class="ct"><h2>Hand your crew a task</h2><span class="tag">Home</span></div>
+    <div class="cd">The home screen with the live task box - type a real task and the crew actually does it and shows you the finished result.</div>
   </a>
 
-  <a class="card" href="./onboarding-calendar.html">
-    <div class="ct"><h2>Onboarding that already did something</h2><span class="tag">New flow</span></div>
-    <div class="cd">Connect one thing, and land on Home to find your crew already worked while you finished signing up.</div>
+  <a class="card" href="../?demo=1&skiponb=1&view=village">
+    <div class="ct"><h2>Companion village</h2><span class="tag">Honest state</span></div>
+    <div class="cd">Glance and see your crew, alive and quietly on it. Now driven by your real state - calm when there's nothing, real counts when there's work.</div>
   </a>
 
-  <a class="card" href="./voice.html">
-    <div class="ct"><h2>Talk to your crew</h2><span class="tag">New entry</span></div>
-    <div class="cd">Voice-first: tap to talk, or call your main agent out loud. Phase 1 is on-device dictation; Phase 2 is real-time voice.</div>
+  <a class="card" href="../?demo=1&skiponb=1&view=crew">
+    <div class="ct"><h2>Your crew</h2><span class="tag">Team</span></div>
+    <div class="cd">The team of agents working for you - who's on what, and what they've handled.</div>
   </a>
 
-  <p class="foot">AgenTeams &middot; Crew. Static mockups only. Approve and I build them into the app.</p>
+  <a class="card" href="../?demo=1&skiponb=1&view=brain">
+    <div class="ct"><h2>Memory</h2><span class="tag">Context</span></div>
+    <div class="cd">What your crew knows about you - the context it builds as you go, so it gets sharper over time.</div>
+  </a>
+
+  <div class="sec">Colour - which pops more?</div>
+  <div class="ab">
+    <a class="card" href="../?demo=1&skiponb=1&view=home&pop=1" style="margin-bottom:0;">
+      <div class="ct"><h2>More pop</h2></div>
+      <div class="cd">Punchier green, brighter tints, warm gold.</div>
+    </a>
+    <a class="card" href="../?demo=1&skiponb=1&view=home&pop=0" style="margin-bottom:0;">
+      <div class="ct"><h2>Current</h2></div>
+      <div class="cd">The calmer, muted palette.</div>
+    </a>
+  </div>
+
+  <p class="foot">AgenTeams &middot; Crew. This is the live build, not mockups. Tell me what to change.</p>
 </div>
 </body>
 </html>
