@@ -380,6 +380,18 @@ input{font-family:inherit;}
         <span class="mono-num" style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);" id="homecount"></span>
       </div>
 
+      <!-- MVP hero: hand your crew a real task -> it does it -->
+      <div class="card" id="taskcard" style="margin-top:24px;border-color:#CFE6D8;background:linear-gradient(180deg,#FFFFFF,#F3FAF5);box-shadow:0 1px 2px rgba(32,36,30,.05), 0 20px 40px -24px rgba(0,129,59,.28);">
+        <div style="padding:16px 17px;">
+          <div class="eyebrow grn">Hand your crew a task</div>
+          <div style="display:flex;align-items:center;gap:9px;margin-top:11px;">
+            <input id="taskfield" type="text" placeholder="e.g. draft a reply to my landlord&hellip;" autocomplete="off" style="flex:1;background:#fff;border:1.5px solid var(--hair2);border-radius:999px;padding:12px 16px;font-size:15px;color:var(--ink);outline:none;min-width:0;">
+            <button class="sendbtn" onclick="crewDoTask()" aria-label="Hand it to your crew"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F3EFE5" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg></button>
+          </div>
+          <div id="taskresult"></div>
+        </div>
+      </div>
+
       <div id="homedecisions" style="margin-top:28px;display:flex;flex-direction:column;gap:12px;"></div>
 
       <!-- ledger peek (DEMO ONLY · fictional activity, hidden for real accounts) -->
@@ -1397,6 +1409,7 @@ function talkScroll(){
   requestAnimationFrame(()=>{v.scrollTop=v.scrollHeight;});
 }
 const CREW_API="https://crew-api-two.vercel.app/api/noor";
+const CREW_TASK="https://crew-api-two.vercel.app/api/task"; // MVP: hand the crew a real task -> it does it
 const CREW_HISTORY="https://crew-api-two.vercel.app/api/history";
 const CREW_MEM="https://crew-api-two.vercel.app/api/memory";
 var crewToken="";
@@ -1410,6 +1423,30 @@ let TALK_HISTORY=[];
 let talkLoaded=false;
 function crewDevice(){let d;try{d=localStorage.getItem("crew_device");}catch(e){}if(!d){d=(self.crypto&&crypto.randomUUID)?crypto.randomUUID():("11111111-2222-4333-8444-"+(Date.now().toString(16)+"000000000000").slice(0,12));try{localStorage.setItem("crew_device",d);}catch(e){}}return d;}
 function loadTalkHistory(){fetch(CREW_HISTORY+"?device_id="+encodeURIComponent(crewDevice()),crewAuthGET()).then(function(r){return r.json();}).then(function(d){if(d.messages&&d.messages.length){var log=$("talklog");log.innerHTML="";d.messages.forEach(function(m){var row=document.createElement("div");row.className="chatrow";if(m.role==="user"){var b=document.createElement("div");b.className="bub user";b.textContent=m.content;row.appendChild(b);}else{row.innerHTML='<span class="av av-noor sm" style="font-size:12px;">★</span><div class="bub agent"></div>';row.querySelector(".bub").textContent=m.content;}log.appendChild(row);});talkScroll();}}).catch(function(){});}
+// MVP execution loop: hand the crew a task -> /api/task -> the agent does it -> show the result.
+function crewDoTask(){
+  var f=$("taskfield"); if(!f)return;
+  var req=(f.value||"").trim(); if(!req)return;
+  if(!crewToken){ toast("Sign in with Google first - tap your avatar, top right."); return; }
+  var out=$("taskresult"); if(!out)return;
+  f.value=""; f.disabled=true;
+  try{crewHaptic(8);}catch(e){}
+  out.innerHTML='<div class="card soft" style="margin-top:13px;"><div class="lrow" style="padding:14px 16px;"><span class="live-dot"></span><span class="sub" style="font-size:13.5px;margin-left:4px;">Your crew is on it&hellip;</span></div></div>';
+  fetch(CREW_TASK, crewAuthPOST({device_id:crewDevice(), request:req}))
+    .then(function(x){ return x.status===401?{__auth:1}:x.json(); })
+    .then(function(d){
+      f.disabled=false;
+      if(d&&d.__auth){ out.innerHTML=""; toast("Sign in with Google first."); return; }
+      if(!d||!d.ok||!d.result){ out.innerHTML='<div class="sub" style="margin-top:11px;font-size:12.5px;color:var(--mute);">Could not finish that one - try again.</div>'; return; }
+      var card=document.createElement("div"); card.className="card"; card.style.cssText="margin-top:13px;border-color:var(--hair);";
+      card.innerHTML='<div style="padding:14px 16px;"><div style="display:flex;align-items:center;gap:8px;"><span class="tick" style="width:26px;height:26px;"><svg width="11" height="9" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="eyebrow grn">Done</span></div><div style="margin-top:10px;font-size:14px;line-height:1.5;white-space:pre-wrap;color:var(--ink);" id="taskout"></div></div>';
+      out.innerHTML=""; out.appendChild(card);
+      card.querySelector("#taskout").textContent=d.result; // DATA, XSS-safe
+      try{crewHaptic(12);}catch(e){}
+    })
+    .catch(function(){ f.disabled=false; out.innerHTML='<div class="sub" style="margin-top:11px;font-size:12.5px;color:var(--mute);">Network hiccup - try again.</div>'; });
+}
+
 function sendTalk(){
   const f=$("talkfield");
   const txt=f.value.trim();
@@ -1965,6 +2002,7 @@ function crewSignedIn(){
     },{passive:true});
   })();
   $("talkfield").addEventListener("keydown",e=>{if(e.key==="Enter")sendTalk();});
+  var _tkf=$("taskfield");if(_tkf)_tkf.addEventListener("keydown",function(e){if(e.key==="Enter")crewDoTask();});
   crewInitAuth();
 })();
 </script>
