@@ -240,13 +240,7 @@ input{font-family:inherit;}
 #toast{position:absolute;left:50%;bottom:calc(110px + var(--sab));transform:translateX(-50%) translateY(16px);background:rgba(32,36,30,.94);backdrop-filter:saturate(180%) blur(14px);-webkit-backdrop-filter:saturate(180%) blur(14px);color:#F3EFE5;font-size:13px;font-weight:600;border-radius:999px;padding:11px 20px;z-index:32;opacity:0;visibility:hidden;transition:opacity .3s ease,transform .42s var(--spring),visibility .3s;white-space:nowrap;box-shadow:0 12px 26px -10px rgba(32,36,30,.5);display:flex;align-items:center;gap:8px;}
 #toast.on{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);}
 
-/* onboarding dots */
-.obdots{display:flex;gap:6px;margin-bottom:18px;}
-.obdots span{width:5px;height:5px;border-radius:3px;background:var(--hair2);transition:all .3s;}
-.obdots span.on{width:22px;background:var(--green);}
 .skipbtn{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-left:auto;padding:6px 2px;}
-.sparkline{display:flex;align-items:center;gap:8px;padding:0 4px;}
-.sparkline span{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);}
 
 .holdred{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);padding:8px 6px;}
 .stepbtn{width:26px;height:26px;border-radius:50%;border:1px solid var(--hair2);display:flex;align-items:center;justify-content:center;color:var(--ink2);font-weight:700;flex:none;}
@@ -308,103 +302,57 @@ input{font-family:inherit;}
 .callctl-label{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-top:9px;text-align:center;}
 
 /* ============================================================
-   ONBOARDING REWORK · recognition picker + earned signup
-   (replaces the scripted chat). On-brand: kraft, Grab green,
-   Fraunces. Sized for the 520px app shell, not the mock board.
+   ONBOARDING · conversational chat (motto: user does 1%, agent
+   does 99%). Agent asks 3-4 warm questions one at a time; user
+   types free-text answers; answers build context + reflect back.
+   Reuses the chat bubble system (.chatrow/.bub) + talkcomposer.
+   On-brand: kraft, Grab green, Fraunces.
    ============================================================ */
-.obstep{display:none;flex:1;flex-direction:column;min-height:0;}
-.obstep.on{display:flex;animation:bubin .42s cubic-bezier(.21,1.02,.45,1) both;}
-.ob-eb{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);margin-top:6px;}
-.ob-eb.grn{color:var(--green-deep);}
-.ob-h{font-family:var(--serif);font-weight:480;font-size:30px;line-height:1.1;letter-spacing:-.018em;color:var(--ink);margin-top:12px;font-variation-settings:"opsz" 60;}
-.ob-h em{font-style:italic;font-weight:430;}
-.ob-sub{font-size:14px;line-height:1.5;color:var(--ink2);margin-top:11px;}
-/* recognition picker cards */
-.pickgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:20px;}
-.pcard{position:relative;background:#fff;border:1.5px solid var(--hair);border-radius:20px;padding:15px 14px 16px;box-shadow:0 1px 2px rgba(32,36,30,.04);display:flex;flex-direction:column;min-height:118px;transition:border-color .2s ease,box-shadow .2s ease,transform .3s var(--spring);text-align:left;}
-.pcard:active{transform:scale(.98);transition-duration:.08s;}
-.pcard.sel{border-color:var(--green);box-shadow:0 0 0 3px var(--green-tint),0 1px 2px rgba(32,36,30,.04);}
-.pcard .pic{width:38px;height:38px;border-radius:12px;background:var(--bone);display:flex;align-items:center;justify-content:center;color:var(--ink2);transition:background .2s ease,color .2s ease;}
-.pcard.sel .pic{background:var(--green-tint);color:var(--green-deep);}
-.pcard .pck{position:absolute;top:13px;right:13px;width:21px;height:21px;border-radius:50%;border:2px solid var(--hair2);display:flex;align-items:center;justify-content:center;transition:background .2s ease,border-color .2s ease;}
-.pcard.sel .pck{background:var(--green);border-color:var(--green);}
-.pcard .pck svg{opacity:0;transition:opacity .2s ease;}
-.pcard.sel .pck svg{opacity:1;}
-.pcard .pln{font-family:var(--serif);font-weight:500;font-size:15px;line-height:1.22;letter-spacing:-.01em;color:var(--ink);margin-top:13px;}
-.pcard .pdo{font-size:11.5px;color:var(--mute);margin-top:4px;}
-.ob-skip{display:block;width:100%;text-align:center;margin-top:18px;font-size:13.5px;font-weight:600;color:var(--ink2);padding:8px 0;}
+.ob-skip{display:block;width:100%;text-align:center;margin-top:6px;font-size:13.5px;font-weight:600;color:var(--ink2);padding:8px 0;}
 .ob-skip span{color:var(--mute);font-weight:500;}
-/* earned signup */
-.readygrid{display:flex;flex-direction:column;gap:9px;margin-top:20px;}
-.readyrow{display:flex;align-items:center;gap:13px;background:#fff;border:1px solid var(--hair);border-radius:18px;padding:13px 15px;box-shadow:0 1px 2px rgba(32,36,30,.04);}
-.readyrow .ric{width:34px;height:34px;border-radius:11px;background:var(--green-tint);color:var(--green-deep);display:flex;align-items:center;justify-content:center;flex:none;}
-.readyrow .rtx{font-size:14px;font-weight:600;color:var(--ink);letter-spacing:-.005em;}
-.readyrow .rsb{font-size:11.5px;color:var(--mute);margin-top:2px;}
-.readycta{background:rgba(255,255,255,.55);border:1px solid var(--hair);border-radius:20px;padding:17px 16px 16px;margin-top:auto;}
-.readycta .rl{font-family:var(--serif);font-weight:480;font-size:18px;line-height:1.25;color:var(--ink);text-align:center;}
-.readycta .rls{text-align:center;font-size:12.5px;color:var(--ink2);margin-top:6px;line-height:1.45;}
-.readycta .reassure{text-align:center;font-size:11px;color:var(--mute);margin-top:11px;}
+/* earned signup card (shown after the questions) */
+.readycta{background:rgba(255,255,255,.55);border:1px solid var(--hair);border-radius:20px;padding:17px 16px 14px;animation:bubin .42s cubic-bezier(.21,1.02,.45,1) both;}
+.readycta .rl{font-family:var(--serif);font-weight:480;font-size:19px;line-height:1.25;color:var(--ink);text-align:center;}
+.readycta .rls{text-align:center;font-size:13px;color:var(--ink2);margin-top:8px;line-height:1.5;}
+/* onboarding chat composer disabled state (after last question) */
+#v-onb #obnamefield{width:100%;background:#fff;border:1.5px solid var(--hair2);border-radius:999px;padding:13px 18px;font-size:16px;color:var(--ink);outline:none;transition:border-color .2s ease;}
+#v-onb #obnamefield::placeholder{color:var(--mute);}
+#v-onb #obnamefield:focus{border-color:var(--ink);}
+#ob-composer.hide{display:none;}
 </style>
 </head>
 <body>
 <div id="app" class="onb">
 
-  <!-- ===== ONBOARDING · recognition picker + earned signup (rework) ===== -->
+  <!-- ===== ONBOARDING · conversational chat (user does 1%, agent does 99%) ===== -->
   <div class="view tabview" id="v-onb">
-    <div class="vbody vtop">
-      <div style="display:flex;align-items:center;">
-        <div class="obdots" id="obdots" style="margin-bottom:0;"><span class="on"></span><span></span><span></span></div>
-        <button class="skipbtn" id="ob-topskip" onclick="finishOnb()" style="display:none;">Skip</button>
-      </div>
-
-      <!-- STEP 1 · RECOGNITION PICKER -->
-      <div class="obstep on" id="ob-step-pick">
-        <div class="ob-eb grn">Getting started</div>
-        <h2 class="ob-h">What should your crew take off your plate?</h2>
-        <p class="ob-sub">Pick a few. Or just start - your crew learns as you go.</p>
-        <div class="pickgrid" id="ob-pickgrid"></div>
-        <div style="flex:1;min-height:14px;"></div>
-        <button class="btn btn-approve" id="ob-pickcontinue" style="margin-top:18px;">Continue</button>
-        <button class="ob-skip" onclick="obSkipPicks()">Skip <span>- your crew learns as you go</span></button>
-        <div style="height:calc(14px + var(--sab));"></div>
-      </div>
-
-      <!-- STEP 2 · NAME -->
-      <div class="obstep" id="ob-step-name">
-        <div class="ob-eb grn">One thing</div>
-        <h2 class="ob-h">What should we <em>call</em> you?</h2>
-        <p class="ob-sub">First name is plenty. It is how your crew greets you.</p>
-        <div class="chiprow" style="flex-wrap:nowrap;margin-top:22px;">
-          <input id="obnamefield" type="text" placeholder="Your first name" autocomplete="given-name" style="flex:1;background:#fff;border:1.5px solid var(--hair2);border-radius:999px;padding:13px 18px;font-size:16px;color:var(--ink);outline:none;min-width:0;">
-          <button class="sendbtn" id="ob-namesend" aria-label="Save name"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F3EFE5" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    <div class="vbody" id="ob-chatbody" style="padding-top:calc(var(--sat) + 14px);">
+      <div style="display:flex;align-items:center;gap:11px;flex:none;">
+        <span class="av av-noor sm">&#9733;<span class="st grn"></span></span>
+        <div>
+          <div class="tit" style="font-size:15px;font-weight:600;">Your main agent</div>
+          <div class="sub" style="font-size:12px;color:var(--mute);">A couple of questions. You do 1%, it does the rest.</div>
         </div>
-        <div style="flex:1;"></div>
-        <div class="sparkline" style="margin-bottom:10px;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2.5 14 9l6.5 2-6.5 2-2 6.5L10 13l-6.5-2L10 9l2-6.5Z" stroke="#565B4E" stroke-width="1.6" stroke-linejoin="round"/></svg>
-          <span>Stays on your device · nothing leaves your phone</span>
-        </div>
-        <div style="height:calc(14px + var(--sab));"></div>
       </div>
-
-      <!-- STEP 3 · EARNED SIGNUP -->
-      <div class="obstep" id="ob-step-ready">
-        <div class="ob-eb grn">Your crew is ready</div>
-        <h2 class="ob-h">Your crew is <em>ready.</em></h2>
-        <p class="ob-sub" id="ob-readysub">Here is what they will start taking off your plate.</p>
-        <div class="readygrid" id="ob-readygrid"></div>
-        <div style="flex:1;min-height:16px;"></div>
-        <div class="readycta">
-          <div class="rl">Log in so you don&rsquo;t lose your crew.</div>
-          <div class="rls">Keep everything you just set up.</div>
-          <button class="gbtn" style="margin-top:13px;" onclick="crewGoogleSignIn()" aria-label="Continue with Google">
-            <svg class="gico" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62Z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18Z"/><path fill="#FBBC05" d="M3.97 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.82.96 4.05l3.01-2.33Z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58A9 9 0 0 0 9 0 9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58Z"/></svg>
-            Continue with Google
-          </button>
-          <div class="reassure">Takes 2 seconds · your crew carries over</div>
-        </div>
-        <button class="ob-skip" onclick="finishOnb()" style="margin-top:14px;">Skip for now <span>- set up login later</span></button>
-        <div style="height:calc(14px + var(--sab));"></div>
+      <div id="ob-chatlog" style="padding:8px 0 18px;flex:none;"></div>
+      <!-- earned signup card · appears only after the questions (hidden until then) -->
+      <div class="readycta" id="ob-readycta" style="display:none;margin-top:6px;">
+        <div class="rl" id="ob-readytitle">Your crew is ready.</div>
+        <div class="rls" id="ob-readysum"></div>
+        <button class="gbtn" style="margin-top:13px;" onclick="crewGoogleSignIn()" aria-label="Continue with Google">
+          <svg class="gico" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62Z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18Z"/><path fill="#FBBC05" d="M3.97 10.72A5.4 5.4 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.82.96 4.05l3.01-2.33Z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58A9 9 0 0 0 9 0 9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58Z"/></svg>
+          Continue with Google
+        </button>
+        <button class="ob-skip" onclick="finishOnb()" style="margin-top:11px;">Skip for now <span>- so you don&rsquo;t lose your crew, log in later</span></button>
       </div>
+      <div style="flex:1;min-height:10px;"></div>
+    </div>
+    <!-- free-text composer (mirrors the talk composer) · hides when questions are done -->
+    <div class="talkcomposer" id="ob-composer">
+      <div class="talkwrap">
+        <input id="obnamefield" type="text" placeholder="Type your answer&hellip;" autocomplete="off" enterkeyhint="send">
+      </div>
+      <button class="sendbtn" id="ob-namesend" aria-label="Send"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F3EFE5" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg></button>
     </div>
   </div>
 
@@ -1157,24 +1105,25 @@ function renderHome(){
     el.querySelector(".tit").textContent=et;
     el.querySelector(".sub").textContent=es;
     wrap.appendChild(el);
-    // Honest reflection of the recognition-picker choices (real accounts only).
-    // No fabricated results - just what the user asked the crew to start on.
+    // Honest reflection of the conversational onboarding answers (real accounts
+    // only). No fabricated results - just what the user told the agent it would
+    // start on. Renders the captured context as plain DATA, never HTML.
     if(!CREW_DEMO){
-      var picks=(typeof CREW_PICKS!=="undefined")?CREW_PICKS.filter(function(p){return obPicks.indexOf(p.key)>-1;}):[];
-      if(picks.length){
+      var ctx=crewOnbContextGet();
+      var lines=crewOnbStartLines(ctx);
+      if(lines.length){
         var pc=document.createElement("div");
         pc.className="card soft";
         pc.style.marginTop="12px";
-        var rows='<div class="lrow" style="padding:13px 16px 4px;"><div class="eyebrow grn">Your crew starts here</div></div>';
-        picks.forEach(function(p){
-          var ta=document.createElement("textarea");ta.innerHTML=p.ln;var label=ta.value;
-          rows+='<div class="lrow" style="padding:11px 16px;"><span class="tick" style="width:26px;height:26px;flex:none;"><svg width="11" height="9" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
-            +'<div class="tit pickrow" style="font-size:13.5px;font-weight:500;"></div></div>';
-          pc._labels=(pc._labels||[]);pc._labels.push(label);
+        pc.innerHTML='<div class="lrow" style="padding:13px 16px 4px;"><div class="eyebrow grn">What your crew picked up</div></div>';
+        lines.forEach(function(label){
+          var row=document.createElement("div");
+          row.className="lrow";row.style.padding="11px 16px";
+          row.innerHTML='<span class="tick" style="width:26px;height:26px;flex:none;"><svg width="11" height="9" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+            +'<div class="tit" style="font-size:13.5px;font-weight:500;"></div>';
+          row.querySelector(".tit").textContent=label; // DATA, never HTML
+          pc.appendChild(row);
         });
-        pc.innerHTML=rows;
-        var rowEls=pc.querySelectorAll(".pickrow");
-        for(var i=0;i<rowEls.length && i<pc._labels.length;i++){rowEls[i].textContent=pc._labels[i];}
         wrap.appendChild(pc);
       }
     }
@@ -1525,143 +1474,167 @@ function endCall(){
   toast("Call ended · your main agent keeps the notes");
 }
 
-/* ============ ONBOARDING (rework) ============ */
-/* Recognition picker -> name -> earned signup. Three .obstep panels live
-   inside #v-onb; obStep() swaps them. Picks (crew_picks) and first name
-   (crew_username) are stored in localStorage and surfaced honestly on Home.
-   No fabricated completed tasks: "ready" reflects only what was picked. */
+/* ============ ONBOARDING · conversational chat ============ */
+/* Motto: the user does 1%, the agent does 99%. The main agent asks 3-4 short,
+   warm, open questions ONE AT A TIME; the user types free-text answers into a
+   real input; each answer is acknowledged + reflected back and saved to build
+   context (localStorage crew_onboarding_context). The name is captured in the
+   last question and saved to crew_username. After the questions, a brief honest
+   summary + "Continue with Google" (earned login) lands the user on real Home.
+   No fabricated completed tasks and no $ amounts - we only echo what they said. */
 
-/* Everyday, first-person recognition cards. key = stable id stored in crew_picks. */
-const CREW_PICKS=[
-  {key:"trip",     ln:"The trip that got cancelled", do:"Rebook it for me",
-    icon:'<path d="M2 16l9-3 9-3M4.5 10.5 11 9l-3-6 2.5-.5 5 5.5 5-1.5a1.6 1.6 0 0 1 .8 3L4 16Z"/>'},
-  {key:"messages", ln:"Messages I&rsquo;m behind on", do:"Draft the replies",
-    icon:'<path d="M4 5h16v14H4z"/><path d="m4 6 8 6 8-6"/>'},
-  {key:"plans",    ln:"Dinner &amp; weekend plans", do:"Book it + remind me",
-    icon:'<path d="M4 3v8a3 3 0 0 0 3 3h0a3 3 0 0 0 3-3V3M7 3v18M17 3c-1.7 0-3 2-3 5s1.3 4 3 4 3 0 3 0v9"/>'},
-  {key:"bill",     ln:"A bill or renewal coming up", do:"Handle it for me",
-    icon:'<path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2zM8 8h8M8 12h8"/>'},
-  {key:"refund",   ln:"A refund I never chased", do:"Chase it down",
-    icon:'<path d="M9 14 4 9l5-5M4 9h11a5 5 0 0 1 5 5v1"/>'},
-  {key:"subs",     ln:"Subscriptions I forgot", do:"Find &amp; cancel them",
-    icon:'<circle cx="12" cy="12" r="9"/><path d="m8.5 8.5 7 7M15.5 8.5l-7 7"/>'}
+/* The script. Each step: q = agent question; ack(answer) = warm acknowledgement
+   that reflects the answer back; key = where the answer is stored in context. */
+const OB_QUESTIONS=[
+  {key:"timesink",
+   q:"Hey - I&rsquo;m your main agent. In a sentence or two, what&rsquo;s eating most of your time right now?",
+   ack:function(a){return "Got it - so "+obQuote(a)+" is taking the hit. I&rsquo;ll start there.";}},
+  {key:"sphere",
+   q:"Makes sense. Is that more work, life, or a bit of both?",
+   ack:function(a){return "Noted - "+obQuote(a)+". I&rsquo;ll keep that in mind.";}},
+  {key:"offplate",
+   q:"What&rsquo;s one thing on your plate this week you&rsquo;d love off it?",
+   ack:function(a){return "Perfect - "+obQuote(a)+". Consider it on my list.";}},
+  {key:"name", name:true,
+   q:"Last thing - what should I call you?",
+   ack:function(a){return "Nice to meet you, "+obQuote(a)+".";}}
 ];
-const CREW_PICK_PRESEL=["trip","messages"]; // a couple pre-selected, per the mock
-let obPicks=[];        // current selection (card keys)
-function crewPicksGet(){try{var p=JSON.parse(localStorage.getItem("crew_picks")||"[]");return Array.isArray(p)?p:[];}catch(e){return [];}}
-function crewPicksSave(){try{localStorage.setItem("crew_picks",JSON.stringify(obPicks));}catch(e){}}
 
-/* show one onboarding step panel + sync the progress dots */
-function obStep(n){
-  var steps=["ob-step-pick","ob-step-name","ob-step-ready"];
-  steps.forEach(function(id,i){var el=$(id);if(el)el.classList.toggle("on",i===(n-1));});
-  setDots(n);
-  var ts=$("ob-topskip");if(ts)ts.style.display=(n===2)?"":"none"; // name step is the only skippable mid-step
-  var vb=$("v-onb").querySelector(".vbody");if(vb)vb.scrollTop=0;
-}
-function setDots(n){
-  var dots=$("obdots").children;
-  for(var i=0;i<3;i++){
-    dots[i].classList.toggle("on",i<=n-1);
-    dots[i].style.width=(i===n-1)?"22px":"5px";
-  }
+let obQ=0;            // index of the question currently awaiting an answer
+let obBusy=false;     // true while the agent is "typing" (locks the composer)
+
+/* context store (a small object of free-text answers) */
+function crewOnbContextGet(){try{var c=JSON.parse(localStorage.getItem("crew_onboarding_context")||"{}");return (c&&typeof c==="object")?c:{};}catch(e){return {};}}
+function crewOnbContextSave(ctx){try{localStorage.setItem("crew_onboarding_context",JSON.stringify(ctx));}catch(e){}}
+
+/* trim + cap an answer so reflections stay tidy (no HTML - rendered as DATA) */
+function obQuote(s){
+  s=String(s||"").trim().replace(/\s+/g," ");
+  if(s.length>60)s=s.slice(0,57).replace(/[\s,.;:]+$/,"")+"...";
+  return s;
 }
 
-/* STEP 1 · recognition picker -------------------------------------------- */
-function renderPicks(){
-  var g=$("ob-pickgrid");if(!g)return;
-  g.innerHTML="";
-  CREW_PICKS.forEach(function(p){
-    var b=document.createElement("button");
-    b.className="pcard"+(obPicks.indexOf(p.key)>-1?" sel":"");
-    b.setAttribute("data-key",p.key);
-    b.innerHTML='<span class="pck"><svg width="11" height="9" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
-      +'<span class="pic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+p.icon+'</svg></span>'
-      +'<span class="pln">'+p.ln+'</span><span class="pdo">'+p.do+'</span>';
-    b.onclick=function(){
-      var i=obPicks.indexOf(p.key);
-      if(i>-1)obPicks.splice(i,1);else obPicks.push(p.key);
-      b.classList.toggle("sel",obPicks.indexOf(p.key)>-1);
-      updatePickCta();
-    };
-    g.appendChild(b);
+/* ---- chat bubble rendering (reuses .chatrow / .bub / av-noor) ---- */
+function obScroll(){var b=$("ob-chatbody");if(b)b.scrollTop=b.scrollHeight;}
+function obAddUser(text){
+  var log=$("ob-chatlog");if(!log)return;
+  var row=document.createElement("div");row.className="chatrow";
+  var b=document.createElement("div");b.className="bub user";b.textContent=text; // DATA
+  row.appendChild(b);log.appendChild(row);obScroll();
+}
+function obAddAgent(html){
+  var log=$("ob-chatlog");if(!log)return;
+  var row=document.createElement("div");row.className="chatrow";
+  // The agent copy is OUR controlled strings (with a few &rsquo; entities), so HTML is fine here.
+  row.innerHTML='<span class="av av-noor sm" style="font-size:12px;">&#9733;</span><div class="bub agent">'+html+'</div>';
+  log.appendChild(row);obScroll();
+}
+/* agent "types", then speaks - keeps the calm, human rhythm */
+function obAgentSay(html,then,delay){
+  var log=$("ob-chatlog");if(!log)return;
+  obBusy=true;
+  var row=document.createElement("div");row.className="chatrow";
+  row.innerHTML='<span class="av av-noor sm" style="font-size:12px;">&#9733;</span><div class="bub agent"><span class="typing"><i></i><i></i><i></i></span></div>';
+  log.appendChild(row);obScroll();
+  setTimeout(function(){
+    row.querySelector(".bub").innerHTML=html; // controlled copy
+    obScroll();
+    obBusy=false;
+    if(then)then();
+  },delay||780);
+}
+
+/* ask the question at index obQ (or wrap up if we are past the end) */
+function obAskCurrent(){
+  if(obQ>=OB_QUESTIONS.length){obFinishQuestions();return;}
+  obAgentSay(OB_QUESTIONS[obQ].q,function(){
+    var f=$("obnamefield");if(f){f.disabled=false;try{f.focus({preventScroll:true});}catch(e){}}
   });
-  updatePickCta();
-}
-function updatePickCta(){
-  var cta=$("ob-pickcontinue");if(!cta)return;
-  cta.textContent=obPicks.length?("Continue with "+obPicks.length):"Continue";
-}
-function obPicksContinue(){
-  crewPicksSave();
-  obStep(2);
-  setTimeout(function(){try{$("obnamefield").focus({preventScroll:true});}catch(e){}},380);
-}
-function obSkipPicks(){
-  obPicks=[];
-  crewPicksSave();
-  obStep(2);
-  setTimeout(function(){try{$("obnamefield").focus({preventScroll:true});}catch(e){}},380);
 }
 
-/* STEP 2 · name (always asks · never pre-filled, mirrors obnamefield pattern) */
-function obNameSubmit(){
+/* user submitted an answer to the current question */
+function obNameSubmit(){ // name kept for the existing boot wiring; handles every answer
+  if(obBusy)return;
   var fld=$("obnamefield");if(!fld)return;
   var v=(fld.value||"").trim();
   if(!v)return;
-  var first=v.split(/\s+/)[0];
-  try{localStorage.setItem("crew_username",first);}catch(e){}
-  crewApplyUserName(first);
-  applyCrewNames();
-  renderReady();
-  obStep(3);
+  var q=OB_QUESTIONS[obQ];if(!q)return;
+
+  obAddUser(v);
+  fld.value="";fld.disabled=true;
+
+  var ctx=crewOnbContextGet();
+  if(q.name){
+    var first=v.split(/\s+/)[0];
+    ctx[q.key]=first;
+    try{localStorage.setItem("crew_username",first);}catch(e){}
+    crewApplyUserName(first);
+    applyCrewNames();
+  }else{
+    ctx[q.key]=v;
+  }
+  crewOnbContextSave(ctx);
+
+  var ack=q.ack(q.name?(ctx[q.key]):v);
+  obQ++;
+  // acknowledge briefly, then ask the next question (or wrap up)
+  obAgentSay(ack,function(){
+    setTimeout(function(){
+      if(obQ<OB_QUESTIONS.length)obAskCurrent();else obFinishQuestions();
+    },360);
+  },620);
 }
 
-/* STEP 3 · earned signup · reflects picks HONESTLY (no fake completed tasks) */
-function renderReady(){
-  var sub=$("ob-readysub"), grid=$("ob-readygrid");
+/* honest, plain-language lines summarizing what the user told us (no fiction) */
+function crewOnbStartLines(ctx){
+  ctx=ctx||{};
+  var lines=[];
+  if(ctx.timesink)lines.push("Free up time from: "+obQuote(ctx.timesink));
+  if(ctx.offplate)lines.push("Take off your plate this week: "+obQuote(ctx.offplate));
+  if(ctx.sphere&&!ctx.timesink&&!ctx.offplate)lines.push("Focus: "+obQuote(ctx.sphere));
+  return lines;
+}
+
+/* after the questions: hide the composer, show the earned-signup card */
+function obFinishQuestions(){
+  var comp=$("ob-composer");if(comp)comp.classList.add("hide");
+  var ctx=crewOnbContextGet();
   var first=crewUserFirst();
-  if(sub)sub.textContent=(first?(first+", your"):"Your")+" crew is set up. Here is what they will start taking off your plate.";
-  if(!grid)return;
-  grid.innerHTML="";
-  var chosen=CREW_PICKS.filter(function(p){return obPicks.indexOf(p.key)>-1;});
-  if(!chosen.length){
-    var row=document.createElement("div");
-    row.className="readyrow";
-    row.innerHTML='<span class="ric"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2.5"/></svg></span>'
-      +'<div><div class="rtx"></div><div class="rsb"></div></div>';
-    row.querySelector(".rtx").textContent="Ready when you are";
-    row.querySelector(".rsb").textContent="Tell your crew what to take, anytime - it learns as you go.";
-    grid.appendChild(row);
-    return;
-  }
-  chosen.forEach(function(p){
-    var row=document.createElement("div");
-    row.className="readyrow";
-    row.innerHTML='<span class="ric"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+p.icon+'</svg></span>'
-      +'<div><div class="rtx"></div><div class="rsb"></div></div>';
-    // text inserted as DATA (decode the few HTML entities used in labels)
-    var tmp=document.createElement("textarea");tmp.innerHTML=p.ln;row.querySelector(".rtx").textContent=tmp.value;
-    row.querySelector(".rsb").textContent="Ready to take off your plate";
-    grid.appendChild(row);
-  });
+
+  // warm wrap-up bubble (honest: only reflects what they said)
+  var bigOne=ctx.timesink?obQuote(ctx.timesink):(ctx.offplate?obQuote(ctx.offplate):"");
+  var wrap="Your crew is ready"+(first?(", "+first):"")+"."+(bigOne?(" The big one&rsquo;s "+bigOne+" - that&rsquo;s where I&rsquo;ll start."):"");
+  obAgentSay(wrap,function(){
+    var card=$("ob-readycta");
+    if(card){
+      var t=$("ob-readytitle");if(t)t.textContent=(first?(first+", ")+"your crew is ready.":"Your crew is ready.");
+      var s=$("ob-readysum");
+      if(s){
+        var lines=crewOnbStartLines(ctx);
+        s.textContent=lines.length?("Here&#x2019;s what I picked up - "+lines.join("; ")+".").replace(/&#x2019;/g,"’"):"Tell me what to take next, anytime - I learn as you go.";
+      }
+      card.style.display="";
+      setTimeout(obScroll,40);
+    }
+  },760);
 }
 
 function startOnb(){
   document.getElementById("app").classList.add("onb");
-  obPicks=CREW_PICK_PRESEL.slice(); // a couple pre-selected per the mock
-  var nf=$("obnamefield");if(nf)nf.value="";  // NEVER pre-fill the name
-  renderPicks();
-  obStep(1);
+  // fresh chat each run
+  var log=$("ob-chatlog");if(log)log.innerHTML="";
+  var card=$("ob-readycta");if(card)card.style.display="none";
+  var comp=$("ob-composer");if(comp)comp.classList.remove("hide");
+  var nf=$("obnamefield");if(nf){nf.value="";nf.disabled=true;nf.placeholder="Type your answer…";}
+  obQ=0;obBusy=false;
   $("v-onb").classList.add("on");
+  setTimeout(obAskCurrent,420); // agent leads
 }
 
-/* --- (legacy scripted-chat data removed; superseded by the picker flow) --- */
 function finishOnb(){
-  // Land on the real Home carrying name + picks. Login is EARNED, not forced: the
-  // earned-signup step (step 3) is where Google sign-in is offered; "Skip for now"
-  // lands the user unsigned on a real (honest, empty) home, never a fictional one.
-  crewPicksSave();
+  // Land on real Home carrying name + captured context. Login is EARNED, not
+  // forced: "Skip for now" lands the user unsigned on a real (honest, empty)
+  // home, never a fictional one.
   try{localStorage.setItem("crew_onboarded","1");}catch(e){}
   document.getElementById("app").classList.remove("onb");
   $("v-onb").classList.remove("on");
@@ -1916,7 +1889,6 @@ function crewSignedIn(){
     var vf=$("village-foot");if(vf)vf.style.display="block";
   }
 
-  obPicks=crewPicksGet(); // carry recognition-picker choices into Home
   crewApplyUserName(CREW_DEMO?demoName:crewUserFirst());
   applyCrewNames();
   renderHome();renderCrew();
@@ -1931,9 +1903,8 @@ function crewSignedIn(){
     startOnb();
   }
   $("redfield").addEventListener("keydown",e=>{if(e.key==="Enter")sendRedirect();});
-  /* onboarding-rework wiring: picker continue + name submit (click + Enter) */
+  /* conversational-onboarding wiring: free-text answer submit (send button + Enter) */
   (function(){
-    var pc=$("ob-pickcontinue");if(pc)pc.addEventListener("click",obPicksContinue);
     var ns=$("ob-namesend");if(ns)ns.addEventListener("click",obNameSubmit);
     var nf=$("obnamefield");if(nf)nf.addEventListener("keydown",function(e){if(e.key==="Enter")obNameSubmit();});
   })();
