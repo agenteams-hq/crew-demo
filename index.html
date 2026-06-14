@@ -822,7 +822,8 @@ input{font-family:inherit;}
       <h2 class="display" style="font-size:30px;margin-top:28px;">Call with your <em>main agent</em>.</h2>
       <div class="mono-num" style="font-size:13px;letter-spacing:.14em;color:var(--ink2);margin-top:10px;" id="callclock">00:00</div>
       <div class="wave" style="margin-top:22px;"><i></i><i></i><i></i><i></i><i></i></div>
-      <div style="font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-top:14px;" id="callhint">Listening</div>
+      <div style="font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-top:14px;" id="callhint">Connecting</div>
+      <div id="callcaption" style="max-width:290px;min-height:44px;margin-top:16px;font-family:var(--grot);font-size:15.5px;line-height:1.42;color:var(--ink);"></div>
       <div style="flex:1.2;"></div>
       <div style="display:flex;gap:40px;align-items:flex-start;">
         <div>
@@ -838,7 +839,7 @@ input{font-family:inherit;}
           <div class="callctl-label">End</div>
         </div>
       </div>
-      <div style="font-family:var(--mono);font-size:8.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-top:26px;">Early preview &middot; real voice is coming</div>
+      <div style="font-family:var(--mono);font-size:8.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-top:26px;">Live voice &middot; beta</div>
     </div>
   </div>
 
@@ -1516,26 +1517,109 @@ function fmtCall(s){
   const m=Math.floor(s/60),x=s%60;
   return (m<10?"0":"")+m+":"+(x<10?"0":"")+x;
 }
+/* ===== Live voice call: browser speech-to-text -> the goal-seeking agent ->
+   spoken (TTS) replies. Real two-way voice; degrades gracefully where the
+   browser has no speech recognition (iOS Safari is the weak spot). ===== */
+var callRec=null, callActive=false, callMessages=[], callSpeaking=false, callDone=false;
+function callSpeechSupported(){return !!(window.SpeechRecognition||window.webkitSpeechRecognition);}
+function callHint(t){var h=$("callhint");if(h)h.textContent=t;}
+function callCap(t){var c=$("callcaption");if(c)c.textContent=t;} // DATA - safe
+
+function callSpeak(text,then){
+  callCap(text);
+  try{
+    if(!window.speechSynthesis){if(then)then();else callResume();return;}
+    window.speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(text);
+    u.rate=1.03;u.pitch=1.0;u.lang="en-US";
+    callSpeaking=true; callHint("Speaking");
+    try{if(callRec)callRec.stop();}catch(e){} // don't let it hear itself
+    u.onend=function(){callSpeaking=false; if(then)then(); else callResume();};
+    u.onerror=function(){callSpeaking=false; if(then)then(); else callResume();};
+    window.speechSynthesis.speak(u);
+  }catch(e){callSpeaking=false; if(then)then(); else callResume();}
+}
+function callResume(){
+  if(!callActive||callMuted||callSpeaking||callDone)return;
+  try{ if(callRec){callRec.start(); callHint("Listening");} }catch(e){}
+}
+function callSend(text){
+  if(!text)return;
+  callCap(text);
+  callMessages.push({role:"user",content:text});
+  callHint("Thinking");
+  try{if(callRec)callRec.stop();}catch(e){}
+  fetch(CREW_ONBOARD,crewAuthPOST({device_id:crewDevice(),messages:callMessages}))
+   .then(function(r){return r.json();})
+   .then(function(d){
+     if(!callActive)return;
+     if(!d||!d.ok){ callSpeak("Sorry, I didn't catch that - say it again?"); return; }
+     var reply=d.reply||"Tell me a bit more.";
+     callMessages.push({role:"assistant",content:reply});
+     if(d.done){
+       callDone=true;
+       try{localStorage.setItem("crew_onb_goal",JSON.stringify({goal:d.goal||"",first_action:d.first_action||""}));}catch(e){}
+       callSpeak(reply,function(){
+         callSpeak("That's happening now - I'll have it ready for you.",function(){
+           if(crewSignedIn())obKickoffSaved();
+           callHint("On it");
+         });
+       });
+       return;
+     }
+     callSpeak(reply); // speaks, then auto-resumes listening
+   })
+   .catch(function(){ if(callActive)callSpeak("I lost you for a second - try again?"); });
+}
+function callStartVoice(){
+  callMessages=[];callDone=false;
+  if(!callSpeechSupported()){
+    callHint("Voice input not supported here");
+    callSpeak("I'm here and I can talk, but this browser won't let me hear you yet. Try typing in the chat instead.");
+    return;
+  }
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  try{ callRec=new SR(); }catch(e){ callRec=null; }
+  if(!callRec){ callHint("Voice unavailable"); return; }
+  callRec.lang="en-US"; callRec.interimResults=true; callRec.continuous=false;
+  callRec.onresult=function(e){
+    var fin="",interim="";
+    for(var i=e.resultIndex;i<e.results.length;i++){
+      var r=e.results[i]; if(r.isFinal)fin+=r[0].transcript; else interim+=r[0].transcript;
+    }
+    if(interim&&!callSpeaking)callCap(interim);
+    if(fin.trim())callSend(fin.trim());
+  };
+  callRec.onend=function(){ if(callActive&&!callMuted&&!callSpeaking&&!callDone){ try{callRec.start();}catch(e){} } };
+  callRec.onerror=function(){}; // no-match/aborted -> onend restarts
+  callSpeak("Hey, I'm here. Tell me what you need and I'll get on it.",function(){callResume();});
+}
+
 function openCall(){
-  callSec=0;callMuted=false;
+  callSec=0;callMuted=false;callActive=true;callDone=false;
   $("callclock").textContent="00:00";
   $("v-call").classList.remove("muted");
   $("mutebtn").classList.remove("on");
   $("mutelabel").textContent="Mute";
-  $("callhint").textContent="Listening";
+  callHint("Connecting"); callCap("");
   push("v-call");
   clearInterval(callTimer);
   callTimer=setInterval(()=>{callSec++;$("callclock").textContent=fmtCall(callSec);},1000);
+  setTimeout(callStartVoice,300); // user-gesture chain (the call button) unlocks audio
 }
 function toggleMute(){
   callMuted=!callMuted;
   $("v-call").classList.toggle("muted",callMuted);
   $("mutebtn").classList.toggle("on",callMuted);
   $("mutelabel").textContent=callMuted?"Muted":"Mute";
-  $("callhint").textContent=callMuted?"Muted · it can’t hear you":"Listening";
+  if(callMuted){ try{if(callRec)callRec.stop();}catch(e){} callHint("Muted · it can’t hear you"); }
+  else { callHint("Listening"); callResume(); }
 }
 function endCall(){
+  callActive=false;callDone=false;
   clearInterval(callTimer);callTimer=null;
+  try{if(callRec){callRec.onend=null;callRec.stop();}}catch(e){} callRec=null;
+  try{if(window.speechSynthesis)window.speechSynthesis.cancel();}catch(e){} callSpeaking=false;
   pop();
   toast("Call ended · your main agent keeps the notes");
 }
