@@ -1651,32 +1651,28 @@ function obSubmitAnswer(forced){
   obAddUser(v);
   if(fld){fld.value="";fld.disabled=true;}
   obMessages.push({role:"user",content:v});
-
-  // The smart loop does REAL work, so it needs a real account (spend-gated). If
-  // not signed in yet, save the conversation and do the one-tap Google sign-in,
-  // then resume the exact dialogue (crewApplyAccount -> obResumeAfterSignin).
-  if(!crewSignedIn()){
-    try{localStorage.setItem("crew_onb_resume",JSON.stringify(obMessages));}catch(e){}
-    obAgentSay("Love it - that's exactly what I'm for. One tap to sign in so I can actually start working on this, then I'm on it.",function(){
-      setTimeout(crewGoogleSignIn,820);
-    },560);
-    return;
-  }
+  // The whole draw-out runs WITHOUT forcing sign-in (Fares: wait until the crew is
+  // ready). Anon-safe endpoint; we only ask for Google once it commits to a goal.
   obTurn();
 }
 
-/* ask the agent for the next turn (a question, or the committed goal) */
-function obTurn(){
+/* ask the agent for the next turn (a question, or the committed goal).
+   Auto-retries once on a blip so a transient failure never dead-ends the user. */
+function obTurn(attempt){
+  attempt=attempt||0;
   obBusy=true;
   var log=$("ob-chatlog");var row=null;
-  if(log){row=document.createElement("div");row.className="chatrow";
+  if(attempt===0&&log){row=document.createElement("div");row.className="chatrow ob-typing";
     row.innerHTML='<span class="av av-noor sm" style="font-size:12px;">&#9733;</span><div class="bub agent"><span class="typing"><i></i><i></i><i></i></span></div>';
     log.appendChild(row);obScroll();}
+  else { row=log?log.querySelector(".ob-typing"):null; }
   fetch(CREW_ONBOARD,crewAuthPOST({device_id:crewDevice(),messages:obMessages}))
     .then(function(r){return r.json();})
     .then(function(d){
+      if((!d||!d.ok)&&attempt<1){ setTimeout(function(){obTurn(attempt+1);},900); return; } // one quiet retry
       obBusy=false;
-      if(!d||!d.ok){ if(row)row.querySelector(".bub").textContent="Hmm, I lost that for a second - say it once more?"; var fe=$("obnamefield");if(fe){fe.disabled=false;} return; }
+      if(row){row.classList.remove("ob-typing");}
+      if(!d||!d.ok){ if(row)row.querySelector(".bub").textContent="Sorry - that one didn't go through. Try once more?"; var fe=$("obnamefield");if(fe){fe.disabled=false;} return; }
       var reply=d.reply||"Tell me a bit more.";
       if(row)row.querySelector(".bub").textContent=reply; else obAddAgentText(reply); // DATA - safe
       obMessages.push({role:"assistant",content:reply});
@@ -1685,26 +1681,21 @@ function obTurn(){
       obShowSuggest(d.suggest||[]);
     })
     .catch(function(){
+      if(attempt<1){ setTimeout(function(){obTurn(attempt+1);},900); return; } // one quiet retry
       obBusy=false;
-      if(row)row.querySelector(".bub").textContent="Connection hiccup - try that again?";
+      if(row){row.classList.remove("ob-typing");row.querySelector(".bub").textContent="Sorry - that one didn't go through. Try once more?";}
       var f=$("obnamefield");if(f)f.disabled=false;
     });
 }
 
-/* resume the smart onboarding after the mid-flow Google sign-in redirect */
-function obResumeAfterSignin(){
-  var saved=null;try{saved=JSON.parse(localStorage.getItem("crew_onb_resume")||"null");}catch(e){}
-  try{localStorage.removeItem("crew_onb_resume");}catch(e){}
-  if(!saved||!saved.length)return false;
-  document.getElementById("app").classList.add("onb");
-  $("v-onb").classList.add("on");
-  var log=$("ob-chatlog");if(log)log.innerHTML="";
-  obMessages=saved.slice();
-  obMessages.forEach(function(m){ if(m.role==="user")obAddUser(m.content); else obAddAgentText(m.content); }); // replay transcript
-  var comp=$("ob-composer");if(comp)comp.classList.remove("hide");
-  var card=$("ob-readycta");if(card)card.style.display="none";
-  obBusy=false;
-  obTurn(); // last turn was the user's -> continue
+/* kick off the goal saved at onboarding commit (fires once, right after sign-in) */
+function obKickoffSaved(){
+  if(!crewToken)return false;
+  var g=null;try{g=JSON.parse(localStorage.getItem("crew_onb_goal")||"null");}catch(e){}
+  try{localStorage.removeItem("crew_onb_goal");}catch(e){}
+  if(!g)return false;
+  var req=g.first_action||g.goal;if(!req)return false;
+  try{ fetch(CREW_TASK,crewAuthPOST({device_id:crewDevice(),request:req})).then(function(r){return r.json();}).catch(function(){}); }catch(e){}
   return true;
 }
 
@@ -1712,34 +1703,24 @@ function obResumeAfterSignin(){
    and show the "on it" card. The user finishes onboarding with work already moving. */
 function obFinishSmart(d){
   var comp=$("ob-composer");if(comp)comp.classList.add("hide");
-  var first=crewUserFirst();
   var ctx=crewOnbContextGet();ctx.goal=d.goal||"";ctx.first_action=d.first_action||"";crewOnbContextSave(ctx);
+  // hold the goal so the first task fires the moment we have an account
+  try{localStorage.setItem("crew_onb_goal",JSON.stringify({goal:d.goal||"",first_action:d.first_action||""}));}catch(e){}
 
-  // fire the first real task in the background (the agent does, not just talks)
-  obKickoff(d);
+  // Already signed in (rare in this flow): kick off now and go straight in.
+  if(crewSignedIn()){ obKickoffSaved(); setTimeout(finishOnb,300); return; }
 
+  // Otherwise THIS is the moment to ask for Google - the crew is ready to start.
   var card=$("ob-readycta");
   if(card){
-    var t=$("ob-readytitle");if(t)t.textContent=(first?(first+", "):"")+"I'm on it.";
+    var t=$("ob-readytitle");if(t)t.textContent=d.goal||"Your crew is ready.";
     var s=$("ob-readysum");
-    if(s){ s.textContent=(d.goal||"Your crew is ready.")+(d.first_action?(" Starting now: "+d.first_action):""); } // DATA
-    // the user is already signed in by this point -> swap the CTA to "go in"
-    var g=card.querySelector(".gbtn");if(g){g.textContent="See what I've started";g.onclick=finishOnb;}
-    var sk=card.querySelector(".ob-skip");if(sk)sk.style.display="none";
+    if(s){ s.textContent=(d.first_action?("I'll start here: "+d.first_action+". "):"")+"Sign in and I'll get on it now."; } // DATA
+    var g=card.querySelector(".gbtn");if(g){g.textContent="Sign in - let my crew start";g.onclick=crewGoogleSignIn;}
+    var sk=card.querySelector(".ob-skip");if(sk)sk.style.display="";
     card.style.display="";
     setTimeout(obScroll,40);
   }
-}
-
-/* hand the committed goal to the execution loop (/api/task) so a real artifact
-   is waiting on Home. Self-contained LLM work only - no connector surface. */
-function obKickoff(d){
-  if(!crewToken)return;
-  var req=d.first_action||d.goal;if(!req)return;
-  try{
-    fetch(CREW_TASK,crewAuthPOST({device_id:crewDevice(),request:req}))
-      .then(function(r){return r.json();}).catch(function(){});
-  }catch(e){}
 }
 
 function startOnb(){
@@ -1822,11 +1803,11 @@ function crewApplyAccount(acct){
       crewApplyUserName(acct.firstName);
       applyCrewNames();
     }
-    // Mid-onboarding sign-in (the smart loop needs an account to do real work):
-    // resume the exact dialogue instead of dropping the user on Home.
-    var resumePending=false;try{resumePending=!!localStorage.getItem("crew_onb_resume");}catch(e){}
-    if(resumePending){ obResumeAfterSignin(); return; }
-    // Otherwise a real account exists now: leave onboarding and land on the real home.
+    // Just committed to a goal in onboarding and signed in -> fire the first real
+    // task now, so the user lands on Home with work already moving.
+    var hasGoal=false;try{hasGoal=!!localStorage.getItem("crew_onb_goal");}catch(e){}
+    if(hasGoal)obKickoffSaved();
+    // A real account exists now: leave onboarding and land on the real home.
     var app=document.getElementById("app");
     if(app.classList.contains("onb")){
       try{localStorage.setItem("crew_onboarded","1");}catch(e){}
