@@ -335,14 +335,10 @@ input{font-family:inherit;}
   <!-- ===== ONBOARDING · conversational chat (user does 1%, agent does 99%) ===== -->
   <div class="view tabview" id="v-onb">
     <div class="vbody" id="ob-chatbody" style="padding-top:calc(var(--sat) + 14px);">
-      <!-- meet Noor: the creature, front and centre on first contact -->
-      <div style="display:flex;flex-direction:column;align-items:center;text-align:center;flex:none;padding:6px 0 2px;">
-        <span style="position:relative;width:94px;height:94px;border-radius:50%;overflow:hidden;display:block;border:2.5px solid #fff;box-shadow:0 8px 22px -8px rgba(32,36,30,.45);background:var(--green-tint);">
-          <img src="mocks/assets/creature-hero.webp" alt="Noor" style="width:100%;height:100%;object-fit:cover;object-position:center 40%;image-rendering:pixelated;">
-          <span class="st grn" style="position:absolute;right:6px;bottom:6px;width:15px;height:15px;border:2.5px solid var(--paper);"></span>
-        </span>
-        <div class="tit" style="font-size:17px;font-weight:600;margin-top:13px;">Noor</div>
-        <div class="sub" style="font-size:11.5px;color:var(--mute);margin-top:1px;letter-spacing:.06em;text-transform:lowercase;">your main agent</div>
+      <!-- minimal header during the chat; the creature reveal is the payoff at the end -->
+      <div style="display:flex;align-items:center;gap:10px;flex:none;padding:2px 0 8px;">
+        <span class="av av-noor sm">&#9733;<span class="st grn"></span></span>
+        <div class="sub" style="font-size:12px;color:var(--mute);">Getting you set up - takes a moment.</div>
       </div>
       <div id="ob-chatlog" style="padding:8px 0 18px;flex:none;"></div>
       <!-- earned signup card · appears only after the questions (hidden until then) -->
@@ -1717,10 +1713,12 @@ const CREW_ONBOARD="https://crew-api-two.vercel.app/api/onboard";
 let obMessages=[];    // running [{role,content}] conversation (client-held)
 let obBusy=false;     // true while the agent is "thinking"/typing (locks the composer)
 
-// The agent opens by STATING ITS MISSION (Fares: tell the user what we're doing),
-// then leads. This opener is our controlled copy; every later turn is the LLM.
-const OB_OPENER="Hi, I&rsquo;m Noor - your main agent. I run a crew that&rsquo;s here to help you. Let&rsquo;s find the one thing on your mind that matters most right now. What&rsquo;s been weighing on you lately?";
+// New flow (Fares): NAME first -> "nice to meet you" -> goal questions -> THEN you
+// MEET your main agent (the creature reveal is the payoff at the end, not the top).
+const OB_NAME_ASK="Hey - quick hello before we dive in. What should I call you?";
+const OB_GOAL_OPENER="Love it. So - what&rsquo;s the one thing on your mind right now that you&rsquo;d most love a hand with?";
 const OB_OPENER_SUGGEST=["Finding a job","My inbox is chaos","Money & bills","Planning something big","Something else"];
+let obPhase="name"; // "name" (asking their name) -> "goal" (the LLM goal loop)
 
 /* context store (a small object of free-text answers) */
 function crewOnbContextGet(){try{var c=JSON.parse(localStorage.getItem("crew_onboarding_context")||"{}");return (c&&typeof c==="object")?c:{};}catch(e){return {};}}
@@ -1789,16 +1787,16 @@ function obShowSuggest(arr){
   log.appendChild(row);obScroll();
 }
 
-/* agent opens with its mission, then leads (no auth needed to READ the opener) */
+/* step 1: ask the user's NAME first (client-side, no LLM) */
 function obStartSmart(){
-  obMessages=[];
-  obAgentSay(OB_OPENER,function(){
-    var f=$("obnamefield");if(f){f.disabled=false;f.placeholder="Tell me what's on your mind…";try{f.focus({preventScroll:true});}catch(e){}}
-    obShowSuggest(OB_OPENER_SUGGEST);
+  obMessages=[]; obPhase="name";
+  obAgentSay(OB_NAME_ASK,function(){
+    var f=$("obnamefield");if(f){f.disabled=false;f.placeholder="Your name…";try{f.focus({preventScroll:true});}catch(e){}}
   });
 }
 
-/* user answered (typed or tapped a chip) -> drive the goal-seeking LLM loop */
+/* user answered (typed or tapped a chip). Name phase -> greet + start the goal loop.
+   Goal phase -> drive the goal-seeking LLM loop. */
 function obSubmitAnswer(forced){
   if(obBusy)return;
   var fld=$("obnamefield");
@@ -1807,9 +1805,24 @@ function obSubmitAnswer(forced){
   obClearSuggest();
   obAddUser(v);
   if(fld){fld.value="";fld.disabled=true;}
-  obMessages.push({role:"user",content:v});
-  // The whole draw-out runs WITHOUT forcing sign-in (Fares: wait until the crew is
-  // ready). Anon-safe endpoint; we only ask for Google once it commits to a goal.
+
+  if(obPhase==="name"){
+    var first=v.split(/\s+/)[0].replace(/[<>]/g,"").slice(0,40); // their own name, rendered safely
+    try{localStorage.setItem("crew_username",first);}catch(e){}
+    try{crewApplyUserName(first);applyCrewNames();}catch(e){}
+    obPhase="goal";
+    obAgentSay("Nice to meet you, "+first+".",function(){
+      setTimeout(function(){
+        obAgentSay(OB_GOAL_OPENER,function(){
+          var f=$("obnamefield");if(f){f.disabled=false;f.placeholder="Tell me what's on your mind…";try{f.focus({preventScroll:true});}catch(e){}}
+          obShowSuggest(OB_OPENER_SUGGEST);
+        });
+      },340);
+    });
+    return;
+  }
+
+  obMessages.push({role:"user",content:v}); // goal phase: anon-safe LLM loop, sign-in only at commit
   obTurn();
 }
 
@@ -1863,16 +1876,33 @@ function obFinishSmart(d){
   // Onboarding UNDERSTANDS + reassures (Fares: don't get work done here). Keep the
   // goal as context, but do NOT auto-start any task - the user starts work inside the app.
   var ctx=crewOnbContextGet();ctx.goal=d.goal||"";crewOnbContextSave(ctx);
+  var nm=crewUserFirst()||"";
 
-  // Already signed in: land them in - no auto-work.
-  if(crewSignedIn()){ setTimeout(finishOnb,400); return; }
+  // THE REVEAL (Fares' new flow): now that we understand the goal, you MEET your main
+  // agent - the creature, as the payoff at the end (not the top).
+  var log=$("ob-chatlog");
+  if(log){
+    var rev=document.createElement("div");rev.className="chatrow";rev.style.cssText="display:block;text-align:center;margin-top:12px;";
+    rev.innerHTML='<div style="text-align:center;padding:4px 0 2px;">'
+      +'<span style="position:relative;width:108px;height:108px;border-radius:50%;overflow:hidden;display:inline-block;border:3px solid #fff;box-shadow:0 12px 30px -8px rgba(32,36,30,.5);background:var(--green-tint);">'
+      +'<img src="mocks/assets/creature-hero.webp" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center 40%;image-rendering:pixelated;">'
+      +'<span class="st grn" style="position:absolute;right:8px;bottom:8px;width:16px;height:16px;border:3px solid var(--paper);"></span>'
+      +'</span>'
+      +'<div class="tit" style="font-size:19px;font-weight:600;margin-top:13px;">Meet Noor</div>'
+      +'<div class="sub" style="font-size:12.5px;color:var(--mute);margin-top:2px;">your main agent</div>'
+      +'</div>';
+    log.appendChild(rev);obScroll();
+  }
+
+  // Already signed in: linger on the reveal, then land them in - no auto-work.
+  if(crewSignedIn()){ setTimeout(finishOnb,1300); return; }
 
   // Otherwise sign in to enter their account + meet the crew.
   var card=$("ob-readycta");
   if(card){
-    var t=$("ob-readytitle");if(t)t.textContent=d.goal?("Got it - "+d.goal+"."):"Your crew is ready.";
+    var t=$("ob-readytitle");if(t)t.textContent=d.goal?("Got it"+(nm?", "+nm:"")+" - "+d.goal+"."):"Your crew is ready.";
     var s=$("ob-readysum");
-    if(s){ s.textContent="Your crew's ready whenever you are. Sign in to meet them and start when it suits you."; } // DATA
+    if(s){ s.textContent="Noor and your crew are ready whenever you are. Sign in to come in."; } // DATA
     var g=card.querySelector(".gbtn");if(g){g.textContent="Sign in to meet your crew";g.onclick=crewGoogleSignIn;}
     var sk=card.querySelector(".ob-skip");if(sk)sk.style.display="";
     card.style.display="";
