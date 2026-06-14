@@ -1787,6 +1787,17 @@ function obShowSuggest(arr){
   log.appendChild(row);obScroll();
 }
 
+/* pull the actual name out of free text ("I'm Robert" / "my name is Robert" / "call me Bob") */
+function obParseName(v){
+  v=String(v||"").trim().replace(/[<>]/g,"");
+  v=v.replace(/^(hi|hey|hello|yo|heya|sup)[,!.\s]+/i,"");
+  v=v.replace(/^(i'?m|i am|my name'?s|my name is|name'?s|it'?s|this is|they call me|you can call me|call me|im)\s+/i,"");
+  v=v.replace(/[.!,]+$/,"").trim();
+  var first=(v.split(/\s+/)[0]||"").slice(0,40);
+  if(!first)first=(String(v||"").trim().split(/\s+/)[0]||"there").slice(0,40);
+  return first.charAt(0).toUpperCase()+first.slice(1);
+}
+
 /* step 1: ask the user's NAME first (client-side, no LLM) */
 function obStartSmart(){
   obMessages=[]; obPhase="name";
@@ -1807,7 +1818,7 @@ function obSubmitAnswer(forced){
   if(fld){fld.value="";fld.disabled=true;}
 
   if(obPhase==="name"){
-    var first=v.split(/\s+/)[0].replace(/[<>]/g,"").slice(0,40); // their own name, rendered safely
+    var first=obParseName(v); // handles "I'm Robert" / "my name is Robert" etc.
     try{localStorage.setItem("crew_username",first);}catch(e){}
     try{crewApplyUserName(first);applyCrewNames();}catch(e){}
     obPhase="goal";
