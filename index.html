@@ -391,14 +391,14 @@ input{font-family:inherit;}
           <span class="dot" style="width:6px;height:6px;border-radius:50%;background:var(--green);"></span>Talk to your agent
         </button>
         <button style="position:relative;display:inline-flex;" onclick="push('v-settings')" aria-label="Settings">
-          <span class="av av-crew sm" style="font-size:13px;" id="homeav">F</span>
+          <span class="av av-crew sm" style="font-size:13px;" id="homeav">C</span>
           <span style="position:absolute;right:-4px;bottom:-4px;width:17px;height:17px;border-radius:50%;background:#fff;border:1px solid var(--hair2);display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(32,36,30,.12);">
             <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#565B4E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M18.5 5.5l-2.1 2.1M7.6 16.4l-2.1 2.1"/></svg>
           </span>
         </button>
         </span>
       </div>
-      <h2 class="display" style="font-size:42px;margin:32px 0 0;"><span id="homehL">All quiet</span>,<br><span id="homename">Farah</span>.</h2>
+      <h2 class="display" style="font-size:42px;margin:32px 0 0;"><span id="homehL">All quiet</span><span id="homenamewrap">,<br><span id="homename">there</span></span>.</h2>
       <div style="display:flex;align-items:center;gap:10px;margin:20px 0 0;">
         <span class="live-dot"></span>
         <span class="mono-num" style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);" id="homecount"></span>
@@ -406,8 +406,8 @@ input{font-family:inherit;}
 
       <div id="homedecisions" style="margin-top:28px;display:flex;flex-direction:column;gap:12px;"></div>
 
-      <!-- ledger peek -->
-      <div class="card soft" style="margin-top:14px;">
+      <!-- ledger peek (DEMO ONLY · fictional activity, hidden for real accounts) -->
+      <div class="card soft" id="homeledger" style="margin-top:14px;display:none;">
         <div class="lrow tappable" style="padding:14px 16px;" onclick="toast('Full ledger · coming soon')">
           <span class="tick"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           <div class="tit" style="font-size:14px;"><span class="mono-num" style="font-size:14px;">34</span> done while you slept</div>
@@ -429,8 +429,8 @@ input{font-family:inherit;}
   <!-- ================= CREW ================= -->
   <div class="view tabview" id="v-crew">
     <div class="vbody vtop tabpad">
-      <div class="eyebrow" id="crewowner">Farah&rsquo;s Crew</div>
-      <h2 class="display" style="font-size:28px;margin:8px 0 0;">Four at work, two at home.</h2>
+      <div class="eyebrow" id="crewowner">Your Crew</div>
+      <h2 class="display" style="font-size:28px;margin:8px 0 0;" id="crewhead">Four at work, two at home.</h2>
       <button onclick="push('v-village')" style="margin-top:13px;display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green-deep);background:#fff;border:1px solid #CFE6D8;border-radius:999px;padding:10px 15px;box-shadow:0 1px 2px rgba(32,36,30,.05);cursor:pointer;">
         <span style="width:7px;height:7px;border-radius:50%;background:var(--green);"></span>See your crew as a village
         <svg width="8" height="13" viewBox="0 0 9 15" fill="none" style="margin-left:1px;"><path d="M1.5 1.5 7.5 7.5 1.5 13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -461,7 +461,7 @@ input{font-family:inherit;}
 
       <div class="zonehead" style="margin-top:16px;margin-bottom:8px;">
         <span class="zicon work"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2.5"/><path d="M9 8V6.5A2.5 2.5 0 0 1 11.5 4h1A2.5 2.5 0 0 1 15 6.5V8"/></svg></span>
-        <span class="zt">Work</span><span class="zl"></span><span class="zc">Sari Batik</span>
+        <span class="zt">Work</span><span class="zl"></span><span class="zc" id="crewworklbl"></span>
       </div>
       <div id="crew-work" style="display:flex;flex-direction:column;gap:7px;"></div>
       <div class="zonehead" style="margin-top:16px;margin-bottom:8px;">
@@ -484,7 +484,7 @@ input{font-family:inherit;}
 
       <div style="position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--hair);box-shadow:0 14px 36px -22px rgba(32,36,30,.4);">
         <img src="mocks/assets/village.webp" alt="your crew, on it" style="width:100%;display:block;">
-        <div style="position:absolute;top:14px;left:14px;display:flex;gap:7px;flex-wrap:wrap;">
+        <div id="village-badges" style="position:absolute;top:14px;left:14px;display:none;gap:7px;flex-wrap:wrap;">
           <span style="display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:6px 11px;background:rgba(251,248,241,.93);backdrop-filter:blur(6px);box-shadow:0 2px 8px rgba(32,36,30,.18);color:var(--amber);"><span style="width:7px;height:7px;border-radius:50%;background:var(--amber);"></span>1 needs you</span>
           <span style="display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:6px 11px;background:rgba(251,248,241,.93);backdrop-filter:blur(6px);box-shadow:0 2px 8px rgba(32,36,30,.18);color:var(--green-deep);"><span style="width:7px;height:7px;border-radius:50%;background:var(--green);"></span>3 on it</span>
           <span style="display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:6px 11px;background:rgba(251,248,241,.93);backdrop-filter:blur(6px);box-shadow:0 2px 8px rgba(32,36,30,.18);color:var(--ink2);"><span style="width:7px;height:7px;border-radius:50%;background:var(--mute);"></span>6 handled</span>
@@ -492,7 +492,7 @@ input{font-family:inherit;}
       </div>
       <p class="sub" style="margin-top:12px;font-size:12px;color:var(--mute);">Each creature is a real agent in its real state &mdash; working, waiting on you, or resting. It is not a game; you never tend it.</p>
 
-      <div class="card" style="margin-top:14px;padding:4px 0;">
+      <div class="card" id="village-rows" style="margin-top:14px;padding:4px 0;display:none;">
         <div style="display:flex;align-items:center;gap:13px;padding:13px 15px;border-bottom:1px solid var(--hair);">
           <span class="av" style="background:#FBF0DC;">O<span class="st grn"></span></span>
           <div style="flex:1;min-width:0;"><div class="tit" style="font-size:14px;font-weight:600;">Omar &middot; working</div><div class="sub" style="font-size:12px;color:var(--mute);">Drafting your reply to Acme</div></div>
@@ -504,7 +504,7 @@ input{font-family:inherit;}
           <span style="font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);">Review</span>
         </div>
       </div>
-      <div style="text-align:center;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-top:18px;">Just the one &middot; the rest is handled</div>
+      <div id="village-foot" style="text-align:center;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-top:18px;display:none;">Just the one &middot; the rest is handled</div>
     </div>
   </div>
 
@@ -515,12 +515,18 @@ input{font-family:inherit;}
       <h2 class="display" style="font-size:28px;margin:8px 0 3px;">What your crew knows.</h2>
       <div class="body-t" style="font-size:13px;">Two memories, kept apart. Agents cite before they act.</div>
       <div id="mem-learned"></div>
+      <div id="brain-empty" style="display:none;margin-top:18px;" class="card soft">
+        <div class="lrow" style="padding:16px 18px;">
+          <span class="tick" style="width:34px;height:34px;"><svg width="13" height="11" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <div><div class="tit" style="font-size:14.5px;">Nothing learned yet</div><div class="sub">Tell your crew things and they’ll remember, work and personal kept apart.</div></div>
+        </div>
+      </div>
 
-      <div class="zonehead" style="margin-top:15px;margin-bottom:8px;">
+      <div class="zonehead crewdemo-only" style="margin-top:15px;margin-bottom:8px;display:none;">
         <span class="zicon work"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2.5"/><path d="M9 8V6.5A2.5 2.5 0 0 1 11.5 4h1A2.5 2.5 0 0 1 15 6.5V8"/></svg></span>
         <span class="zt">Work</span><span class="zl"></span><span class="zc">29 facts</span>
       </div>
-      <div class="card">
+      <div class="card crewdemo-only" style="display:none;">
         <div class="lrow tappable" style="padding:10px 15px;" onclick="toast('Price floor &amp; discounts · v4')">
           <span class="tile" style="background:var(--green-tint);color:var(--green-deep);font-family:var(--serif);font-style:italic;font-size:16px;width:36px;height:36px;">P</span>
           <div><div class="tit" style="font-size:14px;">Price floor &amp; discounts</div><div class="sub">Floor 22% margin · v4</div></div>
@@ -538,11 +544,11 @@ input{font-family:inherit;}
         </div>
       </div>
 
-      <div class="zonehead" style="margin-top:14px;margin-bottom:8px;">
+      <div class="zonehead crewdemo-only" style="margin-top:14px;margin-bottom:8px;display:none;">
         <span class="zicon pers"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5 12 3.8l8.5 6.7V20a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1v-9.5Z"/></svg></span>
         <span class="zt pers">Personal</span><span class="zl"></span><span class="zc">18 facts</span>
       </div>
-      <div class="card">
+      <div class="card crewdemo-only" style="display:none;">
         <div class="lrow tappable" style="padding:10px 15px;" onclick="toast('Travel preferences · 6 notes')">
           <span class="tile" style="background:#E8E1F0;color:#54456B;font-family:var(--serif);font-style:italic;font-size:16px;width:36px;height:36px;">T</span>
           <div><div class="tit" style="font-size:14px;">Travel preferences</div><div class="sub">Aisle seat, halal meals</div></div>
@@ -649,10 +655,10 @@ input{font-family:inherit;}
     </div>
     <div class="vbody" style="padding-top:12px;">
       <div style="display:flex;align-items:center;gap:13px;">
-        <span class="av av-crew lg" style="font-size:24px;" id="setav">F</span>
+        <span class="av av-crew lg" style="font-size:24px;" id="setav">C</span>
         <div>
-          <div style="font-family:var(--serif);font-size:24px;font-weight:520;letter-spacing:-.01em;" id="setname">Farah</div>
-          <div class="sub" style="font-size:12px;color:var(--mute);">Sari Batik · account, plan &amp; notifications &rsaquo;</div>
+          <div style="font-family:var(--serif);font-size:24px;font-weight:520;letter-spacing:-.01em;" id="setname">You</div>
+          <div class="sub" style="font-size:12px;color:var(--mute);" id="setsub">Account, plan &amp; notifications &rsaquo;</div>
         </div>
       </div>
       <div class="sect-label" style="margin-top:18px;"><span class="eyebrow">Account</span></div>
@@ -983,7 +989,9 @@ const AGENTS = {
            ["7:10 · Yesterday","School run reminder sent, on time",0]]}
 };
 
-let decisions = [
+/* DEMO FICTION (showcase only). Seeded into `decisions` ONLY when demo mode is on
+   (?demo=1 or localStorage crew_demo). A real signed-in user NEVER sees these. */
+const DEMO_DECISIONS = [
   {id:"lina",agent:"ramy",type:"choice",
    ask:'Approve 15% off for <em>Lina</em>?',
    fact:"Still above your price floor.",
@@ -1013,6 +1021,21 @@ let decisions = [
    chips:["Find a free option","Ask Mara first","Wait till month end"]}
 ];
 
+/* DEMO MODE flag. OFF by default = honest real/empty app. ON = full Farah showcase.
+   Turn on with ?demo=1 in the URL (persists) or ?demo=0 to clear. */
+function crewDemo(){
+  try{
+    var q=location.search||"";
+    if(/[?&]demo=1\b/.test(q)){try{localStorage.setItem("crew_demo","1");}catch(e){}return true;}
+    if(/[?&]demo=0\b/.test(q)){try{localStorage.removeItem("crew_demo");}catch(e){}return false;}
+    return localStorage.getItem("crew_demo")==="1";
+  }catch(e){return false;}
+}
+var CREW_DEMO=crewDemo();
+
+// Real app starts EMPTY. Demo mode seeds the showcase decisions.
+let decisions = CREW_DEMO ? DEMO_DECISIONS.slice() : [];
+
 let curDecision=null, curAgent=null, redirectFrom=null, askLimit=5000;
 const $=id=>document.getElementById(id);
 
@@ -1033,9 +1056,13 @@ function showTab(name){
 }
 function renderMemory(){
   var el=document.getElementById("mem-learned"); if(!el)return;
+  // Toggle demo-only static fact cards.
+  document.querySelectorAll(".crewdemo-only").forEach(function(n){n.style.display=CREW_DEMO?"":"none";});
+  var emptyCard=document.getElementById("brain-empty");
   fetch(CREW_MEM+"?device_id="+encodeURIComponent(crewDevice()),crewAuthGET()).then(function(r){return r.json();}).then(function(d){
     var facts=(d&&d.facts)||[];
-    if(!facts.length){el.innerHTML="";return;}
+    if(!facts.length){el.innerHTML="";if(emptyCard)emptyCard.style.display=CREW_DEMO?"none":"block";return;}
+    if(emptyCard)emptyCard.style.display="none";
     var work=facts.filter(function(f){return f.zone!=="personal";});
     var pers=facts.filter(function(f){return f.zone==="personal";});
     function zone(title,clsPers,arr){ if(!arr.length)return ""; var h='<div class="zonehead" style="margin-top:14px;margin-bottom:8px;"><span class="zt'+(clsPers?" pers":"")+'">'+title+'</span><span class="zl"></span><span class="zc">'+arr.length+(arr.length===1?" note":" notes")+'</span></div><div class="card">'; arr.forEach(function(){ h+='<div class="lrow" style="padding:11px 15px;"><span class="tick" style="width:26px;height:26px;flex:none;"><svg width="11" height="9" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><div class="tit memfact" style="font-size:13.5px;font-weight:500;"></div></div></div>'; }); h+="</div>"; return h; }
@@ -1063,7 +1090,10 @@ function popAll(){
 
 /* ============ HOME ============ */
 function renderHome(){
-  const n=decisions.length, w=12;
+  const n=decisions.length;
+  // Working count is derived, never hardcoded. Demo = the full crew; real = only
+  // agents with genuine live activity (none yet for an empty account => 0).
+  const w=CREW_DEMO?Object.keys(AGENTS).length:0;
   $("homecount").innerHTML=w+" working &nbsp;·&nbsp; "+(n>0
     ?'<span style="color:var(--amber);">'+n+(n===1?" needs you":" need you")+"</span>"
     :'<span style="color:var(--mute);">0 need you</span>');
@@ -1100,21 +1130,34 @@ function renderHome(){
     el.querySelector(".sub").textContent=es;
     wrap.appendChild(el);
   }
-  $("homefoot").textContent=n>0?"One tap and you’re back to your day.":"That’s everything. Go live your day.";
+  // Fictional ledger peek shows only in demo mode.
+  var led=$("homeledger"); if(led)led.style.display=CREW_DEMO?"":"none";
+  if(n>0){
+    $("homefoot").textContent="One tap and you’re back to your day.";
+  }else if(CREW_DEMO){
+    $("homefoot").textContent="That’s everything. Go live your day.";
+  }else{
+    $("homefoot").textContent="Your crew is just getting started.";
+  }
 }
 
 /* ============ CREW ============ */
 function agentStatus(a,key){
   if(a.paused)return{cls:"quiet",label:"Paused",st:"gry",sub:"Paused by you"};
-  if(decisions.some(d=>d.agent===key))return{cls:"needs",label:"Needs you",st:"amb",sub:a.sub};
+  if(decisions.some(d=>d.agent===key))return{cls:"needs",label:"Needs you",st:"amb",sub:a.sub||""};
   var rd=crewRedirects[key]; // CREW-03: redirect leaves a visible trace on the agent
   if(rd&&(Date.now()-rd.at)<3600000)return{cls:"working",label:"On your redirect",st:"grn",sub:"Redirected · "+(rd.note.length>34?rd.note.slice(0,34)+"…":rd.note)};
+  // Real account with no live activity: honest "Ready / Nothing yet", never fiction.
+  if(!CREW_DEMO)return{cls:"quiet",label:"Ready",st:"gry",sub:"Nothing yet"};
   if(key==="ramy")return{cls:"working",label:"Working",st:"grn",sub:a.subCalm};
   const map={working:["working","Working","grn"],done:["done","Done","gry"],quiet:["quiet","Quiet","gry"]};
   const m=map[a.status]||map.working;
   return{cls:m[0],label:m[1],st:m[2],sub:a.sub};
 }
 function renderCrew(){
+  // Headline + work-zone label are honest for real accounts (no "Sari Batik" SME fiction).
+  var ch=$("crewhead"); if(ch)ch.textContent=CREW_DEMO?"Four at work, two at home.":"Your crew, ready to go.";
+  var cwl=$("crewworklbl"); if(cwl)cwl.textContent=CREW_DEMO?"Sari Batik":"";
   const zones={work:$("crew-work"),pers:$("crew-pers")};
   zones.work.innerHTML="";zones.pers.innerHTML="";
   Object.keys(AGENTS).forEach(key=>{
@@ -1151,14 +1194,22 @@ function openAgent(key){
   $("ag-name").textContent=a.name;
   const pill=$("ag-pill");
   pill.className="pill "+s.cls;
-  pill.innerHTML='<span class="dot"></span>'+(s.cls==="working"&&key==="ramy"?"Working · 2 deals live":s.label);
-  $("ag-now").textContent=a.paused?"Paused. Picks up exactly where it stopped.":(key==="ramy"&&!decisions.some(d=>d.agent==="ramy")?a.nowCalm:a.now);
-  $("ag-next").textContent=a.next;
+  pill.innerHTML='<span class="dot"></span>'+(CREW_DEMO&&s.cls==="working"&&key==="ramy"?"Working · 2 deals live":s.label);
+  if(CREW_DEMO){
+    $("ag-now").textContent=a.paused?"Paused. Picks up exactly where it stopped.":(key==="ramy"&&!decisions.some(d=>d.agent==="ramy")?a.nowCalm:a.now);
+    $("ag-next").textContent=a.next;
+    $("ag-moves").innerHTML=a.moves.map(m=>'<div class="tl-item'+(m[2]?" grn":"")+'"><div class="t">'+m[0]+'</div><div class="d">'+m[1]+"</div></div>").join("");
+    $("ag-guard").textContent=a.guard;
+  }else{
+    // Real account: honest empty agent detail, no fabricated RM moves / deals.
+    $("ag-now").textContent=a.paused?"Paused. Picks up exactly where it stopped.":"Ready when you are. Nothing yet.";
+    $("ag-next").textContent="Set "+a.name+" a task and it starts.";
+    $("ag-moves").innerHTML='<div class="tl-item"><div class="d" style="color:var(--mute);">No activity yet.</div></div>';
+    $("ag-guard").textContent="Guardrail · checks with you before anything spends or sends.";
+  }
   $("ag-nowcard").style.borderLeftColor=a.paused?"var(--hair2)":"var(--green)";
-  $("ag-moves").innerHTML=a.moves.map(m=>'<div class="tl-item'+(m[2]?" grn":"")+'"><div class="t">'+m[0]+'</div><div class="d">'+m[1]+"</div></div>").join("");
   $("ag-redirect-label").textContent="Redirect "+a.name;
   $("ag-pausebtn").textContent=a.paused?"Resume":"Pause";
-  $("ag-guard").textContent=a.guard;
   push("v-agent");
 }
 function togglePause(){
@@ -1719,12 +1770,22 @@ function startOnb(){
   setTimeout(obNext,500);
 }
 function finishOnb(){
+  // Real app: don't lose the crew - finish must lead to Google sign-in + a real account.
+  if(!CREW_DEMO && !crewSignedIn()){
+    crewGateSignIn();
+    return;
+  }
   try{localStorage.setItem("crew_onboarded","1");}catch(e){}
   document.getElementById("app").classList.remove("onb");
   $("v-disc").classList.remove("on");
   $("v-onb").classList.remove("on");
   stack=[];
   showTab("home");
+}
+function crewGateSignIn(){
+  // Nudge then launch Google OAuth. On return, crewHandleSession lands the real account.
+  toast("Log in so you don’t lose your crew");
+  setTimeout(crewGoogleSignIn,420);
 }
 function replayOnb(){
   try{localStorage.removeItem("crew_onboarded");}catch(e){}
@@ -1778,7 +1839,18 @@ function crewApplyAccount(acct){
     if(acct.firstName){
       crewApplyUserName(acct.firstName);
       applyCrewNames();
-      if(!document.getElementById("app").classList.contains("onb")){renderHome();renderCrew();}
+    }
+    // A real account exists now: leave onboarding and land on the real home.
+    var app=document.getElementById("app");
+    if(app.classList.contains("onb")){
+      try{localStorage.setItem("crew_onboarded","1");}catch(e){}
+      app.classList.remove("onb");
+      $("v-disc").classList.remove("on");
+      $("v-onb").classList.remove("on");
+      stack=[];
+      showTab("home");
+    }else{
+      renderHome();renderCrew();
     }
   }else{
     if(so)so.style.display="flex";
@@ -1880,8 +1952,17 @@ function crewUserFirst(){
   return "";
 }
 function crewApplyUserName(first){
-  if(!first)return;
+  // No real name yet -> honest neutral copy, NEVER "Farah".
+  if(!first){
+    var hnw0=$("homenamewrap");if(hnw0)hnw0.style.display="none";   // headline reads "All quiet."
+    var sn0=$("setname");if(sn0)sn0.textContent="You";
+    var co0=$("crewowner");if(co0)co0.textContent="Your Crew";
+    var ha0=$("homeav");if(ha0)ha0.textContent="C";
+    var sa0=$("setav");if(sa0)sa0.textContent="C";
+    return;
+  }
   var letter=first.charAt(0).toUpperCase();
+  var hnw=$("homenamewrap");if(hnw)hnw.style.display="";
   var hn=$("homename");if(hn)hn.textContent=first;
   var sn=$("setname");if(sn)sn.textContent=first;
   var co=$("crewowner");if(co)co.textContent=first+"’s Crew";
@@ -1928,16 +2009,41 @@ function applyCrewNames(){
 }
 
 /* ============ BOOT ============ */
+function crewSignedIn(){
+  // Cached account is enough to treat the user as signed-in for the gate; the live
+  // session refresh (crewInitAuth) confirms + corrects shortly after.
+  try{return !!localStorage.getItem("crew_account");}catch(e){return false;}
+}
 (function boot(){
   let onboarded=false;
   try{onboarded=localStorage.getItem("crew_onboarded")==="1";}catch(e){}
   if(location.search.indexOf("skiponb")>-1)onboarded=true;
   if(location.search.indexOf("forceonb")>-1)onboarded=false;
-  crewApplyUserName(crewUserFirst());
+
+  var demoName=CREW_DEMO?(crewUserFirst()||"Farah"):"";
+
+  if(CREW_DEMO){
+    // SHOWCASE: keep the original Farah experience untouched (default crew names
+    // Ramy/Mara/... stay unless the viewer typed their own name in onboarding).
+    var ss=$("setsub");if(ss)ss.textContent="Sari Batik · account, plan & notifications ›";
+    var vb=$("village-badges");if(vb)vb.style.display="flex";
+    var vr=$("village-rows");if(vr)vr.style.display="block";
+    var vf=$("village-foot");if(vf)vf.style.display="block";
+  }
+
+  crewApplyUserName(CREW_DEMO?demoName:crewUserFirst());
   applyCrewNames();
   renderHome();renderCrew();
-  if(onboarded){document.getElementById("app").classList.remove("onb");showTab("home");}
-  else startOnb();
+
+  // SIGN-IN-FIRST (real app): without an account, never drop into a seeded home.
+  // Onboarding runs and leads to Google sign-in; demo mode bypasses the gate.
+  if(!CREW_DEMO && !crewSignedIn()){
+    startOnb();
+  }else if(onboarded){
+    document.getElementById("app").classList.remove("onb");showTab("home");
+  }else{
+    startOnb();
+  }
   $("redfield").addEventListener("keydown",e=>{if(e.key==="Enter")sendRedirect();});
   /* CREW-05: real drag-to-dismiss on sheets (works on the .grab handle of whichever sheet is open) */
   (function(){
