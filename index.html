@@ -328,6 +328,25 @@ input{font-family:inherit;}
 #v-onb #obnamefield:focus{border-color:var(--ink);}
 #ob-composer.hide{display:none;}
 </style>
+<script>
+/* Self-healing cache buster: GitHub Pages caches this HTML ~10min, so a tester can
+   see a stale build right after a deploy. On load we fetch the page fresh (no-store,
+   bypassing the cache) and compare the build id; if ours is stale, reload once via a
+   cache-busting param so the latest UI always wins. */
+window.CREW_BUILD="20260615-013423";
+(function(){
+  try{
+    if(/[?&]fresh=/.test(location.search))return;
+    fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(h){
+      var m=h.match(/CREW_BUILD="([^"]+)"/);
+      if(m&&m[1]&&m[1]!=="__BUILD__"&&m[1]!==window.CREW_BUILD){
+        var sep=location.search?'&':'?';
+        location.replace(location.pathname+location.search+sep+'fresh='+encodeURIComponent(m[1]));
+      }
+    }).catch(function(){});
+  }catch(e){}
+})();
+</script>
 </head>
 <body>
 <div id="app" class="onb">
