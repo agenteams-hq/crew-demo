@@ -1427,6 +1427,8 @@ function talkScroll(){
 }
 const CREW_API="https://crew-api-two.vercel.app/api/noor";
 const CREW_TASK="https://crew-api-two.vercel.app/api/task"; // MVP: hand the crew a real task -> it does it
+const CREW_EMAIL="https://crew-api-two.vercel.app/api/email"; // email use case: draft -> formatted preview -> approve -> (connector-gated) send
+const CREW_EMAIL_RE=/\b(e-?mail|reply to|replying to|write to|respond to|message to|follow ?up with|draft (?:an? )?(?:email|message|note|reply))\b/i;
 const CREW_HISTORY="https://crew-api-two.vercel.app/api/history";
 const CREW_MEM="https://crew-api-two.vercel.app/api/memory";
 var crewToken="";
@@ -1477,6 +1479,7 @@ function crewDoTask(){
   var req=(f.value||"").trim(); if(!req)return;
   if(!crewToken){ toast("Sign in with Google first - tap your avatar, top right."); return; }
   var out=$("taskresult"); if(!out)return;
+  if(CREW_EMAIL_RE.test(req)){ crewDoEmail(req,f,out); return; } // email -> formatted preview + approve flow
   f.value=""; f.disabled=true;
   try{crewHaptic(8);}catch(e){}
   out.innerHTML='<div class="card soft" style="margin-top:13px;"><div class="lrow" style="padding:14px 16px;"><span class="live-dot"></span><span class="sub" style="font-size:13.5px;margin-left:4px;">Your crew is on it&hellip;</span></div></div>';
@@ -1493,6 +1496,54 @@ function crewDoTask(){
       try{crewHaptic(12);}catch(e){}
     })
     .catch(function(){ f.disabled=false; out.innerHTML='<div class="sub" style="margin-top:11px;font-size:12.5px;color:var(--mute);">Network hiccup - try again.</div>'; });
+}
+
+// Email use case (shape -> approve -> watch): draft a STRUCTURED email, show a
+// real formatted preview the user checks, then approve. The SEND is connector-
+// gated (Gmail OAuth, Edward's review) - until wired, "send" honestly offers to connect.
+function crewDoEmail(req,f,out){
+  f=f||$("taskfield"); out=out||$("taskresult"); if(!out)return;
+  f.value=""; f.disabled=true;
+  try{crewHaptic(8);}catch(e){}
+  out.innerHTML='<div class="card soft" style="margin-top:13px;"><div class="lrow" style="padding:14px 16px;"><span class="live-dot"></span><span class="sub" style="font-size:13.5px;margin-left:4px;">Drafting your email&hellip;</span></div></div>';
+  fetch(CREW_EMAIL, crewAuthPOST({device_id:crewDevice(), request:req}))
+    .then(function(x){ return x.status===401?{__auth:1}:x.json(); })
+    .then(function(d){
+      f.disabled=false;
+      if(d&&d.__auth){ out.innerHTML=""; toast("Sign in with Google first."); return; }
+      if(!d||!d.ok||!d.body){ out.innerHTML='<div class="sub" style="margin-top:11px;font-size:12.5px;color:var(--mute);">Could not draft that one - try again.</div>'; return; }
+      renderEmailPreview(d,out);
+      try{crewHaptic(12);}catch(e){}
+    })
+    .catch(function(){ f.disabled=false; out.innerHTML='<div class="sub" style="margin-top:11px;font-size:12.5px;color:var(--mute);">Network hiccup - try again.</div>'; });
+}
+function renderEmailPreview(d,out){
+  out=out||$("taskresult"); if(!out)return;
+  var card=document.createElement("div"); card.className="card"; card.style.cssText="margin-top:13px;border-color:#CFE6D8;overflow:hidden;";
+  card.innerHTML=
+    '<div style="padding:13px 16px 12px;border-bottom:1px solid var(--hair);"><div style="display:flex;align-items:center;gap:8px;"><span class="tick" style="width:24px;height:24px;"><svg width="11" height="9" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="eyebrow grn">Draft ready - check it</span></div></div>'
+    + '<div style="padding:11px 16px 4px;font-family:var(--grot);">'
+    + '<div style="display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--hair);"><span style="font-size:12px;color:var(--mute);width:56px;flex:none;">To</span><span style="font-size:13.5px;color:var(--ink);" id="em-to"></span></div>'
+    + '<div style="display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--hair);"><span style="font-size:12px;color:var(--mute);width:56px;flex:none;">Subject</span><span style="font-size:13.5px;color:var(--ink);font-weight:600;" id="em-subj"></span></div>'
+    + '<div style="padding:13px 0 4px;font-size:14px;line-height:1.55;white-space:pre-wrap;color:var(--ink);" id="em-body"></div>'
+    + '</div>'
+    + '<div style="padding:6px 16px 15px;display:flex;gap:9px;">'
+    + '<button class="btn" id="em-send" style="flex:1;height:46px;background:var(--green);color:#fff;font-size:14px;">Approve &amp; send</button>'
+    + '<button class="btn btn-secondary" id="em-edit" style="flex:none;width:auto;padding:0 17px;height:46px;font-size:13px;">Edit</button>'
+    + '</div>';
+  out.innerHTML=""; out.appendChild(card);
+  card.querySelector("#em-to").textContent=d.to||"(add a recipient)"; // DATA
+  card.querySelector("#em-subj").textContent=cleanMd(d.subject||""); // DATA
+  card.querySelector("#em-body").textContent=cleanMd(d.body||""); // DATA
+  card.querySelector("#em-send").onclick=function(){ crewEmailSend(d); };
+  card.querySelector("#em-edit").onclick=function(){ var tf=$("taskfield"); if(tf){tf.focus();} toast("Tell me what to change and I'll redraft it."); };
+}
+function crewEmailSend(d){
+  // The send needs the user's email connected (Gmail OAuth) - a security-gated
+  // connector (Edward's review). Until it's wired, be honest: offer to connect.
+  try{crewHaptic(10);}catch(e){}
+  toast("Connect your email and I'll send it for you.");
+  setTimeout(function(){ try{push("v-connections");}catch(e){} },650);
 }
 
 function sendTalk(){
