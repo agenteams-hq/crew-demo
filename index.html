@@ -34,6 +34,14 @@
   --sat:env(safe-area-inset-top,0px);
   --sab:env(safe-area-inset-bottom,0px);
 }
+/* Colour-energy A/B (Fares: "colours need to pop more"). ?pop=1 amps the palette:
+   punchier green, brighter mint tints, warm gold instead of the brown amber,
+   warmer kraft. Default is untouched - this is opt-in until approved. */
+html.pop{
+  --paper:#FBF5EA; --bone:#F0E8D6;
+  --green:#00C853; --green-deep:#00963F; --green-tint:#C6F0D4;
+  --amber:#E0820E; --amber-tint:#FDECCB; --amber-line:#F2D6A0;
+}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html{-webkit-font-smoothing:antialiased;height:100%;}
 body{font-family:var(--grot);color:var(--ink);background:var(--paper);height:100dvh;overflow:hidden;overscroll-behavior:none;text-rendering:optimizeLegibility;}
@@ -1020,6 +1028,12 @@ function crewDemo(){
   }catch(e){return false;}
 }
 var CREW_DEMO=crewDemo();
+// Colour-energy A/B toggle: ?pop=1 -> amped palette (sticky), ?pop=0 -> default.
+(function(){try{var q=location.search||"";
+  if(/[?&]pop=1\b/.test(q))localStorage.setItem("crew_pop","1");
+  if(/[?&]pop=0\b/.test(q))localStorage.removeItem("crew_pop");
+  if(localStorage.getItem("crew_pop")==="1")document.documentElement.classList.add("pop");
+}catch(e){}})();
 
 // Real app starts EMPTY. Demo mode seeds the showcase decisions.
 let decisions = CREW_DEMO ? DEMO_DECISIONS.slice() : [];
