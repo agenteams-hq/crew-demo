@@ -1488,12 +1488,15 @@ function endCall(){
 const OB_QUESTIONS=[
   {key:"timesink",
    q:"Hey - I&rsquo;m your main agent. In a sentence or two, what&rsquo;s eating most of your time right now?",
+   suggest:["Emails & messages","Admin & errands","Planning & scheduling"],
    ack:function(a){return "Got it - so "+obQuote(a)+" is taking the hit. I&rsquo;ll start there.";}},
   {key:"sphere",
    q:"Makes sense. Is that more work, life, or a bit of both?",
+   suggest:["Mostly work","Mostly life","A bit of both"],
    ack:function(a){return "Noted - "+obQuote(a)+". I&rsquo;ll keep that in mind.";}},
   {key:"offplate",
    q:"What&rsquo;s one thing on your plate this week you&rsquo;d love off it?",
+   suggest:["My inbox","Booking something","Chasing a payment"],
    ack:function(a){return "Perfect - "+obQuote(a)+". Consider it on my list.";}},
   {key:"name", name:true,
    q:"Last thing - what should I call you?",
@@ -1544,11 +1547,30 @@ function obAgentSay(html,then,delay){
   },delay||780);
 }
 
+/* suggested replies: tappable quick answers next to the free-text input (tap or type) */
+function obClearSuggest(){var log=$("ob-chatlog");if(!log)return;var ex=log.querySelectorAll(".ob-suggest");for(var i=0;i<ex.length;i++)ex[i].remove();}
+function obRenderSuggest(q){
+  obClearSuggest();
+  if(!q||!q.suggest||!q.suggest.length)return;
+  var log=$("ob-chatlog");if(!log)return;
+  var row=document.createElement("div");row.className="chiprow ob-suggest";
+  q.suggest.forEach(function(s){
+    var b=document.createElement("button");b.type="button";
+    b.style.cssText="font-family:var(--grot);font-size:13px;font-weight:500;color:var(--ink);background:#fff;border:1px solid var(--hair2);border-radius:999px;padding:9px 15px;cursor:pointer;";
+    b.textContent=s; // DATA
+    b.onclick=function(){ if(obBusy)return; var fld=$("obnamefield"); if(fld){fld.value=s;} obNameSubmit(); };
+    row.appendChild(b);
+  });
+  log.appendChild(row);obScroll();
+}
+
 /* ask the question at index obQ (or wrap up if we are past the end) */
 function obAskCurrent(){
   if(obQ>=OB_QUESTIONS.length){obFinishQuestions();return;}
-  obAgentSay(OB_QUESTIONS[obQ].q,function(){
+  var q=OB_QUESTIONS[obQ];
+  obAgentSay(q.q,function(){
     var f=$("obnamefield");if(f){f.disabled=false;try{f.focus({preventScroll:true});}catch(e){}}
+    obRenderSuggest(q); // tappable suggestions alongside the free-text input
   });
 }
 
@@ -1560,6 +1582,7 @@ function obNameSubmit(){ // name kept for the existing boot wiring; handles ever
   if(!v)return;
   var q=OB_QUESTIONS[obQ];if(!q)return;
 
+  obClearSuggest(); // remove the tappable suggestions once answered
   obAddUser(v);
   fld.value="";fld.disabled=true;
 
