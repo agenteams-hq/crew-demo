@@ -1439,7 +1439,7 @@ function crewAuthPOST(b){var h={"Content-Type":"application/json"};if(crewToken)
 let TALK_HISTORY=[];
 let talkLoaded=false;
 function crewDevice(){let d;try{d=localStorage.getItem("crew_device");}catch(e){}if(!d){d=(self.crypto&&crypto.randomUUID)?crypto.randomUUID():("11111111-2222-4333-8444-"+(Date.now().toString(16)+"000000000000").slice(0,12));try{localStorage.setItem("crew_device",d);}catch(e){}}return d;}
-function loadTalkHistory(){fetch(CREW_HISTORY+"?device_id="+encodeURIComponent(crewDevice()),crewAuthGET()).then(function(r){return r.json();}).then(function(d){if(d.messages&&d.messages.length){var log=$("talklog");log.innerHTML="";d.messages.forEach(function(m){var row=document.createElement("div");row.className="chatrow";if(m.role==="user"){var b=document.createElement("div");b.className="bub user";b.textContent=m.content;row.appendChild(b);}else{row.innerHTML='<span class="av av-noor sm" style="font-size:12px;">★</span><div class="bub agent"></div>';row.querySelector(".bub").textContent=m.content;}log.appendChild(row);});talkScroll();}}).catch(function(){});}
+function loadTalkHistory(){fetch(CREW_HISTORY+"?device_id="+encodeURIComponent(crewDevice()),crewAuthGET()).then(function(r){return r.json();}).then(function(d){if(d.messages&&d.messages.length){var log=$("talklog");log.innerHTML="";d.messages.forEach(function(m){var row=document.createElement("div");row.className="chatrow";if(m.role==="user"){var b=document.createElement("div");b.className="bub user";b.textContent=m.content;row.appendChild(b);}else{row.innerHTML='<span class="av av-noor sm" style="font-size:12px;">★</span><div class="bub agent"></div>';row.querySelector(".bub").textContent=cleanMd(m.content);}log.appendChild(row);});talkScroll();}}).catch(function(){});}
 // Village (companion) honest state - real needs-you count, no fiction. Calm when empty.
 function renderVillage(){
   var need=(typeof decisions!=='undefined'&&decisions&&decisions.length)?decisions.length:0;
@@ -1451,6 +1451,24 @@ function renderVillage(){
     rows.innerHTML='<div style="padding:18px 16px;text-align:center;"><div class="tit" style="font-size:15px;">'+(need>0?'One thing needs your call':'Your crew is ready')+'</div><div class="sub" style="font-size:13px;color:var(--mute);margin-top:5px;">'+(need>0?'Head to Home to see what needs you.':'Nothing needs you yet — the village stirs as your crew takes things on.')+'</div></div>'; }
   var f=$("village-foot");
   if(f){ f.style.display="block"; f.textContent = need>0 ? 'Just the one · the rest is handled' : 'All calm · your crew is ready'; }
+}
+
+// Strip markdown to clean, readable plain text (models leak **bold**, ##, `code`,
+// bullets even when told not to). String->string, then set via textContent = XSS-safe.
+function cleanMd(s){
+  s=String(s==null?"":s);
+  return s
+    .replace(/```\w*\n?/g,"").replace(/```/g,"")   // code fences
+    .replace(/`([^`]+)`/g,"$1")                     // inline code
+    .replace(/\*\*([^*]+)\*\*/g,"$1")               // **bold**
+    .replace(/__([^_]+)__/g,"$1")                   // __bold__
+    .replace(/(^|[\s(])\*([^*\n]+)\*/g,"$1$2")      // *italic*
+    .replace(/\[([^\]]+)\]\([^)]+\)/g,"$1")         // [text](url) -> text
+    .replace(/^#{1,6}\s+/gm,"")                      // # headers
+    .replace(/^\s*>\s?/gm,"")                        // > blockquote
+    .replace(/^\s*[-*+]\s+/gm,"• ")                 // - bullets -> •
+    .replace(/\n{3,}/g,"\n\n")                       // collapse blank lines
+    .trim();
 }
 
 // MVP execution loop: hand the crew a task -> /api/task -> the agent does it -> show the result.
@@ -1471,7 +1489,7 @@ function crewDoTask(){
       var card=document.createElement("div"); card.className="card"; card.style.cssText="margin-top:13px;border-color:var(--hair);";
       card.innerHTML='<div style="padding:14px 16px;"><div style="display:flex;align-items:center;gap:8px;"><span class="tick" style="width:26px;height:26px;"><svg width="11" height="9" viewBox="0 0 10 8" fill="none"><path d="M1 4 3.8 6.8 9 1.2" stroke="#00813B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="eyebrow grn">Done</span></div><div style="margin-top:10px;font-size:14px;line-height:1.5;white-space:pre-wrap;color:var(--ink);" id="taskout"></div></div>';
       out.innerHTML=""; out.appendChild(card);
-      card.querySelector("#taskout").textContent=d.result; // DATA, XSS-safe
+      card.querySelector("#taskout").textContent=cleanMd(d.result); // DATA, XSS-safe
       try{crewHaptic(12);}catch(e){}
     })
     .catch(function(){ f.disabled=false; out.innerHTML='<div class="sub" style="margin-top:11px;font-size:12.5px;color:var(--mute);">Network hiccup - try again.</div>'; });
@@ -1502,7 +1520,7 @@ function sendTalk(){
       if(d&&d.__auth){ r.querySelector(".bub").textContent="Sign in with Google to use your crew - tap your avatar, top right."; talkScroll(); return; } // CREW-11: 401 -> sign-in gate, never canned filler
       const reply=(d&&d.reply)?d.reply:NOOR_REPLIES[noorIdx++%NOOR_REPLIES.length];
       TALK_HISTORY.push({role:"assistant",content:reply});
-      r.querySelector(".bub").textContent=reply;
+      r.querySelector(".bub").textContent=cleanMd(reply);
       talkScroll();
     })
     .catch(()=>{
@@ -1699,7 +1717,7 @@ function obAddAgentText(text){
   var log=$("ob-chatlog");if(!log)return;
   var row=document.createElement("div");row.className="chatrow";
   row.innerHTML='<span class="av av-noor sm" style="font-size:12px;">&#9733;</span><div class="bub agent"></div>';
-  row.querySelector(".bub").textContent=text; // DATA - safe
+  row.querySelector(".bub").textContent=cleanMd(text); // DATA - safe
   log.appendChild(row);obScroll();
 }
 // suggested replies: tap any chip to answer instantly (the agent suggests these)
@@ -1760,7 +1778,7 @@ function obTurn(attempt){
       if(row){row.classList.remove("ob-typing");}
       if(!d||!d.ok){ if(row)row.querySelector(".bub").textContent="Sorry - that one didn't go through. Try once more?"; var fe=$("obnamefield");if(fe){fe.disabled=false;} return; }
       var reply=d.reply||"Tell me a bit more.";
-      if(row)row.querySelector(".bub").textContent=reply; else obAddAgentText(reply); // DATA - safe
+      if(row)row.querySelector(".bub").textContent=cleanMd(reply); else obAddAgentText(reply); // DATA - safe
       obMessages.push({role:"assistant",content:reply});
       if(d.done){ setTimeout(function(){obFinishSmart(d);},620); return; }
       var f=$("obnamefield");if(f){f.disabled=false;try{f.focus({preventScroll:true});}catch(e){}}
