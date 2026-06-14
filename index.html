@@ -1716,9 +1716,6 @@ let obBusy=false;     // true while the agent is "thinking"/typing (locks the co
 // New flow (Fares): NAME first -> "nice to meet you" -> goal questions -> THEN you
 // MEET your main agent (the creature reveal is the payoff at the end, not the top).
 const OB_NAME_ASK="Hey - quick hello before we dive in. What should I call you?";
-const OB_GOAL_OPENER="Love it. So - what&rsquo;s the one thing on your mind right now that you&rsquo;d most love a hand with?";
-const OB_OPENER_SUGGEST=["Finding a job","My inbox is chaos","Money & bills","Planning something big","Something else"];
-let obPhase="name"; // "name" (asking their name) -> "goal" (the LLM goal loop)
 
 /* context store (a small object of free-text answers) */
 function crewOnbContextGet(){try{var c=JSON.parse(localStorage.getItem("crew_onboarding_context")||"{}");return (c&&typeof c==="object")?c:{};}catch(e){return {};}}
@@ -1787,27 +1784,16 @@ function obShowSuggest(arr){
   log.appendChild(row);obScroll();
 }
 
-/* pull the actual name out of free text ("I'm Robert" / "my name is Robert" / "call me Bob") */
-function obParseName(v){
-  v=String(v||"").trim().replace(/[<>]/g,"");
-  v=v.replace(/^(hi|hey|hello|yo|heya|sup)[,!.\s]+/i,"");
-  v=v.replace(/^(i'?m|i am|my name'?s|my name is|name'?s|it'?s|this is|they call me|you can call me|call me|im)\s+/i,"");
-  v=v.replace(/[.!,]+$/,"").trim();
-  var first=(v.split(/\s+/)[0]||"").slice(0,40);
-  if(!first)first=(String(v||"").trim().split(/\s+/)[0]||"there").slice(0,40);
-  return first.charAt(0).toUpperCase()+first.slice(1);
-}
-
-/* step 1: ask the user's NAME first (client-side, no LLM) */
+/* step 1: ask the user's name (controlled opener). The LLM extracts the name from
+   whatever they type, greets them, and moves to the goal - no brittle client regex. */
 function obStartSmart(){
-  obMessages=[]; obPhase="name";
+  obMessages=[];
   obAgentSay(OB_NAME_ASK,function(){
     var f=$("obnamefield");if(f){f.disabled=false;f.placeholder="Your name…";try{f.focus({preventScroll:true});}catch(e){}}
   });
 }
 
-/* user answered (typed or tapped a chip). Name phase -> greet + start the goal loop.
-   Goal phase -> drive the goal-seeking LLM loop. */
+/* every answer (name or goal) goes to the fast LLM (/api/onboard) */
 function obSubmitAnswer(forced){
   if(obBusy)return;
   var fld=$("obnamefield");
@@ -1816,24 +1802,7 @@ function obSubmitAnswer(forced){
   obClearSuggest();
   obAddUser(v);
   if(fld){fld.value="";fld.disabled=true;}
-
-  if(obPhase==="name"){
-    var first=obParseName(v); // handles "I'm Robert" / "my name is Robert" etc.
-    try{localStorage.setItem("crew_username",first);}catch(e){}
-    try{crewApplyUserName(first);applyCrewNames();}catch(e){}
-    obPhase="goal";
-    obAgentSay("Nice to meet you, "+first+".",function(){
-      setTimeout(function(){
-        obAgentSay(OB_GOAL_OPENER,function(){
-          var f=$("obnamefield");if(f){f.disabled=false;f.placeholder="Tell me what's on your mind…";try{f.focus({preventScroll:true});}catch(e){}}
-          obShowSuggest(OB_OPENER_SUGGEST);
-        });
-      },340);
-    });
-    return;
-  }
-
-  obMessages.push({role:"user",content:v}); // goal phase: anon-safe LLM loop, sign-in only at commit
+  obMessages.push({role:"user",content:v}); // anon-safe LLM loop; sign-in only at commit
   obTurn();
 }
 
@@ -1854,6 +1823,7 @@ function obTurn(attempt){
       obBusy=false;
       if(row){row.classList.remove("ob-typing");}
       if(!d||!d.ok){ if(row)row.querySelector(".bub").textContent="Sorry - that one didn't go through. Try once more?"; var fe=$("obnamefield");if(fe){fe.disabled=false;} return; }
+      if(d.name){ try{localStorage.setItem("crew_username",d.name);}catch(e){} try{crewApplyUserName(d.name);applyCrewNames();}catch(e){} } // LLM-extracted name
       var reply=d.reply||"Tell me a bit more.";
       if(row)row.querySelector(".bub").textContent=cleanMd(reply); else obAddAgentText(reply); // DATA - safe
       obMessages.push({role:"assistant",content:reply});
