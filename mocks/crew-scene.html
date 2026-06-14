@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your crew - living scene</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#EFE6D5;font-family:-apple-system,Inter,sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:18px 14px 40px;}
+  .frame{width:100%;max-width:392px;}
+  .eyebrow{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#00813B;margin:8px 2px 6px;}
+  .h1{font-family:Georgia,serif;font-size:22px;font-weight:500;color:#1C1B17;margin:0 2px 12px;}
+  /* the living scene */
+  .scene{position:relative;width:100%;height:340px;border-radius:22px;overflow:hidden;
+    box-shadow:0 12px 30px -14px rgba(28,27,23,.4), inset 0 0 0 1px rgba(255,255,255,.25);
+    background-image:url("assets/village.webp");background-size:cover;background-position:center 60%;}
+  .crit{position:absolute;width:52px;height:52px;will-change:transform;image-rendering:pixelated;pointer-events:none;
+    filter:drop-shadow(0 3px 2px rgba(20,30,18,.28));}
+  .shadow{position:absolute;width:30px;height:9px;border-radius:50%;background:rgba(20,30,18,.22);will-change:transform;filter:blur(1px);}
+  .emote{position:absolute;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.92);
+    display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(20,30,18,.25);
+    font-size:13px;will-change:transform,opacity;opacity:0;transition:opacity .25s;}
+  .spin{width:12px;height:12px;border-radius:50%;border:2px solid #C7E7D2;border-top-color:#00B14F;animation:sp .7s linear infinite;}
+  @keyframes sp{to{transform:rotate(360deg);}}
+  .cap{font-size:12.5px;color:#6B675C;margin:12px 4px 0;line-height:1.45;}
+  .legend{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+  .pill{font-family:ui-monospace,monospace;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:#1C1B17;background:#fff;border:1px solid #E0D8C7;border-radius:999px;padding:5px 10px;}
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="eyebrow">Your crew · live</div>
+  <div class="h1">Your crew, at work.</div>
+  <div class="scene" id="scene"></div>
+  <div class="cap">A living scene - your agents move around and work. When one is on a task it shows a spinner; idle ones wander. (Prototype - lightweight, ties to real activity once wired.)</div>
+  <div class="legend" id="legend"></div>
+</div>
+<script>
+(function(){
+  var scene=document.getElementById("scene");
+  var W=scene.clientWidth, H=scene.clientHeight;
+  // crew: name + hue rotation (0 = the green main agent, others tinted)
+  var CREW=[
+    {name:"Noor", hue:0,   work:true},
+    {name:"Omar", hue:300, work:false},
+    {name:"Sana", hue:45,  work:true},
+    {name:"Talia",hue:200, work:false},
+    {name:"Iman", hue:95,  work:false}
+  ];
+  var GROUND_TOP=0.50, GROUND_BOT=0.86; // band (fraction of H) creatures roam
+  function rnd(a,b){return a+(b-a)*((Math.sin(seed=seed*9301+49297)%233280)/233280+1)/2;} // deterministic-ish
+  var seed=12345;
+  function rand(a,b){seed=(seed*1103515245+12345)&0x7fffffff;return a+(b-a)*(seed/0x7fffffff);}
+
+  var crits=[];
+  CREW.forEach(function(c,i){
+    var el=document.createElement("img"); el.className="crit"; el.src="assets/creature-sprite.webp"; el.style.filter="hue-rotate("+c.hue+"deg) drop-shadow(0 3px 2px rgba(20,30,18,.28))";
+    var sh=document.createElement("div"); sh.className="shadow";
+    var em=document.createElement("div"); em.className="emote"; em.innerHTML='<span class="spin"></span>';
+    scene.appendChild(sh); scene.appendChild(el); scene.appendChild(em);
+    var y=H*(GROUND_TOP+rand(0,1)*(GROUND_BOT-GROUND_TOP));
+    crits.push({el:el,sh:sh,em:em,c:c,
+      x:rand(20,W-60), y:y, tx:rand(20,W-60), ty:y,
+      dir:1, state:"walk", t:rand(0,1000), until:0, working:false});
+  });
+
+  function depthScale(y){ return 0.66 + 0.5*((y/H)-GROUND_TOP)/(GROUND_BOT-GROUND_TOP); } // farther up = smaller
+
+  function pickTarget(o,now){
+    o.tx=rand(24,W-64);
+    o.ty=H*(GROUND_TOP+rand(0,1)*(GROUND_BOT-GROUND_TOP));
+    o.state="walk";
+  }
+
+  var last=0;
+  function loop(now){
+    var dt=Math.min(40, now-(last||now)); last=now;
+    crits.forEach(function(o){
+      if(o.state==="walk"){
+        var dx=o.tx-o.x, dy=o.ty-o.y, d=Math.hypot(dx,dy);
+        var sp=0.035*dt; // px per ms-ish
+        if(d<2){ // arrived -> work or idle
+          o.state= (o.c.work && rand(0,1)>0.35) ? "work" : "idle";
+          o.until= now + rand(1600, 4200);
+          o.working = (o.state==="work");
+        } else {
+          var step=Math.min(d, sp* (40));
+          o.x += dx/d*step; o.y += dy/d*step;
+          if(Math.abs(dx)>0.5) o.dir = dx>0?1:-1;
+        }
+      } else { // work or idle
+        if(now>o.until){ o.working=false; pickTarget(o,now); }
+      }
+      // bob: hop while walking, gentle breathe while still
+      var bob = (o.state==="walk") ? Math.abs(Math.sin((now+o.t)/110))*5 : Math.sin((now+o.t)/600)*1.5;
+      var s = depthScale(o.y);
+      o.el.style.width = (52*s)+"px"; o.el.style.height=(52*s)+"px";
+      o.el.style.transform = "translate("+(o.x)+"px,"+(o.y - 52*s - bob)+"px) scaleX("+o.dir+")";
+      o.el.style.zIndex = Math.round(o.y);
+      o.sh.style.width=(30*s)+"px"; o.sh.style.height=(9*s)+"px";
+      o.sh.style.transform = "translate("+(o.x + (52*s-30*s)/2)+"px,"+(o.y - 6)+"px)";
+      o.sh.style.zIndex = Math.round(o.y)-1;
+      // work emote
+      o.em.style.opacity = o.working ? 1 : 0;
+      o.em.style.transform = "translate("+(o.x + 52*s -10)+"px,"+(o.y - 52*s - bob - 14)+"px)";
+      o.em.style.zIndex = Math.round(o.y)+1;
+    });
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  // legend
+  var lg=document.getElementById("legend");
+  CREW.forEach(function(c){ var p=document.createElement("span"); p.className="pill"; p.textContent=c.name+(c.work?" · on a task":" · idle"); lg.appendChild(p); });
+})();
+</script>
+</body>
+</html>
