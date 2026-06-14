@@ -1549,16 +1549,26 @@ function obAgentSay(html,then,delay){
 
 /* suggested replies: tappable quick answers next to the free-text input (tap or type) */
 function obClearSuggest(){var log=$("ob-chatlog");if(!log)return;var ex=log.querySelectorAll(".ob-suggest");for(var i=0;i<ex.length;i++)ex[i].remove();}
+function obSelectedSuggest(){
+  var log=$("ob-chatlog");if(!log)return [];
+  var sel=[];var btns=log.querySelectorAll(".ob-suggest .obsugg");
+  for(var i=0;i<btns.length;i++){if(btns[i].dataset.sel==="1")sel.push(btns[i].dataset.val);}
+  return sel;
+}
 function obRenderSuggest(q){
   obClearSuggest();
   if(!q||!q.suggest||!q.suggest.length)return;
   var log=$("ob-chatlog");if(!log)return;
   var row=document.createElement("div");row.className="chiprow ob-suggest";
   q.suggest.forEach(function(s){
-    var b=document.createElement("button");b.type="button";
-    b.style.cssText="font-family:var(--grot);font-size:13px;font-weight:500;color:var(--ink);background:#fff;border:1px solid var(--hair2);border-radius:999px;padding:9px 15px;cursor:pointer;";
+    var b=document.createElement("button");b.type="button";b.className="obsugg";b.dataset.val=s;b.dataset.sel="0";
+    b.style.cssText="font-family:var(--grot);font-size:13px;font-weight:500;color:var(--ink);background:#fff;border:1px solid var(--hair2);border-radius:999px;padding:9px 15px;cursor:pointer;transition:all .15s;";
     b.textContent=s; // DATA
-    b.onclick=function(){ if(obBusy)return; var fld=$("obnamefield"); if(fld){fld.value=s;} obNameSubmit(); };
+    b.onclick=function(){ if(obBusy)return; // multi-select: tap toggles; the send button submits the combined picks + any typed text
+      var on=b.dataset.sel==="1"; b.dataset.sel=on?"0":"1";
+      if(on){b.style.background="#fff";b.style.borderColor="var(--hair2)";b.style.color="var(--ink)";}
+      else{b.style.background="var(--green-tint)";b.style.borderColor="var(--green)";b.style.color="var(--green-deep)";}
+    };
     row.appendChild(b);
   });
   log.appendChild(row);obScroll();
@@ -1578,7 +1588,9 @@ function obAskCurrent(){
 function obNameSubmit(){ // name kept for the existing boot wiring; handles every answer
   if(obBusy)return;
   var fld=$("obnamefield");if(!fld)return;
-  var v=(fld.value||"").trim();
+  var typed=(fld.value||"").trim();
+  var sel=obSelectedSuggest();                       // multi-select picks
+  var v=sel.concat(typed?[typed]:[]).join(", ");     // combine tapped + typed
   if(!v)return;
   var q=OB_QUESTIONS[obQ];if(!q)return;
 
