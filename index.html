@@ -1605,7 +1605,9 @@ function openCall(){
   push("v-call");
   clearInterval(callTimer);
   callTimer=setInterval(()=>{callSec++;$("callclock").textContent=fmtCall(callSec);},1000);
-  setTimeout(callStartVoice,300); // user-gesture chain (the call button) unlocks audio
+  // novoice=1 (the screens contact-sheet) shows the call UI without auto-starting mic/TTS
+  if(/[?&]novoice=1/.test(location.search)){ callHint("Tap to talk"); }
+  else { setTimeout(callStartVoice,300); } // user-gesture chain (the call button) unlocks audio
 }
 function toggleMute(){
   callMuted=!callMuted;
@@ -2107,6 +2109,8 @@ function crewSignedIn(){
         if(m==="village"){push("v-village");renderVillage();}
         else if(m==="call"){openCall();}
         else if(m==="talk"){push("v-talk");}
+        else if(m==="settings"){push("v-settings");}
+        else if(m==="connections"){push("v-connections");}
       }catch(e){}
     },280);
   })();
