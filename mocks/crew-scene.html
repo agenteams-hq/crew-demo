@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Your crew - living scene</title>
-<!-- crew-scene v5: integrated shop signs, grounded creatures, themed work props, brighter world -->
+<!-- crew-scene v6: cozy game - idle/attentive crew, tap-to-lead, dispatch, task-status pills -->
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:#EFE6D5;font-family:-apple-system,Inter,sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:18px 14px 40px;}
@@ -17,7 +17,7 @@
 
   .scene{position:relative;width:100%;height:300px;border-radius:22px;overflow:hidden;
     box-shadow:0 14px 34px -14px rgba(28,27,23,.45), inset 0 0 0 1px rgba(255,255,255,.25);
-    background-color:#9fbfd8;cursor:default;}
+    background-color:#9fbfd8;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
   /* the town image (buildings + sky), framed so the dead road is cropped out, colours boosted */
   .town{position:absolute;left:-4%;top:0;width:108%;height:84%;
     background-image:url("assets/crew-street.webp");
@@ -55,6 +55,18 @@
   .bar{width:100%;height:4px;border-radius:3px;background:rgba(20,12,4,.55);overflow:hidden;box-shadow:inset 0 1px 1px rgba(0,0,0,.5);}
   .barfill{height:100%;width:0;border-radius:3px;background:linear-gradient(90deg,#34d27a,#00B14F);box-shadow:0 0 6px rgba(0,177,79,.7);transition:width .12s linear;}
   .place.active .board{box-shadow:0 5px 14px -3px rgba(0,177,79,.55), inset 0 1px 0 rgba(255,220,170,.4);border-color:#1d7a45;}
+  /* tiny task-status pill that floats just under the sign */
+  .status{margin-top:4px;font-family:ui-monospace,monospace;font-size:7px;letter-spacing:.08em;text-transform:uppercase;
+    color:#5b5347;background:rgba(255,250,238,.92);border:1px solid rgba(120,95,55,.3);border-radius:999px;
+    padding:1.5px 6px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;
+    box-shadow:0 2px 5px -2px rgba(40,25,10,.4);transition:color .2s, border-color .2s;}
+  .status .sd{width:5px;height:5px;border-radius:50%;background:#b9ad97;flex:0 0 auto;}
+  .status.queued{color:#8a6d2e;border-color:rgba(190,150,60,.45);}
+  .status.queued .sd{background:#e0ad3c;}
+  .status.working{color:#00813B;border-color:rgba(0,177,79,.5);}
+  .status.working .sd{background:#00B14F;animation:bp 1s ease-in-out infinite;}
+  .status.done{color:#3b7a52;border-color:rgba(0,177,79,.4);}
+  .status.done .sd{background:#00B14F;}
   /* DONE stamp */
   .done{position:absolute;top:-10px;right:-10px;width:20px;height:20px;border-radius:50%;
     background:#00B14F;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;
@@ -68,39 +80,61 @@
   .prop{position:absolute;left:0;top:0;font-size:15px;will-change:transform,opacity;pointer-events:none;z-index:39;
     filter:drop-shadow(0 2px 2px rgba(20,30,18,.4));}
   .pop{position:absolute;left:0;top:0;width:5px;height:5px;border-radius:2px;will-change:transform,opacity;pointer-events:none;z-index:55;}
-  /* speech "..." while working */
+  /* speech "..." while working + reaction "!" on dispatch */
   .think{position:absolute;left:0;top:0;font-family:ui-monospace,monospace;font-size:11px;color:#1c1b17;
     background:#fff;border-radius:8px;padding:1px 6px 2px;box-shadow:0 2px 5px rgba(20,30,18,.3);
     will-change:transform,opacity;pointer-events:none;z-index:45;}
   .think:after{content:"";position:absolute;bottom:-3px;left:9px;width:6px;height:6px;background:#fff;transform:rotate(45deg);}
+  .react{position:absolute;left:0;top:0;font-family:ui-monospace,monospace;font-weight:700;font-size:15px;color:#00813B;
+    text-shadow:0 1px 0 #fff,0 0 6px rgba(0,177,79,.5);will-change:transform,opacity;pointer-events:none;z-index:48;}
+  /* the tap "lead" marker the crew gathers around */
+  .lead{position:absolute;left:0;top:0;width:18px;height:18px;margin:-9px 0 0 -9px;pointer-events:none;z-index:38;
+    opacity:0;will-change:transform,opacity;}
+  .lead:before{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid rgba(0,177,79,.85);
+    box-shadow:0 0 10px rgba(0,177,79,.55);}
+  .lead.on{animation:leadpulse 1.6s ease-out infinite;}
+  @keyframes leadpulse{0%{opacity:.9;transform:scale(.7);}70%{opacity:0;transform:scale(1.9);}100%{opacity:0;}}
+  /* tap ripple */
+  .ripple{position:absolute;left:0;top:0;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;
+    border:2px solid rgba(255,255,255,.9);pointer-events:none;z-index:60;will-change:transform,opacity;}
+  /* gentle hint that decays once the user taps */
+  .hint{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);z-index:58;pointer-events:none;
+    font-family:ui-monospace,monospace;font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:#fff;
+    background:rgba(28,27,23,.55);backdrop-filter:blur(3px);border-radius:999px;padding:4px 11px;
+    display:inline-flex;align-items:center;gap:6px;transition:opacity .4s;box-shadow:0 3px 10px -3px rgba(0,0,0,.5);}
+  .hint .hd{width:6px;height:6px;border-radius:50%;background:#00B14F;animation:bp 1.4s ease-in-out infinite;}
 
   .cap{font-size:12.5px;color:#6B675C;margin:12px 4px 0;line-height:1.45;}
 </style>
 </head>
 <body>
 <div class="frame">
-  <div class="top"><div class="h1">Your crew, at work.</div><div class="glance"><span class="dot"></span><span id="gtxt">on it</span></div></div>
+  <div class="top"><div class="h1">Your crew, at work.</div><div class="glance"><span class="dot"></span><span id="gtxt">waiting on you</span></div></div>
   <div class="scene" id="scene">
     <div class="town"></div>
     <div class="sky"></div>
     <div class="curb"></div>
     <div class="ground"></div>
+    <div class="lead" id="lead"></div>
+    <div class="hint" id="hint"><span class="hd"></span>Tap anywhere - your crew follows</div>
   </div>
-  <div class="cap">Your tasks are places in the town - the post office is your inbox, the bank your payments. Your crew walks between them and works each one. (Prototype - your real tasks drive it once wired.)</div>
+  <div class="cap">Your crew waits for you, then springs into action. Tap to call them over; drop a task and one of them takes it, walks to the right place in town, and gets it done. (Prototype - your real tasks drive it once wired.)</div>
 </div>
 <script>
 (function(){
   var scene=document.getElementById("scene");
+  var leadEl=document.getElementById("lead");
+  var hintEl=document.getElementById("hint");
   var W=scene.clientWidth, H=scene.clientHeight;
   var seed=778899; function rand(a,b){seed=(seed*1103515245+12345)&0x7fffffff;return a+(b-a)*(seed/0x7fffffff);}
   var GROUND=H*0.77;            // top of the sidewalk band (curb line)
   var FEET=H*0.90;              // where creature feet sit on the sidewalk
+  var clamp=function(v,a,b){return v<a?a:v>b?b:v;};
 
   // paving seams for depth
   for(var i=1;i<8;i++){var sm=document.createElement("div");sm.className="seam";sm.style.left=(i*W/8 + (i%2?6:-4))+"px";scene.appendChild(sm);}
 
   // task PLACES anchored over the shopfronts in the town image
-  // signX = horizontal anchor; signY = sign height; standX = where the crew stands at the door
   var STATIONS=[
     {label:"Inbox",   ico:"📬", prop:"✉️", fx:0.15, sy:H*0.205, standx:0.15, hue:"post"},
     {label:"Payments",ico:"🏦", prop:"🪙", fx:0.39, sy:H*0.175, standx:0.39, hue:"bank"},
@@ -116,17 +150,19 @@
         +'<div class="done">✓</div>'
         +'<div class="row"><span class="ico">'+s.ico+'</span><span class="nm">'+s.label+'</span></div>'
         +'<div class="bar"><div class="barfill"></div></div>'
-      +'</div>';
+      +'</div>'
+      +'<div class="status idle"><span class="sd"></span><span class="st">idle</span></div>';
     scene.appendChild(el);
     s.el=el; s.board=el.querySelector(".board"); s.fill=el.querySelector(".barfill"); s.done=el.querySelector(".done");
+    s.status=el.querySelector(".status"); s.statusTxt=el.querySelector(".st");
   });
+  function setStatus(s,kind,txt){ s.status.className="status "+kind; s.statusTxt.textContent=txt; }
 
   // themed prop flies from the crew member up into the building doorway, then fades
   function fireProp(o,s){
     var p=document.createElement("div"); p.className="prop"; p.textContent=s.prop;
-    var sx=o.x-7, sy=o.y-FEET*0+ (o.yWork||o.y) -54; // start near crew head
-    sx=o.x-7; sy=(o.y)-58;
-    var tx=s.x-7, ty=s.sy+12;     // into the doorway under the sign
+    var sx=o.x-7, sy=(o.y)-58;
+    var tx=s.x-7, ty=s.sy+12;
     p.style.transform="translate("+sx+"px,"+sy+"px) scale(.6)";
     scene.appendChild(p);
     requestAnimationFrame(function(){
@@ -143,6 +179,16 @@
     requestAnimationFrame(function(){t.style.transition="opacity .25s, transform .25s";t.style.opacity="1";t.style.transform="translate("+(o.x+8)+"px,"+(o.y-68)+"px)";});
     setTimeout(function(){t.style.opacity="0";},900);
     setTimeout(function(){t.remove();},1200);
+  }
+  // little reaction over a creature's head ("!" or a heart) when it takes a task / is called
+  function react(o,ch,col){
+    var r=document.createElement("div"); r.className="react"; r.textContent=ch||"!"; if(col)r.style.color=col;
+    r.style.transform="translate("+(o.x+4)+"px,"+(o.y-58)+"px) scale(.4)"; r.style.opacity="0";
+    scene.appendChild(r);
+    requestAnimationFrame(function(){r.style.transition="opacity .2s, transform .42s cubic-bezier(.34,1.7,.55,1)";
+      r.style.opacity="1";r.style.transform="translate("+(o.x+4)+"px,"+(o.y-74)+"px) scale(1)";});
+    setTimeout(function(){r.style.opacity="0";r.style.transform="translate("+(o.x+4)+"px,"+(o.y-82)+"px) scale(.9)";},560);
+    setTimeout(function(){r.remove();},850);
   }
   // confetti + sparkle burst on completion
   function celebrate(x,y){
@@ -161,53 +207,113 @@
       setTimeout(function(){p.remove();},740);
     })(i/12*6.283, i);}
   }
+  function ripple(x,y){
+    var r=document.createElement("div"); r.className="ripple";
+    r.style.transform="translate("+x+"px,"+y+"px) scale(.3)"; r.style.opacity="1";
+    scene.appendChild(r);
+    requestAnimationFrame(function(){r.style.transition="transform .55s ease-out, opacity .55s ease-out";
+      r.style.transform="translate("+x+"px,"+y+"px) scale(2.4)"; r.style.opacity="0";});
+    setTimeout(function(){r.remove();},600);
+  }
 
   // ---- crew: keep the same creature, recolour per member (Grab-green family, bright) ----
-  var CREW=[{hue:0},{hue:120},{hue:38},{hue:200}]; // green, teal-green, gold, sky
+  var CREW=[{hue:0},{hue:120},{hue:38},{hue:200}];
   var crits=[];
-  CREW.forEach(function(c){
+  CREW.forEach(function(c,i){
     var el=document.createElement("img"); el.className="crit"; el.src="assets/creature-sprite.webp";
     el.style.filter="hue-rotate("+c.hue+"deg) saturate(1.15) drop-shadow(0 3px 2px rgba(20,30,18,.4))";
     var sh=document.createElement("div"); sh.className="shadow";
     scene.appendChild(sh); scene.appendChild(el);
-    crits.push({el:el,sh:sh,hue:c.hue, x:rand(50,W-60), y:FEET+rand(-3,4),
-      vx:0,vy:0, dir:1, lean:0, step:rand(0,9), state:"idle", stn:null, until:0, workStart:0,workDur:0, emit:0, think:0});
+    crits.push({el:el,sh:sh,hue:c.hue,idx:i, x:rand(60,W-60), y:FEET+rand(-3,4),
+      vx:0,vy:0, dir:1, lean:0, step:rand(0,9),
+      state:"idle", stn:null, until:0, workStart:0,workDur:0, emit:0, think:0,
+      // idle-personality
+      idleMode: i%2? "circle":"mill", circA: rand(0,6.28), nextWander:0,
+      tx:0, ty:0, gazeDown:false});
   });
 
-  function freeStation(avoidX){
-    var f=STATIONS.filter(function(s){return !s.worker;});
-    if(!f.length) return null;
-    // prefer a station that's NOT the one we're standing at, so the crew visibly travels
-    if(avoidX!=null){
-      var far=f.filter(function(s){return Math.abs(s.standx-avoidX)>40;});
-      if(far.length) f=far;
-      // pick the furthest of the candidates so a real walk happens
-      f.sort(function(a,b){return Math.abs(b.standx-avoidX)-Math.abs(a.standx-avoidX);});
-      return f[Math.min(f.length-1, Math.floor(rand(0,Math.min(2,f.length)-1e-3)))];
-    }
-    return f[Math.floor(rand(0,f.length-1e-3))];
+  // ---------- LEAD (tap-to-follow) ----------
+  var lead={active:false, x:W/2, y:FEET, since:0};
+  function setLead(x,y){
+    lead.active=true; lead.x=clamp(x,28,W-28); lead.y=clamp(y,GROUND+14,H-10); lead.since=performance.now();
+    leadEl.style.transform="translate("+lead.x+"px,"+lead.y+"px)";
+    leadEl.style.opacity="1"; leadEl.classList.add("on");
+    // idle crew re-target to gather; workers ignore (busy)
+    var gi=0;
+    crits.forEach(function(o){
+      if(o.state==="work"||o.state==="go") return;
+      o.state="follow";
+      react(o, "♥", "#ff7a59"); // a little heart - happy to come
+      o.gatherSlot = gi++;
+    });
   }
-  function assign(o){
-    var s=freeStation(o.x);
-    if(s){ s.worker=o; o.stn=s; o.tx=s.standx + rand(-5,5); o.ty=FEET+rand(-3,4); o.state="go"; }
-    else { o.state="wait"; o.until=performance.now()+rand(400,1100); }
+  function clearLeadIfStale(now){
+    if(lead.active && now-lead.since>4200){ lead.active=false; leadEl.style.opacity="0"; leadEl.classList.remove("on");
+      crits.forEach(function(o){ if(o.state==="follow") o.state="idle"; }); }
   }
-  crits.forEach(function(o,i){ setTimeout(function(){assign(o);}, 250+i*450); });
+  function sceneXY(e){
+    var r=scene.getBoundingClientRect();
+    var px=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+    var py=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+    return {x:px*(W/r.width), y:py*(H/r.height)};
+  }
+  function onTap(e){
+    var p=sceneXY(e);
+    ripple(p.x,p.y);
+    setLead(p.x,p.y);
+    hideHint();
+  }
+  scene.addEventListener("click", onTap);
+  scene.addEventListener("touchstart", function(e){ if(e.cancelable)e.preventDefault(); onTap(e); }, {passive:false});
+
+  var hintGone=false;
+  function hideHint(){ if(hintGone)return; hintGone=true; hintEl.style.opacity="0"; setTimeout(function(){hintEl.style.display="none";},450); }
+  setTimeout(function(){ hideHint(); }, 9000); // auto-fade hint even without a tap
+
+  // ---------- DISPATCH: hand a task to one idle creature ----------
+  var nextDispatch=0;
+  function tryDispatch(now){
+    // a free station to send work to
+    var freeS=STATIONS.filter(function(s){return !s.worker;});
+    if(!freeS.length) return;
+    // an available creature (idle or following), prefer one nearest a free station for snappy feel
+    var avail=crits.filter(function(o){return o.state==="idle"||o.state==="follow";});
+    if(!avail.length) return;
+    // pick the station: furthest from the crew's average x so there's a visible walk, but weighted to free ones
+    var s=freeS[Math.floor(rand(0,freeS.length-1e-3))];
+    // pick the creature closest to that station so dispatch reads as "the right one springs up"
+    avail.sort(function(a,b){return Math.abs(a.x-s.standx)-Math.abs(b.x-s.standx);});
+    var o=avail[0];
+    s.worker=o; o.stn=s; o.tx=s.standx+rand(-5,5); o.ty=FEET+rand(-3,4); o.state="go";
+    react(o, "!"); // springs into action
+    o.hop=now;
+    setStatus(s,"queued","queued");
+  }
+
+  // initial: let them settle idle first, then begin dispatching
+  nextDispatch=performance.now()+2600;
 
   var last=0, doneCount=0;
   function frame(now){
     var dt=Math.min(0.045,(now-(last||now))/1000); last=now;
-    var onit=0;
+    clearLeadIfStale(now);
+
+    // dispatch cadence: every ~3.2-4.5s send a task, if capacity
+    if(now>nextDispatch){ tryDispatch(now); nextDispatch=now+rand(3000,4600); }
+
+    var working=0, idleCnt=0, followCnt=0;
     crits.forEach(function(o){
       var moving=false;
+
       if(o.state==="go" && o.stn){
         var dx=o.tx-o.x, dy=o.ty-o.y, d=Math.hypot(dx,dy)||1;
-        if(d<3.5){ o.state="work"; o.workStart=now; o.workDur=rand(2600,4200); o.until=now+o.workDur; o.dir=1; o.vx=o.vy=0; o.x=o.tx; o.y=o.ty; o.stn.board.parentNode; o.stn.el.classList.add("active"); }
-        else { var slow=Math.min(1,d/46), sp=86*slow, k=Math.min(1,dt*7);
+        if(d<3.5){ o.state="work"; o.workStart=now; o.workDur=rand(2600,4200); o.until=now+o.workDur; o.dir=1; o.vx=o.vy=0; o.x=o.tx; o.y=o.ty; o.stn.el.classList.add("active"); setStatus(o.stn,"working","working"); }
+        else { var slow=Math.min(1,d/46), sp=92*slow, k=Math.min(1,dt*7);
           o.vx+=(dx/d*sp-o.vx)*k; o.vy+=(dy/d*sp-o.vy)*k; o.x+=o.vx*dt; o.y+=o.vy*dt;
           if(Math.abs(o.vx)>3)o.dir=o.vx>0?1:-1; moving=Math.hypot(o.vx,o.vy)>7; }
+
       } else if(o.state==="work"){
-        onit++;
+        working++;
         var prog=Math.min(1,(now-o.workStart)/o.workDur);
         if(o.stn){ o.stn.fill.style.width=(prog*100)+"%"; }
         if(now-o.emit>620){ o.emit=now; if(o.stn) fireProp(o,o.stn); }
@@ -215,14 +321,63 @@
         if(now>o.until){
           if(o.stn){
             o.stn.done.classList.add("on"); o.stn.el.classList.remove("active");
+            setStatus(o.stn,"done","done");
             celebrate(o.stn.x, o.stn.sy+8);
             doneCount++;
-            (function(st){ setTimeout(function(){ st.done.classList.remove("on"); st.fill.style.width="0%"; },1050); })(o.stn);
+            (function(st){ setTimeout(function(){ st.done.classList.remove("on"); st.fill.style.width="0%"; setStatus(st,"idle","idle"); },1300); })(o.stn);
             o.stn.worker=null;
           }
-          o.stn=null; assign(o);
+          o.stn=null;
+          // return to attentive idle near the user (bottom of scene)
+          o.state="idle"; o.idleHome=null;
         }
-      } else if(o.state==="wait"){ if(now>o.until) assign(o); }
+
+      } else if(o.state==="follow"){
+        followCnt++;
+        // gather in a ring around the lead point, looking toward it
+        var n=crits.filter(function(c){return c.state==="follow";}).length || 1;
+        var ang=(o.gatherSlot||0)/n*6.283 + now/4000;
+        var ring=22+ (n>2?6:0);
+        var gx=lead.x+Math.cos(ang)*ring, gy=lead.y+Math.sin(ang)*ring*0.5;
+        gx=clamp(gx,24,W-24); gy=clamp(gy,GROUND+12,H-8);
+        var dx=gx-o.x, dy=gy-o.y, d=Math.hypot(dx,dy)||1;
+        if(d>4){ var slow=Math.min(1,d/40), sp=80*slow, k=Math.min(1,dt*7);
+          o.vx+=(dx/d*sp-o.vx)*k; o.vy+=(dy/d*sp-o.vy)*k; o.x+=o.vx*dt; o.y+=o.vy*dt;
+          if(Math.abs(o.vx)>3)o.dir=o.vx>0?1:-1; moving=Math.hypot(o.vx,o.vy)>7; }
+        else { o.vx*=0.8; o.vy*=0.8; // arrived: face the lead and wait attentively
+          o.dir = lead.x>o.x?1:-1; }
+
+      } else { // ---- idle / attentive ----
+        idleCnt++;
+        if(o.idleMode==="circle"){
+          // slow lazy circle in a gentle home spot near the bottom
+          if(!o.idleHome){ o.idleHome={x:clamp(o.x,70,W-70), y:FEET}; }
+          o.circA+=dt*0.45;
+          var cgx=o.idleHome.x+Math.cos(o.circA)*26, cgy=o.idleHome.y+Math.sin(o.circA)*9;
+          cgx=clamp(cgx,30,W-30);
+          var dx=cgx-o.x, dy=cgy-o.y, d=Math.hypot(dx,dy)||1;
+          var sp=26, k=Math.min(1,dt*5);
+          o.vx+=(dx/d*sp-o.vx)*k; o.vy+=(dy/d*sp-o.vy)*k; o.x+=o.vx*dt; o.y+=o.vy*dt;
+          if(Math.abs(o.vx)>2)o.dir=o.vx>0?1:-1; moving=Math.hypot(o.vx,o.vy)>6;
+        } else {
+          // mill: occasionally amble a few steps, mostly stand and glance toward the user (down)
+          if(now>o.nextWander){
+            if(rand(0,1)<0.55){ o.tx=clamp(o.x+rand(-46,46),50,W-50); o.ty=FEET+rand(-4,5); o.wandering=true; }
+            else { o.wandering=false; o.gazeDown=true; o.dir = (o.x<W/2)?1:-1; }
+            o.nextWander=now+rand(1400,3200);
+          }
+          if(o.wandering){
+            var dx=o.tx-o.x, dy=o.ty-o.y, d=Math.hypot(dx,dy)||1;
+            if(d>3){ var slow=Math.min(1,d/34), sp=34*slow, k=Math.min(1,dt*6);
+              o.vx+=(dx/d*sp-o.vx)*k; o.vy+=(dy/d*sp-o.vy)*k; o.x+=o.vx*dt; o.y+=o.vy*dt;
+              if(Math.abs(o.vx)>2)o.dir=o.vx>0?1:-1; moving=Math.hypot(o.vx,o.vy)>5; }
+            else { o.wandering=false; o.vx*=0.7; o.vy*=0.7; }
+          } else { o.vx*=0.85; o.vy*=0.85; }
+        }
+      }
+
+      // keep grounded on the sidewalk band
+      o.y=clamp(o.y, GROUND+10, H-6);
 
       // ---- render ----
       var sz=50;
@@ -230,7 +385,9 @@
       var sq=1, st=1, bob=0;
       if(moving){ o.step+=dt*9.5; var ph=Math.sin(o.step); bob=Math.abs(ph)*4; sq=1-Math.abs(ph)*0.055; st=1+Math.abs(ph)*0.055; }
       else if(o.state==="work"){ o.step+=dt*6.5; bob=Math.abs(Math.sin(o.step))*2.6; }
-      else { bob=Math.sin(now/640+o.hue)*1.3; }
+      else if(o.state==="follow"){ bob=Math.abs(Math.sin(now/300+o.hue))*2.0; } // eager little bounce while waiting on you
+      else { // idle: gentle curious bob, a touch more when "gazing down" at the user
+        bob=Math.sin(now/560+o.hue)*1.5 + (o.gazeDown? Math.abs(Math.sin(now/900))*0.8:0); }
       o.el.style.width=sz+"px"; o.el.style.height=sz+"px"; o.el.style.transformOrigin="50% 100%";
       o.el.style.transform="translate("+(o.x-sz/2)+"px,"+(o.y-sz-bob)+"px) scaleX("+(o.dir*sq)+") scaleY("+st+") rotate("+o.lean+"deg)";
       o.el.style.zIndex=Math.round(o.y);
@@ -240,8 +397,13 @@
       o.sh.style.opacity=String(0.34-bob*0.012);
       o.sh.style.zIndex=Math.round(o.y)-1;
     });
+
     var g=document.getElementById("gtxt");
-    g.textContent = onit? (onit+" on it") : (doneCount? doneCount+" done":"on it");
+    if(working) g.textContent=working+" on it";
+    else if(followCnt) g.textContent="following you";
+    else if(doneCount) g.textContent=doneCount+" done · waiting";
+    else g.textContent="waiting on you";
+
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
