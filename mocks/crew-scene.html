@@ -8,110 +8,118 @@
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:#EFE6D5;font-family:-apple-system,Inter,sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:18px 14px 40px;}
   .frame{width:100%;max-width:392px;}
-  .eyebrow{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#00813B;margin:8px 2px 6px;}
-  .h1{font-family:Georgia,serif;font-size:22px;font-weight:500;color:#1C1B17;margin:0 2px 12px;}
-  /* the living scene */
-  .scene{position:relative;width:100%;height:340px;border-radius:22px;overflow:hidden;
+  .top{display:flex;align-items:center;justify-content:space-between;margin:6px 2px 12px;}
+  .h1{font-family:Georgia,serif;font-size:22px;font-weight:500;color:#1C1B17;}
+  .glance{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#00813B;background:#fff;border:1px solid #CFE6D8;border-radius:999px;padding:6px 11px;display:inline-flex;align-items:center;gap:6px;}
+  .dot{width:7px;height:7px;border-radius:50%;background:#00B14F;animation:bp 1.6s ease-in-out infinite;}
+  @keyframes bp{0%,100%{opacity:1;}50%{opacity:.35;}}
+  .scene{position:relative;width:100%;height:360px;border-radius:22px;overflow:hidden;
     box-shadow:0 12px 30px -14px rgba(28,27,23,.4), inset 0 0 0 1px rgba(255,255,255,.25);
-    background-image:url("assets/village.webp");background-size:cover;background-position:center 60%;}
-  .crit{position:absolute;width:52px;height:52px;will-change:transform;image-rendering:pixelated;pointer-events:none;
-    filter:drop-shadow(0 3px 2px rgba(20,30,18,.28));}
-  .shadow{position:absolute;width:30px;height:9px;border-radius:50%;background:rgba(20,30,18,.22);will-change:transform;filter:blur(1px);}
-  .emote{position:absolute;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.92);
-    display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(20,30,18,.25);
-    font-size:13px;will-change:transform,opacity;opacity:0;transition:opacity .25s;}
-  .spin{width:12px;height:12px;border-radius:50%;border:2px solid #C7E7D2;border-top-color:#00B14F;animation:sp .7s linear infinite;}
-  @keyframes sp{to{transform:rotate(360deg);}}
+    background-image:url("assets/village.webp");background-size:cover;background-position:center 62%;}
+  /* task stations */
+  .stn{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none;}
+  .badge{position:relative;width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.94);
+    display:flex;align-items:center;justify-content:center;font-size:18px;
+    box-shadow:0 3px 8px rgba(20,30,18,.28), inset 0 0 0 1px rgba(255,255,255,.6);}
+  .ring{position:absolute;inset:-4px;border-radius:15px;opacity:0;transition:opacity .25s;
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;padding:3px;}
+  .ring.on{opacity:1;}
+  .check{position:absolute;top:-7px;right:-7px;width:18px;height:18px;border-radius:50%;background:#00B14F;color:#fff;
+    font-size:11px;display:flex;align-items:center;justify-content:center;transform:scale(0);transition:transform .3s cubic-bezier(.34,1.5,.6,1);box-shadow:0 2px 5px rgba(0,129,59,.5);}
+  .check.on{transform:scale(1);}
+  .slabel{font-family:ui-monospace,monospace;font-size:8px;letter-spacing:.06em;text-transform:uppercase;color:#1C1B17;background:rgba(255,255,255,.82);border-radius:5px;padding:2px 5px;}
+  .crit{position:absolute;width:46px;height:46px;will-change:transform;image-rendering:pixelated;pointer-events:none;}
+  .shadow{position:absolute;width:26px;height:8px;border-radius:50%;background:rgba(20,30,18,.24);will-change:transform;filter:blur(1px);}
+  .float{position:absolute;font-family:ui-monospace,monospace;font-size:9px;font-weight:700;color:#00813B;opacity:0;will-change:transform,opacity;}
   .cap{font-size:12.5px;color:#6B675C;margin:12px 4px 0;line-height:1.45;}
-  .legend{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
-  .pill{font-family:ui-monospace,monospace;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:#1C1B17;background:#fff;border:1px solid #E0D8C7;border-radius:999px;padding:5px 10px;}
 </style>
 </head>
 <body>
 <div class="frame">
-  <div class="eyebrow">Your crew · live</div>
-  <div class="h1">Your crew, at work.</div>
+  <div class="top"><div class="h1">Your crew, at work.</div><div class="glance"><span class="dot"></span><span id="gtxt">4 on it</span></div></div>
   <div class="scene" id="scene"></div>
-  <div class="cap">A living scene - your agents move around and work. When one is on a task it shows a spinner; idle ones wander. (Prototype - lightweight, ties to real activity once wired.)</div>
-  <div class="legend" id="legend"></div>
+  <div class="cap">Your agents move between your tasks - inbox, calendar, payments, bookings - work each one, tick it off, move to the next. You're watching them stay on top of it. (Prototype - ties to your real tasks once wired.)</div>
 </div>
 <script>
 (function(){
   var scene=document.getElementById("scene");
   var W=scene.clientWidth, H=scene.clientHeight;
-  // crew: name + hue rotation (0 = the green main agent, others tinted)
-  var CREW=[
-    {name:"Noor", hue:0,   work:true},
-    {name:"Omar", hue:300, work:false},
-    {name:"Sana", hue:45,  work:true},
-    {name:"Talia",hue:200, work:false},
-    {name:"Iman", hue:95,  work:false}
-  ];
-  var GROUND_TOP=0.50, GROUND_BOT=0.86; // band (fraction of H) creatures roam
-  function rnd(a,b){return a+(b-a)*((Math.sin(seed=seed*9301+49297)%233280)/233280+1)/2;} // deterministic-ish
-  var seed=12345;
-  function rand(a,b){seed=(seed*1103515245+12345)&0x7fffffff;return a+(b-a)*(seed/0x7fffffff);}
+  var seed=987654321; function rand(a,b){seed=(seed*1103515245+12345)&0x7fffffff;return a+(b-a)*(seed/0x7fffffff);}
 
-  var crits=[];
-  CREW.forEach(function(c,i){
-    var el=document.createElement("img"); el.className="crit"; el.src="assets/creature-sprite.webp"; el.style.filter="hue-rotate("+c.hue+"deg) drop-shadow(0 3px 2px rgba(20,30,18,.28))";
-    var sh=document.createElement("div"); sh.className="shadow";
-    var em=document.createElement("div"); em.className="emote"; em.innerHTML='<span class="spin"></span>';
-    scene.appendChild(sh); scene.appendChild(el); scene.appendChild(em);
-    var y=H*(GROUND_TOP+rand(0,1)*(GROUND_BOT-GROUND_TOP));
-    crits.push({el:el,sh:sh,em:em,c:c,
-      x:rand(20,W-60), y:y, tx:rand(20,W-60), ty:y,
-      dir:1, state:"walk", t:rand(0,1000), until:0, working:false});
+  // task stations (your real task types). positioned in the mid-lower band.
+  var STATIONS=[
+    {label:"Inbox",   icon:"📥", fx:0.16, fy:0.46},
+    {label:"Calendar",icon:"📅", fx:0.42, fy:0.62},
+    {label:"Payments",icon:"💸", fx:0.70, fy:0.48},
+    {label:"Booking", icon:"✈️", fx:0.85, fy:0.70},
+    {label:"Research", icon:"🔎", fx:0.32, fy:0.80}
+  ].map(function(s){ return {label:s.label,icon:s.icon, x:W*s.fx, y:H*s.fy, worker:null}; });
+
+  STATIONS.forEach(function(s){
+    var el=document.createElement("div"); el.className="stn"; el.style.left=s.x+"px"; el.style.top=s.y+"px";
+    el.innerHTML='<div class="badge"><div class="ring"></div>'+s.icon+'<div class="check">✓</div></div><div class="slabel">'+s.label+'</div>';
+    scene.appendChild(el);
+    s.el=el; s.ring=el.querySelector(".ring"); s.check=el.querySelector(".check"); s.badge=el.querySelector(".badge");
+    s.el.style.zIndex=Math.round(s.y);
   });
 
-  function depthScale(y){ return 0.66 + 0.5*((y/H)-GROUND_TOP)/(GROUND_BOT-GROUND_TOP); } // farther up = smaller
+  var CREW=[{hue:0},{hue:300},{hue:48},{hue:205}]; // green main + tinted crew
+  var crits=[];
+  CREW.forEach(function(c){
+    var el=document.createElement("img"); el.className="crit"; el.src="assets/creature-sprite.webp";
+    el.style.filter="hue-rotate("+c.hue+"deg) drop-shadow(0 3px 2px rgba(20,30,18,.3))";
+    var sh=document.createElement("div"); sh.className="shadow";
+    var fl=document.createElement("div"); fl.className="float"; fl.textContent="done ✓";
+    scene.appendChild(sh); scene.appendChild(el); scene.appendChild(fl);
+    crits.push({el:el,sh:sh,fl:fl,hue:c.hue, x:rand(40,W-60), y:rand(H*0.5,H*0.8),
+      dir:1, state:"go", stn:null, t:rand(0,9999), until:0, prog:0, flUntil:0});
+  });
 
-  function pickTarget(o,now){
-    o.tx=rand(24,W-64);
-    o.ty=H*(GROUND_TOP+rand(0,1)*(GROUND_BOT-GROUND_TOP));
-    o.state="walk";
-  }
+  function freeStation(){ var f=STATIONS.filter(function(s){return !s.worker;}); return f.length?f[Math.floor(rand(0,f.length-0.001))]:null; }
+  function assign(o){ var s=freeStation(); if(s){ s.worker=o; o.stn=s; o.state="go"; } else { o.stn=null; o.state="wait"; o.until=performance.now()+rand(400,1200);} }
+  crits.forEach(assign);
+
+  function depthScale(y){ return 0.62+0.55*(y/H-0.45)/0.45; }
 
   var last=0;
-  function loop(now){
-    var dt=Math.min(40, now-(last||now)); last=now;
+  function frame(now){
+    var dt=Math.min(0.05,(now-(last||now))/1000); last=now;
+    var working=0;
     crits.forEach(function(o){
-      if(o.state==="walk"){
-        var dx=o.tx-o.x, dy=o.ty-o.y, d=Math.hypot(dx,dy);
-        var sp=0.035*dt; // px per ms-ish
-        if(d<2){ // arrived -> work or idle
-          o.state= (o.c.work && rand(0,1)>0.35) ? "work" : "idle";
-          o.until= now + rand(1600, 4200);
-          o.working = (o.state==="work");
-        } else {
-          var step=Math.min(d, sp* (40));
-          o.x += dx/d*step; o.y += dy/d*step;
-          if(Math.abs(dx)>0.5) o.dir = dx>0?1:-1;
+      if(o.state==="go" && o.stn){
+        var sx=o.stn.x, sy=o.stn.y+14;
+        var dx=sx-o.x, dy=sy-o.y, d=Math.hypot(dx,dy);
+        if(d<5){ o.state="work"; o.workStart=now; o.workDur=rand(2600,5200); o.until=now+o.workDur; o.prog=0; }
+        else { var sp=64*dt; o.x+=dx/d*Math.min(d,sp); o.y+=dy/d*Math.min(d,sp); if(Math.abs(dx)>0.4)o.dir=dx>0?1:-1; }
+      } else if(o.state==="work"){
+        working++;
+        o.prog=Math.min(1,(now-o.workStart)/o.workDur);
+        if(o.stn){ o.stn.ring.classList.add("on"); o.stn.ring.style.background="conic-gradient(#00B14F "+(o.prog*360)+"deg, rgba(0,177,79,.16) 0)"; o.stn.badge.style.transform="scale("+(1+Math.sin(now/180)*0.04)+")"; }
+        if(now>o.until){ // done
+          if(o.stn){ o.stn.check.classList.add("on"); o.stn.ring.classList.remove("on"); o.stn.badge.style.transform=""; (function(st){setTimeout(function(){st.check.classList.remove("on");},900);})(o.stn); o.stn.worker=null; }
+          o.fl.dataset.t=now; o.flUntil=now+1000;
+          o.stn=null; assign(o);
         }
-      } else { // work or idle
-        if(now>o.until){ o.working=false; pickTarget(o,now); }
+      } else if(o.state==="wait"){
+        if(now>o.until) assign(o);
       }
-      // bob: hop while walking, gentle breathe while still
-      var bob = (o.state==="walk") ? Math.abs(Math.sin((now+o.t)/110))*5 : Math.sin((now+o.t)/600)*1.5;
-      var s = depthScale(o.y);
-      o.el.style.width = (52*s)+"px"; o.el.style.height=(52*s)+"px";
-      o.el.style.transform = "translate("+(o.x)+"px,"+(o.y - 52*s - bob)+"px) scaleX("+o.dir+")";
-      o.el.style.zIndex = Math.round(o.y);
-      o.sh.style.width=(30*s)+"px"; o.sh.style.height=(9*s)+"px";
-      o.sh.style.transform = "translate("+(o.x + (52*s-30*s)/2)+"px,"+(o.y - 6)+"px)";
-      o.sh.style.zIndex = Math.round(o.y)-1;
-      // work emote
-      o.em.style.opacity = o.working ? 1 : 0;
-      o.em.style.transform = "translate("+(o.x + 52*s -10)+"px,"+(o.y - 52*s - bob - 14)+"px)";
-      o.em.style.zIndex = Math.round(o.y)+1;
+      // bob: walk hop vs small work wiggle
+      var bob = (o.state==="go") ? Math.abs(Math.sin((now+o.t)/120))*5 : (o.state==="work"? Math.abs(Math.sin((now+o.t)/90))*2.5 : Math.sin((now+o.t)/600)*1.5);
+      var s=depthScale(o.y), sz=46*s;
+      o.el.style.width=sz+"px"; o.el.style.height=sz+"px";
+      o.el.style.transform="translate("+(o.x-sz/2)+"px,"+(o.y-sz-bob)+"px) scaleX("+o.dir+")";
+      o.el.style.zIndex=Math.round(o.y);
+      o.sh.style.width=(26*s)+"px"; o.sh.style.height=(8*s)+"px";
+      o.sh.style.transform="translate("+(o.x-13*s)+"px,"+(o.y-5)+"px)";
+      o.sh.style.zIndex=Math.round(o.y)-1;
+      // floating "done" pop
+      if(o.flUntil>now){ var k=1-(o.flUntil-now)/1000; o.fl.style.opacity=(1-k); o.fl.style.transform="translate("+(o.x-12)+"px,"+(o.y-sz-18-k*22)+"px)"; o.fl.style.zIndex=Math.round(o.y)+2; }
+      else o.fl.style.opacity=0;
     });
-    requestAnimationFrame(loop);
+    document.getElementById("gtxt").textContent=(working||crits.length)+" on it";
+    requestAnimationFrame(frame);
   }
-  requestAnimationFrame(loop);
-
-  // legend
-  var lg=document.getElementById("legend");
-  CREW.forEach(function(c){ var p=document.createElement("span"); p.className="pill"; p.textContent=c.name+(c.work?" · on a task":" · idle"); lg.appendChild(p); });
+  requestAnimationFrame(frame);
 })();
 </script>
 </body>
