@@ -4,57 +4,51 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Your crew - living scene</title>
-<!-- crew-scene v10.0: 3/4 ISOMETRIC ISLAND backdrop (island-px.png, grey knocked out, crisp
-     low-res pixel grid) floating on kraft-paper #EFE6D5 with grain. Creatures wander the diamond
-     GRASS TOP only (off the soil sides + trees). Dedicated capability SPACES (Inbox/Calendar/
-     Payments/Booking/Research) placed on the grass + near the corner trees; a dispatched creature
-     walks there and works. Short TEXT status (no emoji), green->yellow managed-health grass tint,
-     GOAL banner, round avatar/count HUD, tap-to-lead, dispatch, lightweight rAF. -->
+<!-- crew-scene v11.0: FULL-FRAME tile-based cozy MEADOW (no floating island, no kraft margins).
+     Renders Kenney "Tiny Town" CC0 16x16 tileset (assets/tilesets/tiny-town/Tilemap/tilemap_packed.png)
+     tile-by-tile on a crisp nearest-neighbor canvas that fills the whole mobile frame: auto-varied grass,
+     scattered trees/bushes/flowers/mushrooms with soft drop shadows. Creatures are ALL GREEN, each with a
+     different-colored BAND/sash (blue/pink/amber/teal/violet), amble+pause wander + depth-scale. Capability
+     SPACES (Inbox/Calendar/Payments/Booking/Research) are cobble spots with short TEXT status (no emoji),
+     green->yellow managed-health wilt wash, GOAL banner, round avatar/count HUD, tap-to-lead, dispatch. -->
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:#EFE6D5;font-family:-apple-system,Inter,sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:18px 14px 40px;}
   .frame{width:100%;max-width:392px;}
 
-  /* ---- the world: kraft paper + grain, island floats centered ---- */
-  .scene{position:relative;width:100%;height:430px;border-radius:26px;overflow:hidden;
-    box-shadow:0 16px 38px -14px rgba(60,52,30,.42), inset 0 0 0 1px rgba(255,255,255,.45);
-    background-color:#EFE6D5;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
-  /* kraft-paper grain: layered soft noise + a faint warm vignette so the island reads as a cozy diorama */
-  .paper{position:absolute;inset:0;pointer-events:none;
-    background-image:
-      radial-gradient(rgba(150,130,90,.06) 1px, transparent 1px),
-      radial-gradient(rgba(120,100,70,.05) 1px, transparent 1px),
-      radial-gradient(110% 80% at 50% 38%, rgba(255,250,235,.55), rgba(232,222,200,.0) 60%);
-    background-size:4px 4px, 7px 7px, 100% 100%;
-    background-position:0 0, 2px 3px, 0 0;}
-  .paper2{position:absolute;inset:0;pointer-events:none;
-    background:radial-gradient(120% 100% at 50% 52%, rgba(60,52,30,0) 60%, rgba(80,68,40,.10) 100%);}
-
-  /* island canvas - drawn crisp nearest-neighbor, centered */
-  .island{position:absolute;left:0;top:0;display:block;
-    image-rendering:pixelated;image-rendering:crisp-edges;pointer-events:none;
-    filter:drop-shadow(0 14px 16px rgba(50,40,18,.30)) saturate(1.1) brightness(1.02);}
-  /* MANAGED-HEALTH tint over the GRASS only (clipped to the diamond via a 2nd canvas) */
-  .grasstint{position:absolute;left:0;top:0;display:block;pointer-events:none;
-    image-rendering:pixelated;image-rendering:crisp-edges;mix-blend-mode:multiply;opacity:0;
-    transition:opacity .9s ease;}
+  /* ---- the world: meadow fills the ENTIRE frame ---- */
+  .scene{position:relative;width:100%;height:460px;border-radius:26px;overflow:hidden;
+    box-shadow:0 16px 38px -14px rgba(40,52,20,.45), inset 0 0 0 1px rgba(255,255,255,.18);
+    background:#7bbf4e;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+  /* meadow tilemap canvas - drawn crisp nearest-neighbor, fills the scene */
+  .meadow{position:absolute;inset:0;display:block;width:100%;height:100%;
+    image-rendering:pixelated;image-rendering:crisp-edges;pointer-events:none;}
+  /* managed-health wilt wash over the whole meadow */
+  .wilt{position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;opacity:0;
+    transition:opacity .9s ease;
+    background:linear-gradient(180deg,rgba(214,196,80,.55),rgba(196,168,55,.85));}
+  /* gentle top light + bottom vignette so the meadow reads as a cozy 3/4 diorama */
+  .vig{position:absolute;inset:0;pointer-events:none;
+    background:
+      radial-gradient(120% 75% at 50% 22%, rgba(255,250,225,.22), rgba(255,250,225,0) 55%),
+      radial-gradient(130% 95% at 50% 96%, rgba(30,50,16,.0) 55%, rgba(24,44,14,.34) 100%);}
 
   /* ---- GOAL BANNER, top-centre ---- */
   .goal{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:60;pointer-events:none;
     display:inline-flex;align-items:center;gap:8px;
     background:linear-gradient(180deg,rgba(255,253,247,.96),rgba(240,233,216,.94));
     border:1px solid rgba(120,110,80,.4);border-radius:999px;padding:6px 15px 6px 12px;
-    box-shadow:0 4px 12px -4px rgba(60,50,25,.4), inset 0 1px 0 rgba(255,255,255,.85);
+    box-shadow:0 4px 12px -4px rgba(20,40,10,.5), inset 0 1px 0 rgba(255,255,255,.85);
     font-family:ui-monospace,"SF Mono",monospace;}
-  .goal .lab{font-size:8.5px;font-weight:700;letter-spacing:.14em;color:#7a8a5e;
-    background:rgba(120,140,80,.16);border-radius:6px;padding:3px 7px;}
-  .goal .val{font-size:10px;font-weight:700;letter-spacing:.11em;color:#3a4a2a;text-transform:uppercase;}
+  .goal .lab{font-size:8.5px;font-weight:700;letter-spacing:.14em;color:#5e7a3e;
+    background:rgba(110,140,70,.18);border-radius:6px;padding:3px 7px;}
+  .goal .val{font-size:10px;font-weight:700;letter-spacing:.11em;color:#2f4220;text-transform:uppercase;}
 
   /* ---- top-left round avatar + count HUD ---- */
   .hud{position:absolute;top:13px;left:13px;z-index:60;pointer-events:none;
     display:inline-flex;align-items:center;gap:7px;
-    background:rgba(255,253,247,.93);border:1px solid rgba(120,130,90,.4);border-radius:999px;
-    padding:4px 11px 4px 4px;box-shadow:0 3px 10px -4px rgba(60,50,25,.45), inset 0 1px 0 rgba(255,255,255,.85);}
+    background:rgba(255,253,247,.93);border:1px solid rgba(110,130,80,.4);border-radius:999px;
+    padding:4px 11px 4px 4px;box-shadow:0 3px 10px -4px rgba(20,40,10,.5), inset 0 1px 0 rgba(255,255,255,.85);}
   .hud .face{width:30px;height:30px;border-radius:50%;overflow:hidden;flex:0 0 auto;
     background:#cfe8b8 url("assets/creature-face-px.png") center 30% / 122% no-repeat;
     image-rendering:pixelated;image-rendering:crisp-edges;box-shadow:inset 0 0 0 2px rgba(255,255,255,.7);}
@@ -63,18 +57,13 @@
   /* ---- capability SPACE label tags ---- */
   .space-tag{position:absolute;left:0;top:0;z-index:30;pointer-events:none;
     font-family:ui-monospace,"SF Mono",monospace;font-size:7px;font-weight:700;letter-spacing:.1em;
-    text-transform:uppercase;color:#2c4018;background:rgba(255,253,247,.82);
+    text-transform:uppercase;color:#2c4018;background:rgba(255,253,247,.86);
     border-radius:4px;padding:1px 5px;transform:translate(-50%,0);white-space:nowrap;
-    box-shadow:0 1px 3px -1px rgba(40,50,20,.45), inset 0 0 0 1px rgba(120,140,80,.3);}
-  /* a small pixel marker dot for each space, on the grass */
-  .space-dot{position:absolute;left:0;top:0;z-index:29;pointer-events:none;
-    width:9px;height:9px;border-radius:50%;transform:translate(-50%,-50%);
-    background:radial-gradient(circle at 38% 34%, #fff7, #00B14F 70%);
-    box-shadow:0 1px 3px rgba(20,40,18,.5), 0 0 0 2px rgba(255,255,255,.55);}
+    box-shadow:0 1px 3px -1px rgba(20,40,10,.5), inset 0 0 0 1px rgba(110,140,70,.35);}
 
   /* ---- creatures + shadows ---- */
   .crit{position:absolute;left:0;top:0;will-change:transform;image-rendering:pixelated;image-rendering:crisp-edges;pointer-events:none;}
-  .shadow{position:absolute;left:0;top:0;border-radius:50%;background:rgba(30,44,14,.32);will-change:transform;filter:blur(2.5px);pointer-events:none;}
+  .shadow{position:absolute;left:0;top:0;border-radius:50%;background:rgba(24,40,12,.34);will-change:transform;filter:blur(2.5px);pointer-events:none;}
 
   /* ---- SHORT TEXT STATUS label above a working creature ---- */
   .bubble{position:absolute;left:0;top:0;z-index:50;pointer-events:none;will-change:transform,opacity;
@@ -111,7 +100,7 @@
 
   .hint{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);z-index:57;pointer-events:none;
     font-family:ui-monospace,monospace;font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:#fff;
-    background:rgba(40,54,22,.55);backdrop-filter:blur(3px);border-radius:999px;padding:4px 12px;
+    background:rgba(30,50,16,.6);backdrop-filter:blur(3px);border-radius:999px;padding:4px 12px;
     display:inline-flex;align-items:center;gap:6px;transition:opacity .4s;box-shadow:0 3px 10px -3px rgba(0,0,0,.5);}
   .hint .hd{width:6px;height:6px;border-radius:50%;background:#34d27a;animation:bp 1.4s ease-in-out infinite;}
   @keyframes bp{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.8);}}
@@ -122,16 +111,15 @@
 <body>
 <div class="frame">
   <div class="scene" id="scene">
-    <div class="paper"></div>
-    <canvas class="island" id="island"></canvas>
-    <canvas class="grasstint" id="grasstint"></canvas>
-    <div class="paper2"></div>
+    <canvas class="meadow" id="meadow"></canvas>
+    <div class="wilt" id="wilt"></div>
+    <div class="vig"></div>
     <div class="hud"><span class="face"></span><span class="cnt" id="cnt">0</span></div>
     <div class="goal"><span class="lab">GOAL</span><span class="val">Handle your day</span></div>
     <div class="lead" id="lead"></div>
-    <div class="hint" id="hint"><span class="hd"></span>Tap the grass - your crew gathers</div>
+    <div class="hint" id="hint"><span class="hd"></span>Tap the meadow - your crew gathers</div>
   </div>
-  <div class="cap">Your crew lives on the island. Every kind of work has its own spot - the inbox, the calendar, the payments stand, the booking post, the research shelf. Drop a task and one of them walks to the right place and gets it done; you see what each is doing right above its head. (Prototype - your real tasks drive it once wired.)</div>
+  <div class="cap">Your crew lives on the meadow. Every kind of work has its own spot - the inbox, the calendar, the payments stand, the booking post, the research shelf. Drop a task and one of them walks to the right place and gets it done; you see what each is doing right above its head. (Prototype - your real tasks drive it once wired.)</div>
 </div>
 <script>
 (function(){
@@ -139,142 +127,212 @@
   var leadEl=document.getElementById("lead");
   var hintEl=document.getElementById("hint");
   var cntEl=document.getElementById("cnt");
+  var wiltEl=document.getElementById("wilt");
   var W=scene.clientWidth, H=scene.clientHeight;
 
-  var seed=778899; function rand(a,b){seed=(seed*1103515245+12345)&0x7fffffff;return a+(b-a)*(seed/0x7fffffff);}
+  var seed=20260615; function rand(a,b){seed=(seed*1103515245+12345)&0x7fffffff;return a+(b-a)*(seed/0x7fffffff);}
   var clamp=function(v,a,b){return v<a?a:v>b?b:v;};
 
-  // ---- ISLAND backdrop: draw the pixel cutout crisp + centered, large ----
-  var islandCv=document.getElementById("island");
-  var tintCv=document.getElementById("grasstint");
-  var ictx=islandCv.getContext("2d");
-  var tctx=tintCv.getContext("2d");
-  // island on-screen rect (computed once image loads)
-  var IR={x:0,y:0,w:0,h:0};
-  // grass-top diamond vertices in island-rect NORMALIZED coords (measured from island-px.png)
-  //   top apex, right, bottom, left  - inset slightly to keep crew clearly on grass + off trees
-  var GN={ top:[0.49,0.07], right:[0.92,0.43], bot:[0.50,0.81], left:[0.08,0.43] };
-  var DIA={}; // pixel-space diamond (recomputed on layout)
+  // ======== TILE-BASED MEADOW (Kenney Tiny Town CC0, 16px tiles) ========
+  var TS=16;                 // source tile size
+  var SCALE=3;               // px-per-source-px in backing canvas (crisp, integer)
+  var TILE=TS*SCALE;         // on-canvas tile size (48)
+  // grid sized to overfill the frame so no kraft/grey margins ever show
+  var COLS=Math.ceil(W/TILE)+1;            // ~ 9-10
+  var ROWS=Math.ceil(H/TILE)+1;            // ~ 11
+  var meadowCv=document.getElementById("meadow");
+  var mctx=meadowCv.getContext("2d");
+  meadowCv.width=COLS*TILE; meadowCv.height=ROWS*TILE;
+  mctx.imageSmoothingEnabled=false;
+  // map screen<->canvas (canvas is slightly larger than scene; we anchor top-left)
+  var CW=meadowCv.width, CH=meadowCv.height;
+  function sx(x){return x*(CW/W);}  // screen px -> canvas px
+  function sy(y){return y*(CH/H);}
 
-  var islandImg=new Image();
-  islandImg.onload=function(){ layoutIsland(); buildGrassTint(); placeSpaces(); };
-  islandImg.src="assets/island-px.png?v=10";
+  // tile atlas coords (12 cols in packed atlas)
+  var ATLAS_COLS=12;
+  function srcXY(idx){return [(idx%ATLAS_COLS)*TS,(Math.floor(idx/ATLAS_COLS))*TS];}
+  var GRASS=[0,0,0,0,1,1,2];          // weighted: mostly plain, some tufts, occasional flowers
+  var TREES=[4,16];                   // tall pine + leafy tree
+  var BUSHES=[5,28];                  // round bush + small shrub
+  var DECOR=[2,30,31,29,17];          // flowers / reeds / mushrooms / small bushes
 
-  function layoutIsland(){
-    var iw=islandImg.width, ih=islandImg.height;       // 256 x 201
-    // scale island to fill ~94% of scene width, sit a touch high so front edge has breathing room
-    var targetW=W*0.96;
-    var sc=targetW/iw;
-    var dispW=Math.round(iw*sc), dispH=Math.round(ih*sc);
-    IR.w=dispW; IR.h=dispH;
-    IR.x=Math.round((W-dispW)/2);
-    IR.y=Math.round((H-dispH)/2)+8;
-    // crisp render: backing store at native px, CSS scaled, pixelated
-    islandCv.width=iw; islandCv.height=ih;
-    islandCv.style.width=dispW+"px"; islandCv.style.height=dispH+"px";
-    islandCv.style.transform="translate("+IR.x+"px,"+IR.y+"px)";
-    ictx.imageSmoothingEnabled=false;
-    ictx.clearRect(0,0,iw,ih);
-    ictx.drawImage(islandImg,0,0);
-    // pixel-space diamond
-    function pt(n){ return [IR.x+n[0]*IR.w, IR.y+n[1]*IR.h]; }
-    DIA.top=pt(GN.top); DIA.right=pt(GN.right); DIA.bot=pt(GN.bot); DIA.left=pt(GN.left);
-    DIA.cx=(DIA.left[0]+DIA.right[0])/2;
-    DIA.cy=(DIA.top[1]+DIA.bot[1])/2;
-  }
+  var tileImg=new Image();
+  // deterministic grass field + scatter, rebuilt on load
+  var grassField=[];                  // ROWS x COLS grass tile idx
+  var scatter=[];                     // {col,row,idx, big} placed props (sorted by row for depth)
+  var occupied={};                    // "c,r" cells blocked for creature walking / further props
 
-  // build a grass-only tint canvas: a green/olive diamond clipped to the grass, for health wash.
-  // we redraw its color from JS; opacity drives the wilt amount.
-  function buildGrassTint(){
-    tintCv.width=IR.w; tintCv.height=IR.h;
-    tintCv.style.width=IR.w+"px"; tintCv.style.height=IR.h+"px";
-    tintCv.style.transform="translate("+IR.x+"px,"+IR.y+"px)";
-    paintGrassTint(0); // initial
-  }
-  function diamondPath(ctx,sx,sy){
-    // sx,sy = scale from pixel-space-relative-to-IR
-    ctx.beginPath();
-    ctx.moveTo((DIA.top[0]-IR.x), (DIA.top[1]-IR.y));
-    ctx.lineTo((DIA.right[0]-IR.x),(DIA.right[1]-IR.y));
-    ctx.lineTo((DIA.bot[0]-IR.x), (DIA.bot[1]-IR.y));
-    ctx.lineTo((DIA.left[0]-IR.x),(DIA.left[1]-IR.y));
-    ctx.closePath();
-  }
-  function paintGrassTint(wilt){
-    if(!IR.w) return;
-    tctx.clearRect(0,0,IR.w,IR.h);
-    if(wilt<=0.01){ tintCv.style.opacity="0"; return; }
-    tctx.save();
-    diamondPath(tctx);
-    tctx.clip();
-    // warm yellow/olive wilt color, top->bottom
-    var g=tctx.createLinearGradient(0,0,0,IR.h);
-    g.addColorStop(0,"rgba(206,186,72,"+(0.30*wilt).toFixed(3)+")");
-    g.addColorStop(1,"rgba(196,168,60,"+(0.55*wilt).toFixed(3)+")");
-    tctx.fillStyle=g;
-    tctx.fillRect(0,0,IR.w,IR.h);
-    tctx.restore();
-    tintCv.style.opacity=String(Math.min(1,wilt*1.25));
-  }
+  function key(c,r){return c+","+r;}
 
-  // ---- point-in-diamond + clamp to grass ----
-  function inDiamond(x,y){
-    // normalized diamond test: |dx|/rx + |dy_top or dy_bot|/r <= 1
-    var rx=(DIA.right[0]-DIA.left[0])/2;
-    var ryTop=DIA.cy-DIA.top[1];
-    var ryBot=DIA.bot[1]-DIA.cy;
-    var nx=Math.abs(x-DIA.cx)/rx;
-    var ny=(y<DIA.cy)?(DIA.cy-y)/ryTop:(y-DIA.cy)/ryBot;
-    return (nx+ny)<=1;
-  }
-  function clampToGrass(x,y){
-    // pull point toward center until inside the diamond (with a small inset margin)
-    var cx=DIA.cx, cy=DIA.cy, m=0.92;
-    for(var i=0;i<14;i++){
-      var rx=(DIA.right[0]-DIA.left[0])/2*m;
-      var ryTop=(cy-DIA.top[1])*m, ryBot=(DIA.bot[1]-cy)*m;
-      var nx=Math.abs(x-cx)/rx;
-      var ny=(y<cy)?(cy-y)/ryTop:(y-cy)/ryBot;
-      var s=nx+ny;
-      if(s<=1) break;
-      x=cx+(x-cx)/s; y=cy+(y-cy)/s;
+  function buildField(){
+    grassField=[];
+    for(var r=0;r<ROWS;r++){
+      var row=[];
+      for(var c=0;c<COLS;c++){ row.push(GRASS[Math.floor(rand(0,GRASS.length-1e-3))]); }
+      grassField.push(row);
     }
-    return [x,y];
-  }
-  // depth scale by y across the grass span
-  function depth(y){
-    var t=(y-DIA.top[1])/((DIA.bot[1]-DIA.top[1])||1);
-    return 0.60+0.40*clamp(t,0,1);
   }
 
-  // ---- CAPABILITY SPACES on the grass (normalized to grass diamond bary coords) ----
-  // gx,gy are fractions across the diamond bounding box (0..1 of IR). placed on open grass +
-  // a couple nestled near the corner trees. label tag sits just below the marker.
+  // capability spots in CELL coords (kept off the very edges); chosen to spread nicely
   var SPACES=[
-    {key:"inbox",   label:"Inbox",    gx:0.27, gy:0.30, work:["sorting inbox","drafting reply","clearing inbox"]},
-    {key:"calendar",label:"Calendar", gx:0.62, gy:0.27, work:["checking schedule","booking slot","syncing calendar"]},
-    {key:"pay",     label:"Payments", gx:0.74, gy:0.52, work:["chasing payment","sending invoice","invoice sent"]},
-    {key:"booking", label:"Booking",  gx:0.32, gy:0.55, work:["booking flight","finding route","trip booked"]},
-    {key:"research",label:"Research", gx:0.50, gy:0.68, work:["researching","reading up","done research"]}
+    {key:"inbox",   label:"Inbox",    cx:0.22, cy:0.30, work:["sorting inbox","drafting reply","clearing inbox"]},
+    {key:"calendar",label:"Calendar", cx:0.74, cy:0.26, work:["checking schedule","booking slot","syncing calendar"]},
+    {key:"pay",     label:"Payments", cx:0.80, cy:0.60, work:["chasing payment","sending invoice","invoice sent"]},
+    {key:"booking", label:"Booking",  cx:0.24, cy:0.62, work:["booking flight","finding route","trip booked"]},
+    {key:"research",label:"Research", cx:0.52, cy:0.80, work:["researching","reading up","done research"]}
   ];
+
+  function buildScatter(){
+    scatter=[]; occupied={};
+    // reserve capability spots (cobble tile 43) + mark occupied
+    SPACES.forEach(function(s){
+      var c=clamp(Math.round(s.cx*(COLS-1)),0,COLS-1);
+      var r=clamp(Math.round(s.cy*(ROWS-1)),0,ROWS-1);
+      s.col=c; s.row=r;
+      // screen position = cell center
+      s.px=(c+0.5)*TILE*(W/CW); s.py=(r+0.5)*TILE*(H/CH);
+      s.wx=s.px; s.wy=s.py;
+      scatter.push({col:c,row:r,idx:43,big:false,kind:"spot"});
+      occupied[key(c,r)]=2; // hard reserve
+    });
+    // trees ring the border + a few inside (avoid the central walking band & spots)
+    var treeCount=0, tries=0;
+    while(treeCount<11 && tries<200){
+      tries++;
+      var c=Math.floor(rand(0,COLS-1e-3)), r=Math.floor(rand(0,ROWS-1e-3));
+      // keep row 0 clear so tall canopies never collide with the HUD / goal banner
+      if(r===0) continue;
+      // bias toward edges (sides + lower rows) for a framed-meadow feel, leave center open
+      var edge=(r===1)||(r>=ROWS-2)||(c<=1)||(c>=COLS-2);
+      if(!edge && rand(0,1)<0.7) continue;
+      if(occupied[key(c,r)]) continue;
+      // keep a 1-cell gap from capability spots
+      var near=false;
+      for(var k in occupied){ var p=k.split(","); if(Math.abs(+p[0]-c)<=1&&Math.abs(+p[1]-r)<=1){near=true;break;} }
+      if(near && rand(0,1)<0.6) continue;
+      var idx=TREES[Math.floor(rand(0,TREES.length-1e-3))];
+      scatter.push({col:c,row:r,idx:idx,big:true,kind:"tree",tall:rand(0,1)<0.5});
+      occupied[key(c,r)]=1;
+      treeCount++;
+      // occasionally nestle a second smaller tree/bush beside it for a cozy clump
+      if(rand(0,1)<0.45){
+        var c2=c+(rand(0,1)<0.5?1:-1);
+        if(c2>=0&&c2<COLS&&!occupied[key(c2,r)]){
+          scatter.push({col:c2,row:r,idx:BUSHES[Math.floor(rand(0,BUSHES.length-1e-3))],big:false,kind:"bush"});
+          occupied[key(c2,r)]=1;
+        }
+      }
+    }
+    // bushes + decor sprinkled (lighter blockers; decor is non-blocking)
+    for(var i=0;i<9;i++){
+      var c=Math.floor(rand(0,COLS-1e-3)), r=Math.floor(rand(0,ROWS-1e-3));
+      if(occupied[key(c,r)]) continue;
+      var idx=BUSHES[Math.floor(rand(0,BUSHES.length-1e-3))];
+      scatter.push({col:c,row:r,idx:idx,big:false,kind:"bush"});
+      occupied[key(c,r)]=1;
+    }
+    for(var j=0;j<10;j++){
+      var c=Math.floor(rand(0,COLS-1e-3)), r=Math.floor(rand(0,ROWS-1e-3));
+      if(occupied[key(c,r)]) continue;
+      var idx=DECOR[Math.floor(rand(0,DECOR.length-1e-3))];
+      scatter.push({col:c,row:r,idx:idx,big:false,kind:"decor"}); // non-blocking
+    }
+    // depth sort: lower rows draw later (in front)
+    scatter.sort(function(a,b){return a.row-b.row;});
+  }
+
+  function drawTile(idx,dcx,dcy){
+    var s=srcXY(idx);
+    mctx.drawImage(tileImg, s[0],s[1],TS,TS, dcx,dcy,TILE,TILE);
+  }
+
+  function renderMeadow(){
+    if(!tileImg.complete || !tileImg.naturalWidth) return;
+    mctx.imageSmoothingEnabled=false;
+    // 1) grass base
+    for(var r=0;r<ROWS;r++) for(var c=0;c<COLS;c++) drawTile(grassField[r][c], c*TILE, r*TILE);
+    // 1b) soft organic color mottling to break the visible tile grid (cozy, hand-feel)
+    mctx.save();
+    var bseed=987654;
+    function brand(a,b){bseed=(bseed*1103515245+12345)&0x7fffffff;return a+(b-a)*(bseed/0x7fffffff);}
+    for(var i=0;i<70;i++){
+      var bx=brand(0,CW), by=brand(0,CH), br=brand(14,40);
+      var dark=brand(0,1)<0.55;
+      var g=mctx.createRadialGradient(bx,by,0,bx,by,br);
+      if(dark){ g.addColorStop(0,"rgba(40,86,30,0.10)"); g.addColorStop(1,"rgba(40,86,30,0)"); }
+      else { g.addColorStop(0,"rgba(190,224,120,0.10)"); g.addColorStop(1,"rgba(190,224,120,0)"); }
+      mctx.fillStyle=g; mctx.beginPath(); mctx.arc(bx,by,br,0,6.2832); mctx.fill();
+    }
+    mctx.restore();
+    // 2) scatter with soft drop shadow + enlarged trees (canopy rises above the base cell
+    //    so trees read tall/lush like a cozy meadow, not flat grid shrubs)
+    scatter.forEach(function(p){
+      var dx=p.col*TILE, dy=p.row*TILE;
+      if(p.kind==="tree"||p.kind==="bush"){
+        var grow=p.kind==="tree"?(p.tall?2.05:1.85):1.32;
+        var dw=TILE*grow, dh=TILE*grow;
+        var bx=dx+TILE/2;                  // base center x
+        var by=dy+TILE*(p.kind==="tree"?0.98:0.92); // base y (where trunk meets ground)
+        // soft elliptical drop shadow at the base
+        mctx.save();
+        mctx.globalAlpha=p.kind==="tree"?0.28:0.20;
+        mctx.fillStyle="#15270d";
+        var sw=p.kind==="tree"?dw*0.46:dw*0.5, sh=sw*0.34;
+        mctx.beginPath(); mctx.ellipse(bx,by-2,sw/2,sh/2,0,0,6.2832); mctx.fill();
+        mctx.restore();
+        // draw enlarged sprite anchored at its base (bottom-center)
+        var s=srcXY(p.idx);
+        mctx.drawImage(tileImg, s[0],s[1],TS,TS, bx-dw/2, by-dh, dw,dh);
+      } else if(p.kind==="spot"){
+        // capability station: soft shadow ring + cobble, warm-tinted so it reads cozy not stark
+        mctx.save();
+        mctx.globalAlpha=0.16; mctx.fillStyle="#15270d";
+        mctx.beginPath(); mctx.ellipse(dx+TILE/2,dy+TILE*0.78,TILE*0.42,TILE*0.18,0,0,6.2832); mctx.fill();
+        mctx.restore();
+        drawTile(p.idx,dx,dy);
+        mctx.save(); mctx.globalCompositeOperation="multiply"; mctx.globalAlpha=0.22;
+        mctx.fillStyle="#cdb97e"; mctx.fillRect(dx,dy,TILE,TILE); mctx.restore();
+      } else {
+        drawTile(p.idx,dx,dy);
+      }
+    });
+  }
+
+  tileImg.onload=function(){ buildField(); buildScatter(); placeSpaces(); renderMeadow(); };
+  tileImg.src="assets/tilesets/tiny-town/Tilemap/tilemap_packed.png?v=11";
+
+  // ---- capability space label tags (DOM, above the cobble spot) ----
   function placeSpaces(){
     SPACES.forEach(function(s){
-      // map gx,gy (0..1 over IR rect) then clamp onto grass
-      var px=IR.x+s.gx*IR.w, py=IR.y+s.gy*IR.h;
-      var p=clampToGrass(px,py); px=p[0]; py=p[1];
-      s.px=px; s.py=py; s.wx=px; s.wy=py;
-      if(!s.dot){
-        var dot=document.createElement("div"); dot.className="space-dot"; scene.appendChild(dot); s.dot=dot;
-        var tag=document.createElement("div"); tag.className="space-tag"; tag.textContent=s.label; scene.appendChild(tag); s.tag=tag;
+      if(!s.tag){
+        var tag=document.createElement("div"); tag.className="space-tag"; tag.textContent=s.label;
+        scene.appendChild(tag); s.tag=tag;
       }
-      var sc=depth(py);
-      s.dot.style.transform="translate("+px+"px,"+py+"px) translate(-50%,-50%) scale("+(0.85+0.3*sc)+")";
-      s.dot.style.zIndex=String(Math.round(py)-3);
-      s.tag.style.transform="translate("+px+"px,"+(py+7)+"px) translate(-50%,0)";
-      s.tag.style.zIndex=String(Math.round(py));
+      s.tag.style.transform="translate("+s.px+"px,"+(s.py+TILE*(H/CH)*0.30)+"px) translate(-50%,0)";
+      s.tag.style.zIndex=String(Math.round(s.py)+2);
     });
   }
   function spaceByKey(k){ for(var i=0;i<SPACES.length;i++) if(SPACES[i].key===k) return SPACES[i]; return SPACES[0]; }
+
+  // ---- walkable test: keep creatures out of tree/bush/spot cells + a small inset ----
+  function cellAt(x,y){ return [Math.floor(sx(x)/TILE), Math.floor(sy(y)/TILE)]; }
+  function blocked(x,y){
+    var ce=cellAt(x,y); var o=occupied[key(ce[0],ce[1])];
+    return o===1||o===2;   // trees/bushes (1) and spots (2)
+  }
+  var INSET=14;
+  function clampToMeadow(x,y){
+    x=clamp(x,INSET,W-INSET); y=clamp(y,INSET+24,H-INSET);
+    // nudge out of blocked cells toward center
+    if(blocked(x,y)){
+      var cxp=W/2, cyp=H/2;
+      for(var i=0;i<10 && blocked(x,y);i++){ x+=(cxp-x)*0.18; y+=(cyp-y)*0.18; }
+    }
+    return [x,y];
+  }
+  // depth scale by y (front bigger)
+  function depth(y){ var t=clamp((y-30)/(H-30),0,1); return 0.62+0.40*t; }
 
   // ---- text status bubble ----
   function makeBubble(o){
@@ -301,12 +359,12 @@
     var cols=["#FFD24A","#34d27a","#fff","#00B14F"];
     var p=document.createElement("div"); p.className="prop";
     p.style.background=cols[Math.floor(rand(0,cols.length-1e-3))];
-    var sx=o.x+rand(-5,5), sy=o.y-sz-2;
-    p.style.transform="translate("+sx+"px,"+sy+"px) scale(1)"; p.style.opacity="1";
+    var spx=o.x+rand(-5,5), spy=o.y-sz-2;
+    p.style.transform="translate("+spx+"px,"+spy+"px) scale(1)"; p.style.opacity="1";
     scene.appendChild(p);
     requestAnimationFrame(function(){
       p.style.transition="transform .6s cubic-bezier(.3,.7,.4,1), opacity .6s";
-      p.style.transform="translate("+(sx+rand(-8,8))+"px,"+(sy-22)+"px) scale(.4)"; p.style.opacity="0";
+      p.style.transform="translate("+(spx+rand(-8,8))+"px,"+(spy-22)+"px) scale(.4)"; p.style.opacity="0";
     });
     setTimeout(function(){ p.remove(); },640);
   }
@@ -336,7 +394,7 @@
   }
 
   function celebrate(x,y){
-    var cols=["#00B14F","#34d27a","#FFD24A","#FF7A59","#5BC0EB"];
+    var cols=["#00B14F","#34d27a","#FFD24A","#5BC0EB","#E86A92"];
     for(var i=0;i<11;i++){(function(a,j){
       var p=document.createElement("div"); p.className="pop"; p.style.background=cols[j%cols.length];
       p.style.transform="translate("+x+"px,"+y+"px) scale(1)"; scene.appendChild(p);
@@ -356,42 +414,41 @@
     setTimeout(function(){ r.remove(); },600);
   }
 
-  // ---- crew ----
-  var CREW=[{hue:0},{hue:118},{hue:40},{hue:200},{hue:280}];
+  // ======== crew: all GREEN, differentiated by BAND color ========
+  var CREW=[
+    {band:"blue"}, {band:"pink"}, {band:"amber"}, {band:"teal"}, {band:"violet"}
+  ];
   var crits=[];
   CREW.forEach(function(c,i){
-    var el=document.createElement("img"); el.className="crit"; el.src="assets/creature-sprite-px.png";
-    el.style.filter="hue-rotate("+c.hue+"deg) saturate(1.12) drop-shadow(0 3px 2px rgba(20,34,12,.4))";
+    var el=document.createElement("img"); el.className="crit"; el.src="assets/creature-band-"+c.band+".png";
+    el.style.filter="drop-shadow(0 3px 2px rgba(16,30,10,.42))";
     var sh=document.createElement("div"); sh.className="shadow";
     scene.appendChild(sh); scene.appendChild(el);
-    crits.push({el:el,sh:sh,hue:c.hue,idx:i,
+    crits.push({el:el,sh:sh,band:c.band,phase:i*1.3,idx:i,
       x:0,y:0, vx:0,vy:0, dir:1, lean:0, step:rand(0,9),
       state:"idle", space:null, workText:"", until:0, workStart:0,workDur:0, emit:0,
       idleSub:null, idleSp:24, nextWander:0, tx:0,ty:0, gaze:0, bubble:null, placed:false});
   });
 
   // ---------- MANAGED HEALTH ----------
-  var health=1.0, backlog=0, healthTimer=0;
+  var health=1.0, backlog=0;
   function applyHealthTint(){
     var wilt=clamp(1-health,0,1);
-    paintGrassTint(wilt*0.9);
-    // gently desaturate island as health drops
-    var sat=(0.80+0.30*health).toFixed(3);
-    var bri=(0.99+0.05*health).toFixed(3);
-    islandCv.style.filter="drop-shadow(0 14px 16px rgba(50,40,18,.30)) saturate("+sat+") brightness("+bri+")";
+    wiltEl.style.opacity=String(Math.min(1,wilt*0.9));
+    meadowCv.style.filter="saturate("+(0.78+0.30*health).toFixed(3)+") brightness("+(0.97+0.06*health).toFixed(3)+")";
   }
 
   // ---------- LEAD (tap-to-follow) ----------
   var lead={active:false, x:W/2, y:H/2, since:0};
   function setLead(x,y){
-    var p=clampToGrass(x,y);
+    var p=clampToMeadow(x,y);
     lead.active=true; lead.x=p[0]; lead.y=p[1]; lead.since=performance.now();
     leadEl.style.transform="translate("+lead.x+"px,"+lead.y+"px)";
     leadEl.style.opacity="1"; leadEl.classList.add("on");
     var gi=0;
     crits.forEach(function(o){
       if(o.state==="work"||o.state==="go") return;
-      o.state="follow"; react(o,"♥","#ff7a59"); o.gatherSlot=gi++;
+      o.state="follow"; react(o,"♥","#E86A92"); o.gatherSlot=gi++;
     });
   }
   function clearLeadIfStale(now){
@@ -434,18 +491,16 @@
     o.state="go"; react(o,"!");
   }
 
-  var last=0, doneCount=0, started=false;
+  var last=0, doneCount=0, started=false, healthTimer=0;
   function ensurePlaced(){
-    if(started || !DIA.cx) return;
+    if(started || !grassField.length) return;
     started=true;
     crits.forEach(function(o){
-      // spawn spread across the grass
-      var ang=rand(0,6.283), rr=rand(0.15,0.6);
-      var x=DIA.cx+Math.cos(ang)*((DIA.right[0]-DIA.left[0])/2)*rr;
-      var y=DIA.cy+Math.sin(ang)*((DIA.bot[1]-DIA.top[1])/2)*rr;
-      var p=clampToGrass(x,y); o.x=p[0]; o.y=p[1];
+      var x,y,t=0;
+      do{ x=rand(W*0.25,W*0.75); y=rand(H*0.35,H*0.7); t++; }while(blocked(x,y)&&t<20);
+      var p=clampToMeadow(x,y); o.x=p[0]; o.y=p[1];
     });
-    lead.x=DIA.cx; lead.y=DIA.cy;
+    lead.x=W/2; lead.y=H/2;
   }
 
   function frame(now){
@@ -471,7 +526,7 @@
 
       if(o.state==="go"){
         var dx=o.tx-o.x, dy=o.ty-o.y, d=Math.hypot(dx,dy)||1;
-        if(d<4){ o.state="work"; o.workStart=now; o.workDur=rand(2800,4400); o.until=now+o.workDur; o.vx=o.vy=0; o.x=o.tx; o.y=o.ty; makeBubble(o); }
+        if(d<5){ o.state="work"; o.workStart=now; o.workDur=rand(2800,4400); o.until=now+o.workDur; o.vx=o.vy=0; o.x=o.tx; o.y=o.ty; makeBubble(o); }
         else { var slow=Math.min(1,d/46), sp=98*slow, k=Math.min(1,dt*7);
           o.vx+=(dx/d*sp-o.vx)*k; o.vy+=(dy/d*sp-o.vy)*k; o.x+=o.vx*dt; o.y+=o.vy*dt;
           if(Math.abs(o.vx)>3)o.dir=o.vx>0?1:-1; moving=Math.hypot(o.vx,o.vy)>7; }
@@ -502,14 +557,11 @@
           o.vx*=0.8; o.vy*=0.8;
           if(now>o.gaze){ o.dir=(rand(0,1)<0.5?-1:1); o.gaze=now+rand(700,1500); }
           if(now>o.nextWander){
-            var longTrip=rand(0,1)<0.32;
-            if(longTrip){
-              var a=rand(0,6.283), rr=rand(0.2,0.78);
-              o.tx=DIA.cx+Math.cos(a)*((DIA.right[0]-DIA.left[0])/2)*rr;
-              o.ty=DIA.cy+Math.sin(a)*((DIA.bot[1]-DIA.top[1])/2)*rr; o.idleSp=30;
-            } else { var ang=rand(0,6.283), r=rand(26,58);
+            var longTrip=rand(0,1)<0.34;
+            if(longTrip){ o.tx=rand(W*0.14,W*0.86); o.ty=rand(H*0.30,H*0.86); o.idleSp=30; }
+            else { var ang=rand(0,6.283), r=rand(26,58);
                    o.tx=o.x+Math.cos(ang)*r; o.ty=o.y+Math.sin(ang)*r*0.7; o.idleSp=20; }
-            var cp=clampToGrass(o.tx,o.ty); o.tx=cp[0]; o.ty=cp[1];
+            var cp=clampToMeadow(o.tx,o.ty); o.tx=cp[0]; o.ty=cp[1];
             o.idleSub="walk";
             if(o.tx>o.x)o.dir=1; else o.dir=-1;
           }
@@ -523,16 +575,16 @@
         }
       }
 
-      // hard-clamp onto grass every frame (keeps everyone off the soil + edges)
-      var cl=clampToGrass(o.x,o.y); o.x=cl[0]; o.y=cl[1];
+      // hard-clamp onto walkable meadow every frame
+      var cl=clampToMeadow(o.x,o.y); o.x=cl[0]; o.y=cl[1];
 
       var sc=depth(o.y), sz=44*sc;
       o.lean += ((moving? Math.max(-7,Math.min(7,o.vx*0.06)) : 0) - o.lean)*Math.min(1,dt*9);
       var sq=1, sty=1, bob=0;
       if(moving){ o.step+=dt*9.5; var ph=Math.sin(o.step); bob=Math.abs(ph)*4*sc; sq=1-Math.abs(ph)*0.05; sty=1+Math.abs(ph)*0.05; }
       else if(o.state==="work"){ o.step+=dt*6.5; bob=Math.abs(Math.sin(o.step))*2.6*sc; }
-      else if(o.state==="follow"){ bob=Math.abs(Math.sin(now/300+o.hue))*2.2*sc; }
-      else { bob=Math.sin(now/560+o.hue)*1.6*sc + ((now<o.gaze)?Math.abs(Math.sin(now/900))*1.0:0); }
+      else if(o.state==="follow"){ bob=Math.abs(Math.sin(now/300+o.phase))*2.2*sc; }
+      else { bob=Math.sin(now/560+o.phase)*1.6*sc + ((now<o.gaze)?Math.abs(Math.sin(now/900))*1.0:0); }
 
       o.el.style.width=sz+"px"; o.el.style.height=sz+"px"; o.el.style.transformOrigin="50% 100%";
       o.el.style.transform="translate("+(o.x-sz/2)+"px,"+(o.y-sz-bob)+"px) scaleX("+(o.dir*sq)+") scaleY("+sty+") rotate("+o.lean+"deg)";
