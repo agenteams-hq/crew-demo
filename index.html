@@ -11,7 +11,7 @@
 <meta name="theme-color" content="#FBF8F1">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><rect width="512" height="512" rx="116" fill="%23FBF8F1"/><rect x="14" y="14" width="484" height="484" rx="102" fill="none" stroke="%23E7E2D4" stroke-width="6"/><text x="246" y="338" font-family="Georgia,serif" font-style="italic" font-size="300" font-weight="600" fill="%2320241E" text-anchor="middle">C</text><circle cx="352" cy="332" r="30" fill="%2300B14F"/></svg>'>
-<link rel="apple-touch-icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><rect width="512" height="512" fill="%23FBF8F1"/><text x="246" y="338" font-family="Georgia,serif" font-style="italic" font-size="300" font-weight="600" fill="%2320241E" text-anchor="middle">C</text><circle cx="352" cy="332" r="30" fill="%2300B14F"/></svg>'>
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..650;1,9..144,300..650&display=swap" rel="stylesheet">
@@ -336,7 +336,7 @@ input{font-family:inherit;}
    see a stale build right after a deploy. On load we fetch the page fresh (no-store,
    bypassing the cache) and compare the build id; if ours is stale, reload once via a
    cache-busting param so the latest UI always wins. */
-window.CREW_BUILD="20260615-022906";
+window.CREW_BUILD="20260615-125533";
 (function(){
   try{
     if(/[?&]fresh=/.test(location.search))return;
@@ -2257,6 +2257,49 @@ function crewSignedIn(){
   $("talkfield").addEventListener("keydown",e=>{if(e.key==="Enter")sendTalk();});
   var _tkf=$("taskfield");if(_tkf)_tkf.addEventListener("keydown",function(e){if(e.key==="Enter")crewDoTask();});
   crewInitAuth();
+})();
+</script>
+<!-- iOS Add-to-Home-Screen hint. Safari gives no install prompt, so nudge once.
+     Shows only on iOS Safari, when not already installed, and not dismissed. -->
+<style>
+#a2hs{position:fixed;left:12px;right:12px;bottom:calc(var(--sab) + 12px);z-index:90;
+  display:none;align-items:center;gap:11px;padding:12px 13px;
+  background:var(--ink);color:#F3EFE5;border-radius:15px;
+  box-shadow:0 10px 34px rgba(0,0,0,.28);font-size:13.5px;line-height:1.35;
+  animation:a2hsUp .4s var(--spring) both;}
+#a2hs .ic{flex:none;width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.12);
+  display:flex;align-items:center;justify-content:center;}
+#a2hs b{color:#fff;font-weight:600;}
+#a2hs .shr{color:#5BC98A;font-weight:700;}
+#a2hs .x{flex:none;margin-left:2px;width:26px;height:26px;border-radius:7px;
+  background:rgba(255,255,255,.1);color:#CFCBBE;font-size:15px;
+  display:flex;align-items:center;justify-content:center;}
+@keyframes a2hsUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+</style>
+<div id="a2hs" role="status">
+  <span class="ic">&#9633;&#8593;</span>
+  <span><b>Add Crew to your Home Screen</b><br>Tap <span class="shr">Share</span> then <b>Add to Home Screen</b>.</span>
+  <span class="x" id="a2hs-x">&times;</span>
+</div>
+<script>
+(function(){
+  try{
+    var standalone = window.navigator.standalone===true ||
+      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    var ua = navigator.userAgent||"";
+    var isIOS = /iPhone|iPad|iPod/.test(ua) ||
+      (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1); // iPadOS
+    var isSafari = /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
+    if(standalone || !isIOS || !isSafari) return;
+    if(localStorage.getItem('crew_a2hs_dismissed')) return;
+    var el = document.getElementById('a2hs');
+    if(!el) return;
+    setTimeout(function(){ el.style.display='flex'; }, 2600); // let the app settle first
+    document.getElementById('a2hs-x').addEventListener('click', function(){
+      el.style.display='none';
+      try{ localStorage.setItem('crew_a2hs_dismissed','1'); }catch(e){}
+    });
+  }catch(e){}
 })();
 </script>
 </body>
