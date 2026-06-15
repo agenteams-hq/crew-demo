@@ -4,7 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Your crew - living scene</title>
-<!-- crew-scene v8.0: crisp-pixel cozy top-down meadow - canvas nearest-neighbor render, poppy green, purposeful ambling, managed-health world tint -->
+<!-- crew-scene v9.0: TILED varied pixel ground (hand-authored 6-tile set + winding dirt path),
+     dedicated capability SPACES (mailbox/calendar/coin/sign/shelf) each a crisp pixel prop the
+     crew walks to and works at, short TEXT status labels (not emoji), poppy green, crisp
+     nearest-neighbor render, purposeful amble, managed-health world tint, tap-to-lead, dispatch. -->
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:#EFE6D5;font-family:-apple-system,Inter,sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:18px 14px 40px;}
@@ -13,33 +16,31 @@
   /* ---- the cozy 3/4 top-down meadow world ---- */
   .scene{position:relative;width:100%;height:430px;border-radius:26px;overflow:hidden;
     box-shadow:0 16px 38px -14px rgba(28,40,20,.5), inset 0 0 0 1px rgba(255,255,255,.22);
-    background-color:#4fae3a;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
-  /* the meadow is drawn into a <canvas> at low internal resolution then upscaled with
-     hard nearest-neighbor, so the pixels read as crisp chunky squares (not AI blur).
-     filter only ENHANCES the already-vivid green source: punchy + bright, no hue rotation. */
+    background-color:#4aB03a;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+  /* the ground is a TILED MAP (grass + variants + flowers + pebbles + a winding dirt path),
+     baked into a low-res PNG and drawn into a <canvas> with hard nearest-neighbor so every
+     pixel reads as a crisp chunky square - real pixel-game ground, not a flat AI wash. */
   .meadow{position:absolute;inset:0;width:100%;height:100%;display:block;
     image-rendering:pixelated;image-rendering:crisp-edges;
-    filter:saturate(1.34) brightness(1.06) contrast(1.07);}
+    filter:saturate(1.22) brightness(1.05) contrast(1.06);}
   /* a soft green wash so the clearing reads lush, punchy green */
   .lush{position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light;
-    background:radial-gradient(120% 90% at 50% 60%, rgba(96,210,60,.5), rgba(96,210,60,.14) 70%);}
+    background:radial-gradient(120% 90% at 50% 60%, rgba(96,210,60,.42), rgba(96,210,60,.10) 70%);}
   /* MANAGED-HEALTH tint: green wash when the crew is on top of things, warm yellow/wilt
      when tasks pile up. opacity + colour driven from JS health (0..1). subtle + readable. */
   .health{position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light;
     background:linear-gradient(180deg, rgba(216,196,70,.0), rgba(216,196,70,.0));
     opacity:0;transition:opacity .9s ease, background .9s ease;}
-  /* a second multiply layer for the wilt desaturate-warm when very unmanaged */
   .wilt{position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;
     background:rgba(206,182,86,1);opacity:0;transition:opacity 1.1s ease;}
-  /* soft sun glow top + gentle depth darken at the far edge so the clearing reads with depth */
+  /* soft sun glow top + gentle depth darken at the far edge */
   .glow{position:absolute;inset:0;pointer-events:none;
-    background:radial-gradient(115% 70% at 50% 30%, rgba(255,250,210,.30), rgba(255,250,210,0) 58%),
+    background:radial-gradient(115% 70% at 50% 30%, rgba(255,250,210,.28), rgba(255,250,210,0) 58%),
               linear-gradient(180deg, rgba(20,40,18,.16) 0%, rgba(20,40,18,0) 22%, rgba(20,40,18,0) 78%, rgba(20,40,18,.14) 100%);}
-  /* vignette to focus the clearing */
   .vig{position:absolute;inset:0;pointer-events:none;
     box-shadow:inset 0 0 70px 14px rgba(20,40,18,.28);border-radius:26px;}
 
-  /* ---- GOAL BANNER, top-centre (Thronglets goal bar) ---- */
+  /* ---- GOAL BANNER, top-centre ---- */
   .goal{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:60;pointer-events:none;
     display:inline-flex;align-items:center;gap:8px;
     background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(232,242,250,.92));
@@ -60,37 +61,42 @@
     image-rendering:pixelated;image-rendering:crisp-edges;box-shadow:inset 0 0 0 2px rgba(255,255,255,.7);}
   .hud .cnt{font-family:ui-monospace,monospace;font-size:13px;font-weight:700;color:#1f3a22;letter-spacing:.02em;}
 
+  /* ---- capability SPACES: crisp pixel props placed in the world ---- */
+  .prop-img{position:absolute;left:0;top:0;image-rendering:pixelated;image-rendering:crisp-edges;
+    pointer-events:none;filter:drop-shadow(0 3px 3px rgba(20,34,12,.34));}
+  /* tiny ALL-CAPS label tag under each space so the user reads what it is */
+  .space-tag{position:absolute;left:0;top:0;z-index:30;pointer-events:none;
+    font-family:ui-monospace,"SF Mono",monospace;font-size:7px;font-weight:700;letter-spacing:.1em;
+    text-transform:uppercase;color:#234018;background:rgba(255,255,255,.72);
+    border-radius:4px;padding:1px 4px;transform:translate(-50%,0);white-space:nowrap;
+    box-shadow:0 1px 3px -1px rgba(20,40,18,.4);}
+
   /* ---- creatures + shadows ---- */
   .crit{position:absolute;left:0;top:0;will-change:transform;image-rendering:pixelated;image-rendering:crisp-edges;pointer-events:none;}
   .shadow{position:absolute;left:0;top:0;border-radius:50%;background:rgba(20,38,12,.30);will-change:transform;filter:blur(2.5px);pointer-events:none;}
 
-  /* ---- THE THRONGLETS SPEECH BUBBLE (what a working creature is doing) ---- */
+  /* ---- SHORT TEXT STATUS label above a working creature (replaces emoji bubble) ---- */
   .bubble{position:absolute;left:0;top:0;z-index:50;pointer-events:none;will-change:transform,opacity;
-    display:inline-flex;align-items:center;gap:3px;
-    background:#fff;border:2px solid #243018;border-radius:10px;padding:3px 7px 4px;
-    box-shadow:0 3px 7px -2px rgba(20,30,12,.45);image-rendering:auto;}
+    display:inline-flex;align-items:center;
+    background:#fff;border:2px solid #243018;border-radius:8px;padding:2px 6px 3px;
+    box-shadow:0 3px 7px -2px rgba(20,30,12,.45);}
   .bubble:after{content:"";position:absolute;bottom:-6px;left:50%;margin-left:-5px;
     width:8px;height:8px;background:#fff;border-right:2px solid #243018;border-bottom:2px solid #243018;
     transform:rotate(45deg);}
-  .bubble .bi{font-size:15px;line-height:1;}
-  .bubble .bd{font-family:ui-monospace,monospace;font-size:11px;font-weight:700;color:#7a8a6a;letter-spacing:.04em;}
+  .bubble .bd{font-family:ui-monospace,"SF Mono",monospace;font-size:9px;font-weight:700;
+    color:#2c5a30;letter-spacing:.02em;white-space:nowrap;}
 
-  /* themed prop that pops out of a working creature (envelope/coin/page/case) */
-  .prop{position:absolute;left:0;top:0;font-size:15px;will-change:transform,opacity;pointer-events:none;z-index:46;
-    filter:drop-shadow(0 2px 2px rgba(20,30,12,.4));}
+  .prop{position:absolute;left:0;top:0;width:5px;height:5px;border-radius:1px;will-change:transform,opacity;pointer-events:none;z-index:46;}
   .pop{position:absolute;left:0;top:0;width:5px;height:5px;border-radius:2px;will-change:transform,opacity;pointer-events:none;z-index:55;}
 
-  /* reaction "!" on dispatch / heart when called */
   .react{position:absolute;left:0;top:0;font-family:ui-monospace,monospace;font-weight:700;font-size:15px;color:#1d7a3e;
     text-shadow:0 1px 0 #fff,0 0 6px rgba(0,177,79,.55);will-change:transform,opacity;pointer-events:none;z-index:52;}
 
-  /* DONE pop above a finished creature */
   .done{position:absolute;left:0;top:0;width:21px;height:21px;border-radius:50%;
     background:#00B14F;color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;
     transform:scale(0);will-change:transform,opacity;pointer-events:none;z-index:54;
     box-shadow:0 3px 8px rgba(0,129,59,.6),inset 0 1px 0 rgba(255,255,255,.55);}
 
-  /* the tap "lead" marker the crew gathers around */
   .lead{position:absolute;left:0;top:0;width:24px;height:24px;margin:-12px 0 0 -12px;pointer-events:none;z-index:44;
     opacity:0;will-change:transform,opacity;}
   .lead:before{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid rgba(0,177,79,.95);
@@ -99,11 +105,9 @@
   .lead.on{animation:leadpulse 1.6s ease-out infinite;}
   @keyframes leadpulse{0%{opacity:.9;transform:scale(.7);}70%{opacity:0;transform:scale(1.9);}100%{opacity:0;}}
 
-  /* tap ripple */
   .ripple{position:absolute;left:0;top:0;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;
     border:2px solid rgba(255,255,255,.9);pointer-events:none;z-index:58;will-change:transform,opacity;}
 
-  /* gentle hint that decays once the user taps */
   .hint{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);z-index:57;pointer-events:none;
     font-family:ui-monospace,monospace;font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:#fff;
     background:rgba(20,34,16,.5);backdrop-filter:blur(3px);border-radius:999px;padding:4px 12px;
@@ -128,7 +132,7 @@
     <div class="lead" id="lead"></div>
     <div class="hint" id="hint"><span class="hd"></span>Tap the grass - your crew gathers</div>
   </div>
-  <div class="cap">Your crew lives in the clearing, then springs into action. Tap to call them over; drop a task and one of them takes it, settles into an open patch, and gets it done - you see what each is doing right above its head. (Prototype - your real tasks drive it once wired.)</div>
+  <div class="cap">Your crew lives in the clearing. Every kind of work has its own spot - the inbox, the calendar board, the payments stand, the booking post, the research shelf. Drop a task and one of them walks to the right place and gets it done; you see what each is doing right above its head. (Prototype - your real tasks drive it once wired.)</div>
 </div>
 <script>
 (function(){
@@ -140,89 +144,113 @@
   var wiltEl=document.getElementById("wilt");
   var W=scene.clientWidth, H=scene.clientHeight;
 
-  // ---- CRISP MEADOW: draw the low-res pixel tile into a canvas with hard nearest-neighbor ----
-  // We render at a small internal buffer (so each source pixel maps to a chunky block) and let
-  // CSS image-rendering:pixelated upscale the canvas to the scene. The source PNG is already a
-  // clean 160px-wide downscale, so the pixels read as real game pixels, not AI blur.
+  // ---- CRISP TILED GROUND: draw the baked tilemap into a canvas, hard nearest-neighbor ----
   var meadowCv=document.getElementById("meadow");
-  var INTERNAL_W=Math.round(W*0.55);                 // small internal buffer -> chunky pixels
+  var INTERNAL_W=Math.round(W*0.62);
   var INTERNAL_H=Math.round(INTERNAL_W*H/W);
   meadowCv.width=INTERNAL_W; meadowCv.height=INTERNAL_H;
   var mctx=meadowCv.getContext("2d");
   mctx.imageSmoothingEnabled=false;
   var meadowImg=new Image();
   meadowImg.onload=function(){ drawMeadow(); };
-  meadowImg.src="assets/crew-meadow-px.png";
+  meadowImg.src="assets/ground-tilemap-px.png?v=9";
   function drawMeadow(){
     if(!meadowImg.width) return;
     mctx.imageSmoothingEnabled=false;
-    // frame a CLEARING: crop into the lower-left grass region of the tile, no-smooth zoom in
-    var zoom=1.22;
+    // map the full tilemap into the scene buffer (slight zoom so tiles are chunky on mobile)
+    var zoom=1.02;
     var sw=meadowImg.width/zoom, sh=meadowImg.height/zoom;
-    var sx=meadowImg.width*0.30 - sw/2 + meadowImg.width*0.20;
-    var sy=meadowImg.height*0.42 - sh/2 + meadowImg.height*0.18;
-    sx=Math.max(0,Math.min(meadowImg.width-sw,sx));
-    sy=Math.max(0,Math.min(meadowImg.height-sh,sy));
+    var sx=(meadowImg.width-sw)/2, sy=(meadowImg.height-sh)*0.30;
     mctx.clearRect(0,0,INTERNAL_W,INTERNAL_H);
     mctx.drawImage(meadowImg, sx,sy,sw,sh, 0,0,INTERNAL_W,INTERNAL_H);
   }
   var seed=778899; function rand(a,b){seed=(seed*1103515245+12345)&0x7fffffff;return a+(b-a)*(seed/0x7fffffff);}
   var clamp=function(v,a,b){return v<a?a:v>b?b:v;};
 
-  // ---- the walkable clearing: an open grass region in the middle of the meadow ----
-  // y small = far/back (top), y large = near/front (bottom). x = left/right.
-  var FIELD={ x0:46, x1:W-46, y0:H*0.34, y1:H*0.90 };
+  // ---- the walkable clearing ----
+  var FIELD={ x0:42, x1:W-42, y0:H*0.30, y1:H*0.92 };
   function inField(x){ return clamp(x,FIELD.x0,FIELD.x1); }
   function inFieldY(y){ return clamp(y,FIELD.y0,FIELD.y1); }
-  // depth scale: things further back (smaller y) are smaller. 0.62 back -> 1.0 front.
-  function depth(y){ var t=(y-FIELD.y0)/(FIELD.y1-FIELD.y0); return 0.66+0.34*clamp(t,0,1); }
+  function depth(y){ var t=(y-FIELD.y0)/(FIELD.y1-FIELD.y0); return 0.64+0.36*clamp(t,0,1); }
 
-  // ---- task TYPES: each work cycle shows one of these in the speech bubble ----
-  var TASKS=[
-    {ico:"✉️", prop:"✉️"},   // inbox  - envelope
-    {ico:"🪙", prop:"🪙"},   // payment - coin
-    {ico:"📅", prop:"📅"},   // calendar
-    {ico:"🧳", prop:"🧳"},   // booking - luggage
-    {ico:"📝", prop:"📝"},   // notes
-    {ico:"📞", prop:"📞"}    // calls
+  // ---- CAPABILITY SPACES: each task type has a dedicated PLACE + prop in the world ----
+  // sx,sy are the prop anchor (its base touches ground). wx,wy = where a creature stands to work.
+  var SPACES=[
+    {key:"inbox",    img:"assets/prop-mailbox-px.png",  label:"Inbox",     sx:0.20, sy:0.40, h:48,
+       work:["sorting inbox","drafting reply","clearing inbox"]},
+    {key:"calendar", img:"assets/prop-calendar-px.png", label:"Calendar",  sx:0.50, sy:0.34, h:50,
+       work:["checking schedule","booking slot","syncing calendar"]},
+    {key:"pay",      img:"assets/prop-coin-px.png",     label:"Payments",  sx:0.80, sy:0.44, h:48,
+       work:["chasing payment","sending invoice","paid ✓"]},
+    {key:"booking",  img:"assets/prop-sign-px.png",     label:"Booking",   sx:0.32, sy:0.74, h:50,
+       work:["booking flight","finding route","trip booked"]},
+    {key:"research", img:"assets/prop-shelf-px.png",    label:"Research",  sx:0.70, sy:0.76, h:48,
+       work:["researching","reading up","done research"]}
   ];
+  // resolve to pixel coords + render props
+  SPACES.forEach(function(s){
+    s.px=s.sx*W; s.py=FIELD.y0 + s.sy*(FIELD.y1-FIELD.y0);
+    var sc=depth(s.py);
+    s.scale=sc;
+    s.ph=s.h*sc;                       // displayed prop height
+    var img=document.createElement("img"); img.className="prop-img"; img.src=s.img;
+    img.onload=function(){
+      var w=img.naturalWidth, h=img.naturalHeight, dh=s.ph, dw=w*dh/h;
+      img.style.width=dw+"px"; img.style.height=dh+"px";
+      img.style.transform="translate("+(s.px-dw/2)+"px,"+(s.py-dh)+"px)";
+      img.style.zIndex=Math.round(s.py)-2;
+    };
+    scene.appendChild(img); s.el=img;
+    // worker stands just below-front of the prop
+    s.wx=s.px; s.wy=s.py+10*sc;
+    s.wx=inField(s.wx); s.wy=inFieldY(s.wy);
+    // label tag
+    var tag=document.createElement("div"); tag.className="space-tag"; tag.textContent=s.label;
+    tag.style.transform="translate(-50%,0)";
+    tag.style.left="0"; tag.style.top="0";
+    tag.style.transform="translate("+s.px+"px,"+(s.py+2)+"px) translate(-50%,0)";
+    tag.style.zIndex=String(Math.round(s.py));
+    scene.appendChild(tag); s.tag=tag;
+  });
+  function spaceByKey(k){ for(var i=0;i<SPACES.length;i++) if(SPACES[i].key===k) return SPACES[i]; return SPACES[0]; }
 
-  // ---- speech bubble that follows a working creature ----
+  // ---- text status bubble that follows a working creature ----
   function makeBubble(o){
     var b=document.createElement("div"); b.className="bubble";
-    b.innerHTML='<span class="bi">'+o.task.ico+'</span><span class="bd">…</span>';
+    b.innerHTML='<span class="bd"></span>';
+    o.bdEl=b.querySelector(".bd"); o.bdEl.textContent=o.workText;
     b.style.opacity="0"; scene.appendChild(b); o.bubble=b;
     requestAnimationFrame(function(){ b.style.transition="opacity .25s, transform .35s cubic-bezier(.34,1.6,.55,1)"; b.style.opacity="1"; });
   }
   function placeBubble(o){
     if(!o.bubble) return;
-    var sc=depth(o.y), sz=46*sc;
-    var bx=o.x, by=o.y-sz-14;            // above the head
-    o.bubble.style.transform="translate(-50%,0) translate("+bx+"px,"+by+"px) scale("+(0.82+0.18*sc)+")";
+    var sc=depth(o.y), sz=44*sc;
+    var bx=o.x, by=o.y-sz-15;
+    o.bubble.style.transform="translate(-50%,0) translate("+bx+"px,"+by+"px) scale("+(0.86+0.14*sc)+")";
   }
   function killBubble(o){
     if(!o.bubble) return; var b=o.bubble; o.bubble=null;
-    b.style.opacity="0";
-    setTimeout(function(){ b.remove(); },260);
+    b.style.opacity="0"; setTimeout(function(){ b.remove(); },260);
   }
 
-  // themed prop pops up out of a working creature, then fades
-  function fireProp(o){
-    var sc=depth(o.y), sz=46*sc;
-    var p=document.createElement("div"); p.className="prop"; p.textContent=o.task.prop;
-    var sx=o.x-7, sy=o.y-sz-6;
-    p.style.transform="translate("+sx+"px,"+sy+"px) scale(.5)"; p.style.opacity="0";
+  // small "work spark" particle pops up while a creature works at its space
+  function fireSpark(o){
+    var sc=depth(o.y), sz=44*sc;
+    var cols=["#FFD24A","#34d27a","#fff","#00B14F"];
+    var p=document.createElement("div"); p.className="prop";
+    p.style.background=cols[Math.floor(rand(0,cols.length-1e-3))];
+    var sx=o.x+rand(-5,5), sy=o.y-sz-2;
+    p.style.transform="translate("+sx+"px,"+sy+"px) scale(1)"; p.style.opacity="1";
     scene.appendChild(p);
     requestAnimationFrame(function(){
       p.style.transition="transform .6s cubic-bezier(.3,.7,.4,1), opacity .6s";
-      p.style.transform="translate("+(sx+rand(-10,10))+"px,"+(sy-26)+"px) scale(1)"; p.style.opacity="1";
+      p.style.transform="translate("+(sx+rand(-8,8))+"px,"+(sy-22)+"px) scale(.4)"; p.style.opacity="0";
     });
-    setTimeout(function(){ p.style.opacity="0"; p.style.transform="translate("+(sx+rand(-12,12))+"px,"+(sy-44)+"px) scale(.7)"; },520);
-    setTimeout(function(){ p.remove(); },900);
+    setTimeout(function(){ p.remove(); },640);
   }
 
   function react(o,ch,col){
-    var sc=depth(o.y), sz=46*sc;
+    var sc=depth(o.y), sz=44*sc;
     var r=document.createElement("div"); r.className="react"; r.textContent=ch||"!"; if(col)r.style.color=col;
     var rx=o.x+6, ry=o.y-sz-6;
     r.style.transform="translate("+rx+"px,"+ry+"px) scale(.4)"; r.style.opacity="0";
@@ -234,7 +262,7 @@
   }
 
   function donePop(o){
-    var sc=depth(o.y), sz=46*sc;
+    var sc=depth(o.y), sz=44*sc;
     var d=document.createElement("div"); d.className="done"; d.textContent="✓";
     var dx=o.x-10, dy=o.y-sz-12;
     d.style.transform="translate("+dx+"px,"+dy+"px) scale(0)"; d.style.opacity="1";
@@ -266,7 +294,7 @@
     setTimeout(function(){ r.remove(); },600);
   }
 
-  // ---- crew: same creature, recoloured per member (bright Grab-green family) ----
+  // ---- crew ----
   var CREW=[{hue:0},{hue:118},{hue:40},{hue:200},{hue:280}];
   var crits=[];
   CREW.forEach(function(c,i){
@@ -277,36 +305,24 @@
     crits.push({el:el,sh:sh,hue:c.hue,idx:i,
       x:rand(FIELD.x0+20,FIELD.x1-20), y:rand(FIELD.y0+30,FIELD.y1-20),
       vx:0,vy:0, dir:1, lean:0, step:rand(0,9),
-      state:"idle", task:null, until:0, workStart:0,workDur:0, emit:0,
+      state:"idle", space:null, workText:"", until:0, workStart:0,workDur:0, emit:0,
       idleSub:null, idleSp:24, nextWander:0, tx:0,ty:0, gaze:0, bubble:null});
   });
 
-  // ---------- MANAGED HEALTH: the world reacts to whether the crew is on top of things ----------
-  // health 1 = lush green (managed). health 0 = warm yellow / wilting (tasks piled up unmanaged).
-  // A backlog of pending tasks pulls health DOWN; completing work pulls it UP. We let a backlog
-  // ebb and flow so the green<->yellow effect is visible in a short recording.
-  var health=1.0;          // current displayed health
-  var backlog=0;           // tasks waiting that nobody has picked up yet
-  var healthTimer=0;
+  // ---------- MANAGED HEALTH ----------
+  var health=1.0, backlog=0, healthTimer=0;
   function applyHealthTint(){
-    // green & punchy near 1; warm-yellow desaturated wilt grows as health drops.
-    // tasteful: a meadow TINGING yellow under load, never brown/dead. visible on camera.
-    var wilt=clamp(1-health,0,1);              // 0 healthy .. 1 wilted
-    // .health soft-light yellow wash, stronger toward the bottom (foreground)
+    var wilt=clamp(1-health,0,1);
     var amt=wilt*0.6;
     healthEl.style.background="linear-gradient(180deg, rgba(218,200,72,"+(amt*0.5).toFixed(3)+
       ") 0%, rgba(214,186,58,"+amt.toFixed(3)+") 100%)";
     healthEl.style.opacity=String(Math.min(1, wilt*1.3));
-    // .wilt multiply: warm desaturating overlay that ramps in below ~0.7 health
     wiltEl.style.opacity=String(Math.max(0,(0.7-health)/0.7)*0.42);
-    // and drain the meadow's own saturation as it wilts (colour literally going out of the world)
-    var sat=(0.6+0.78*health).toFixed(3);      // ~1.34 healthy -> ~0.6 wilted
-    var bri=(0.98+0.10*health).toFixed(3);     // slightly dimmer when wilted
-    if(meadowCv) meadowCv.style.filter="saturate("+sat+") brightness("+bri+") contrast(1.07)";
+    var sat=(0.55+0.70*health).toFixed(3);
+    var bri=(0.98+0.09*health).toFixed(3);
+    if(meadowCv) meadowCv.style.filter="saturate("+sat+") brightness("+bri+") contrast(1.06)";
   }
   applyHealthTint();
-  // debug hook (only active with ?dbg=1) so the wilt look can be verified in QA without
-  // waiting for the load wave; has zero effect in normal use.
   if(/[?&]dbg=1/.test(location.search)){
     window.__setHealth=function(v){ health=clamp(v,0,1); applyHealthTint(); };
     window.__health=function(){ return health; };
@@ -337,7 +353,7 @@
   }
   function onTap(e){
     var p=sceneXY(e);
-    if(p.y<FIELD.y0-10) return;       // ignore taps on the goal banner / far trees
+    if(p.y<FIELD.y0-10) return;
     ripple(p.x,p.y); setLead(p.x,p.y); hideHint();
   }
   scene.addEventListener("click", onTap);
@@ -347,32 +363,22 @@
   function hideHint(){ if(hintGone)return; hintGone=true; hintEl.style.opacity="0"; setTimeout(function(){hintEl.style.display="none";},450); }
   setTimeout(function(){ hideHint(); }, 9000);
 
-  // ---------- DISPATCH: new tasks arrive into a backlog; idle crew pick them up ----------
-  // Tasks ARRIVE on their own cadence (this grows the backlog). Separately, idle creatures
-  // PULL from the backlog. When work arrives faster than the crew clears it, backlog grows and
-  // the world starts to wilt; when the crew catches up, it recovers. We drive the arrival rate
-  // through a slow "load wave" so the green<->yellow cycle is visible in a recording.
-  var nextArrive=performance.now()+1400;
+  // ---------- DISPATCH: tasks arrive into a backlog; idle crew pick a TYPE and walk to its SPACE ----------
+  var nextArrive=performance.now()+1200;
   var nextPull=performance.now()+500;
   var t0=performance.now();
-  function loadWave(now){
-    // 0..1 demand multiplier oscillating ~ every 18s. starts HIGH (busy, world wilts) then
-    // dips LOW (crew catches up, world greens) so a recording shows the full ebb and flow.
-    var p=(now-t0)/1000;
-    return 0.5+0.5*Math.sin(p*0.35 + 0.7); // phase so it builds then recovers on camera
-  }
-  function taskArrives(now){
-    backlog++;
-  }
-  function tryPull(now){
+  function loadWave(now){ var p=(now-t0)/1000; return 0.5+0.5*Math.sin(p*0.35 + 0.7); }
+  function taskArrives(){ backlog++; }
+  function tryPull(){
     if(backlog<=0) return;
     var avail=crits.filter(function(o){return o.state==="idle"||o.state==="follow";});
     if(!avail.length) return;
     var o=avail[Math.floor(rand(0,avail.length-1e-3))];
     backlog--;
-    o.task=TASKS[Math.floor(rand(0,TASKS.length-1e-3))];
-    o.tx=inField(rand(FIELD.x0+24,FIELD.x1-24));
-    o.ty=inFieldY(rand(FIELD.y0+24,FIELD.y1-24));
+    var s=SPACES[Math.floor(rand(0,SPACES.length-1e-3))];
+    o.space=s;
+    o.workText=s.work[Math.floor(rand(0,s.work.length-1e-3))];
+    o.tx=s.wx; o.ty=s.wy;
     o.state="go"; react(o,"!");
   }
 
@@ -381,47 +387,38 @@
     var dt=Math.min(0.045,(now-(last||now))/1000); last=now;
     clearLeadIfStale(now);
 
-    // tasks arrive faster when the load wave is high -> backlog can outrun the crew.
-    // at low demand the gap is long, so 5 crew drain the backlog back to ~0 (world greens).
     if(now>nextArrive){
-      var demand=loadWave(now);                 // 0..1
-      taskArrives(now);
-      // at peak demand sometimes a small burst arrives at once (a flurry of work piling up)
-      if(demand>0.8 && rand(0,1)<0.5) taskArrives(now);
-      nextArrive=now+rand(350,650) + (1-demand)*3200; // busy: ~0.35-0.65s, calm: up to ~3.8s
+      var demand=loadWave(now);
+      taskArrives();
+      if(demand>0.8 && rand(0,1)<0.5) taskArrives();
+      nextArrive=now+rand(350,650) + (1-demand)*3200;
     }
-    // idle crew steadily pull from the backlog
-    if(now>nextPull){ tryPull(now); nextPull=now+rand(700,1200); }
+    if(now>nextPull){ tryPull(); nextPull=now+rand(650,1100); }
 
-    // ---- drive managed-health from backlog: pile-up wilts, clearing it recovers ----
-    // map backlog (0..~7) to a target health; ease toward it so the tint is smooth.
     var targetHealth=clamp(1 - backlog/6.5, 0.16, 1);
     health += (targetHealth-health)*Math.min(1,dt*0.7);
     if(now-healthTimer>120){ healthTimer=now; applyHealthTint(); }
 
-    var working=0, followCnt=0;
     crits.forEach(function(o){
       var moving=false;
 
       if(o.state==="go"){
         var dx=o.tx-o.x, dy=o.ty-o.y, d=Math.hypot(dx,dy)||1;
         if(d<4){ o.state="work"; o.workStart=now; o.workDur=rand(2800,4400); o.until=now+o.workDur; o.vx=o.vy=0; o.x=o.tx; o.y=o.ty; makeBubble(o); }
-        else { var slow=Math.min(1,d/46), sp=96*slow, k=Math.min(1,dt*7);
+        else { var slow=Math.min(1,d/46), sp=98*slow, k=Math.min(1,dt*7);
           o.vx+=(dx/d*sp-o.vx)*k; o.vy+=(dy/d*sp-o.vy)*k; o.x+=o.vx*dt; o.y+=o.vy*dt;
           if(Math.abs(o.vx)>3)o.dir=o.vx>0?1:-1; moving=Math.hypot(o.vx,o.vy)>7; }
 
       } else if(o.state==="work"){
-        working++;
-        if(now-o.emit>700){ o.emit=now; fireProp(o); }
+        if(now-o.emit>520){ o.emit=now; fireSpark(o); }
         placeBubble(o);
         if(now>o.until){
           killBubble(o);
-          donePop(o); celebrate(o.x, o.y-depth(o.y)*46-6); doneCount++;
-          o.state="idle"; o.task=null;
+          donePop(o); celebrate(o.x, o.y-depth(o.y)*44-6); doneCount++;
+          o.state="idle"; o.space=null; o.workText="";
         }
 
       } else if(o.state==="follow"){
-        followCnt++;
         var n=crits.filter(function(c){return c.state==="follow";}).length || 1;
         var ang=(o.gatherSlot||0)/n*6.283 + now/4000;
         var ring=30+(n>2?10:0);
@@ -433,16 +430,12 @@
           if(Math.abs(o.vx)>3)o.dir=o.vx>0?1:-1; moving=Math.hypot(o.vx,o.vy)>7; }
         else { o.vx*=0.8; o.vy*=0.8; o.dir=lead.x>o.x?1:-1; }
 
-      } else { // ---- idle: PURPOSEFUL ambling. walk a bit -> stop -> look around -> drift on ----
-        // states inside idle: "walk" (heading to a chosen spot), "rest" (paused, looking around)
+      } else { // idle amble
         if(!o.idleSub){ o.idleSub="rest"; o.nextWander=now+rand(700,1600); }
         if(o.idleSub==="rest"){
-          // settle, then occasionally turn the head (gaze) to look around while paused
           o.vx*=0.8; o.vy*=0.8;
           if(now>o.gaze){ o.dir=(rand(0,1)<0.5?-1:1); o.gaze=now+rand(700,1500); }
           if(now>o.nextWander){
-            // decide the next purposeful move: usually a calm short amble, sometimes a
-            // longer deliberate trip across the clearing (heading somewhere on purpose)
             var longTrip=rand(0,1)<0.32;
             if(longTrip){ o.tx=inField(rand(FIELD.x0+24,FIELD.x1-24));
                           o.ty=inFieldY(rand(FIELD.y0+24,FIELD.y1-24)); o.idleSp=30; }
@@ -451,22 +444,19 @@
             o.idleSub="walk";
             if(o.tx>o.x)o.dir=1; else o.dir=-1;
           }
-        } else { // walk toward the chosen spot, easeful and slow
+        } else {
           var dx=o.tx-o.x, dy=o.ty-o.y, d=Math.hypot(dx,dy)||1;
           if(d>4){ var slow=Math.min(1,d/34), sp=o.idleSp*(0.45+0.55*slow), k=Math.min(1,dt*4);
             o.vx+=(dx/d*sp-o.vx)*k; o.vy+=(dy/d*sp-o.vy)*k; o.x+=o.vx*dt; o.y+=o.vy*dt;
             if(Math.abs(o.vx)>1.5)o.dir=o.vx>0?1:-1; moving=Math.hypot(o.vx,o.vy)>4; }
-          else { // arrived -> pause and look around for a good while (life-sim pacing)
-            o.vx*=0.7; o.vy*=0.7; o.idleSub="rest";
+          else { o.vx*=0.7; o.vy*=0.7; o.idleSub="rest";
             o.nextWander=now+rand(1800,4200); o.gaze=now+rand(600,1400); }
         }
       }
 
-      // stay in the clearing
       o.x=inField(o.x); o.y=inFieldY(o.y);
 
-      // ---- render with depth ----
-      var sc=depth(o.y), sz=46*sc;
+      var sc=depth(o.y), sz=44*sc;
       o.lean += ((moving? Math.max(-7,Math.min(7,o.vx*0.06)) : 0) - o.lean)*Math.min(1,dt*9);
       var sq=1, sty=1, bob=0;
       if(moving){ o.step+=dt*9.5; var ph=Math.sin(o.step); bob=Math.abs(ph)*4*sc; sq=1-Math.abs(ph)*0.05; sty=1+Math.abs(ph)*0.05; }
@@ -478,7 +468,7 @@
       o.el.style.transform="translate("+(o.x-sz/2)+"px,"+(o.y-sz-bob)+"px) scaleX("+(o.dir*sq)+") scaleY("+sty+") rotate("+o.lean+"deg)";
       o.el.style.zIndex=Math.round(o.y);
 
-      var shW=30*sc, shH=8*sc, shScale=moving?1-bob*0.03:1;
+      var shW=28*sc, shH=8*sc, shScale=moving?1-bob*0.03:1;
       o.sh.style.width=shW+"px"; o.sh.style.height=shH+"px";
       o.sh.style.transform="translate("+(o.x-shW/2)+"px,"+(o.y-shH*0.5)+"px) scale("+shScale+")";
       o.sh.style.opacity=String((0.30-bob*0.012)*(0.7+0.3*sc));
