@@ -13,26 +13,21 @@
   .glance{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#00813B;background:#fff;border:1px solid #CFE6D8;border-radius:999px;padding:6px 11px;display:inline-flex;align-items:center;gap:6px;}
   .dot{width:7px;height:7px;border-radius:50%;background:#00B14F;animation:bp 1.6s ease-in-out infinite;}
   @keyframes bp{0%,100%{opacity:1;}50%{opacity:.35;}}
-  .scene{position:relative;width:100%;height:360px;border-radius:22px;overflow:hidden;
+  .scene{position:relative;width:100%;height:300px;border-radius:22px;overflow:hidden;
     box-shadow:0 12px 30px -14px rgba(28,27,23,.4), inset 0 0 0 1px rgba(255,255,255,.25);
-    background-image:url("assets/village.webp");background-size:cover;background-position:center 62%;}
-  .stn{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none;}
-  .badge{position:relative;width:40px;height:40px;border-radius:13px;background:rgba(255,255,255,.95);
-    display:flex;align-items:center;justify-content:center;font-size:19px;
-    box-shadow:0 4px 9px rgba(20,30,18,.3), inset 0 0 0 1px rgba(255,255,255,.7);transition:transform .12s;}
-  .ring{position:absolute;inset:-4px;border-radius:16px;opacity:0;transition:opacity .25s;
-    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;padding:3px;}
+    background-image:url("assets/crew-street.webp");background-size:100% auto;background-position:center top;background-repeat:no-repeat;background-color:#8C8FA0;}
+  /* task SIGN on the building (the place IS the task) */
+  .sign{position:absolute;transform:translate(-50%,-50%);pointer-events:none;}
+  .stag{font-family:ui-monospace,monospace;font-size:8px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#1C1B17;background:rgba(255,255,255,.92);border:1px solid rgba(20,30,18,.12);border-radius:6px;padding:2px 6px;white-space:nowrap;box-shadow:0 2px 5px rgba(20,30,18,.25);position:relative;}
+  .ring{position:absolute;inset:-3px;border-radius:9px;opacity:0;transition:opacity .25s;
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;padding:2.5px;}
   .ring.on{opacity:1;}
-  .check{position:absolute;top:-8px;right:-8px;width:19px;height:19px;border-radius:50%;background:#00B14F;color:#fff;
-    font-size:11px;display:flex;align-items:center;justify-content:center;transform:scale(0);transition:transform .32s cubic-bezier(.34,1.56,.6,1);box-shadow:0 2px 6px rgba(0,129,59,.55);}
+  .check{position:absolute;top:-9px;right:-9px;width:17px;height:17px;border-radius:50%;background:#00B14F;color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;transform:scale(0);transition:transform .32s cubic-bezier(.34,1.56,.6,1);box-shadow:0 2px 6px rgba(0,129,59,.55);}
   .check.on{transform:scale(1);}
-  .slabel{font-family:ui-monospace,monospace;font-size:8px;letter-spacing:.06em;text-transform:uppercase;color:#1C1B17;background:rgba(255,255,255,.85);border-radius:5px;padding:2px 5px;}
   .crit{position:absolute;left:0;top:0;will-change:transform;image-rendering:pixelated;pointer-events:none;}
-  .shadow{position:absolute;left:0;top:0;border-radius:50%;background:rgba(20,30,18,.26);will-change:transform;filter:blur(1.5px);}
-  .spark{position:absolute;left:0;top:0;font-size:14px;opacity:1;will-change:transform,opacity;
-    transition:transform .95s ease-out, opacity .95s ease-out;pointer-events:none;}
-  .pop{position:absolute;left:0;top:0;width:5px;height:5px;border-radius:50%;background:#FFD24A;
-    will-change:transform,opacity;transition:transform .6s ease-out, opacity .6s ease-out;pointer-events:none;}
+  .shadow{position:absolute;left:0;top:0;border-radius:50%;background:rgba(20,30,18,.3);will-change:transform;filter:blur(1.5px);}
+  .spark{position:absolute;left:0;top:0;font-size:14px;opacity:1;will-change:transform,opacity;transition:transform .9s ease-out, opacity .9s ease-out;pointer-events:none;}
+  .pop{position:absolute;left:0;top:0;width:5px;height:5px;border-radius:50%;background:#FFD24A;will-change:transform,opacity;transition:transform .6s ease-out, opacity .6s ease-out;pointer-events:none;}
   .cap{font-size:12.5px;color:#6B675C;margin:12px 4px 0;line-height:1.45;}
 </style>
 </head>
@@ -40,52 +35,50 @@
 <div class="frame">
   <div class="top"><div class="h1">Your crew, at work.</div><div class="glance"><span class="dot"></span><span id="gtxt">on it</span></div></div>
   <div class="scene" id="scene"></div>
-  <div class="cap">Each agent walks to one of your tasks, stands and works it - you can see what they're handling - ticks it off, then moves to the next. (Prototype - your real tasks drive it once wired.)</div>
+  <div class="cap">Your tasks are places in the town - the post office is your inbox, the bank your payments. Your agents walk between them and work each one. (Prototype - your real tasks drive it once wired.)</div>
 </div>
 <script>
 (function(){
   var scene=document.getElementById("scene");
   var W=scene.clientWidth, H=scene.clientHeight;
-  var seed=24681012; function rand(a,b){seed=(seed*1103515245+12345)&0x7fffffff;return a+(b-a)*(seed/0x7fffffff);}
+  var seed=556677; function rand(a,b){seed=(seed*1103515245+12345)&0x7fffffff;return a+(b-a)*(seed/0x7fffffff);}
+  var SIDEWALK=H*0.685; // creature feet line (the sidewalk in front of the shops)
 
+  // task places along the street (x = where the agent stands; sy = sign height on the shopfront)
   var STATIONS=[
-    {label:"Inbox",   icon:"✉️", fx:0.20, fy:0.42},
-    {label:"Calendar",icon:"📅", fx:0.50, fy:0.58},
-    {label:"Payments",icon:"💸", fx:0.78, fy:0.45},
-    {label:"Booking", icon:"✈️", fx:0.66, fy:0.78},
-    {label:"Research", icon:"🔎", fx:0.30, fy:0.76}
-  ].map(function(s){ return {label:s.label,icon:s.icon, x:W*s.fx, y:H*s.fy, worker:null}; });
+    {label:"Inbox",   icon:"✉️", fx:0.10, sy:H*0.50},
+    {label:"Payments",icon:"💸", fx:0.34, sy:H*0.40},
+    {label:"Calendar",icon:"📅", fx:0.58, sy:H*0.40},
+    {label:"Booking", icon:"✈️", fx:0.84, sy:H*0.44}
+  ].map(function(s){ return {label:s.label,icon:s.icon, x:W*s.fx, sy:s.sy, worker:null}; });
 
   STATIONS.forEach(function(s){
-    var el=document.createElement("div"); el.className="stn"; el.style.left=s.x+"px"; el.style.top=s.y+"px";
-    el.innerHTML='<div class="badge"><div class="ring"></div>'+s.icon+'<div class="check">✓</div></div><div class="slabel">'+s.label+'</div>';
+    var el=document.createElement("div"); el.className="sign"; el.style.left=s.x+"px"; el.style.top=s.sy+"px";
+    el.innerHTML='<div class="stag"><div class="ring"></div>'+s.icon+' '+s.label+'<div class="check">✓</div></div>';
     scene.appendChild(el);
-    s.el=el; s.ring=el.querySelector(".ring"); s.check=el.querySelector(".check"); s.badge=el.querySelector(".badge");
-    s.el.style.zIndex=Math.round(s.y);
+    s.el=el; s.ring=el.querySelector(".ring"); s.check=el.querySelector(".check"); s.tag=el.querySelector(".stag");
+    s.el.style.zIndex=50;
   });
 
   function spark(x,y,icon){var p=document.createElement("div");p.className="spark";p.textContent=icon;p.style.transform="translate("+x+"px,"+y+"px)";scene.appendChild(p);
-    requestAnimationFrame(function(){p.style.transform="translate("+(x+rand(8,20))+"px,"+(y-34)+"px) scale(1.15)";p.style.opacity="0";});setTimeout(function(){p.remove();},980);}
+    requestAnimationFrame(function(){p.style.transform="translate("+(x+rand(6,16))+"px,"+(y-38)+"px) scale(1.15)";p.style.opacity="0";});setTimeout(function(){p.remove();},920);}
   function burst(x,y){for(var i=0;i<6;i++){(function(a){var p=document.createElement("div");p.className="pop";p.style.transform="translate("+x+"px,"+y+"px)";scene.appendChild(p);
-    requestAnimationFrame(function(){p.style.transform="translate("+(x+Math.cos(a)*22)+"px,"+(y+Math.sin(a)*22)+"px) scale(.4)";p.style.opacity="0";});setTimeout(function(){p.remove();},620);})(i/6*6.28);}}
+    requestAnimationFrame(function(){p.style.transform="translate("+(x+Math.cos(a)*20)+"px,"+(y+Math.sin(a)*20)+"px) scale(.4)";p.style.opacity="0";});setTimeout(function(){p.remove();},620);})(i/6*6.28);}}
 
   var CREW=[{hue:0},{hue:300},{hue:48},{hue:205}];
   var crits=[];
   CREW.forEach(function(c){
     var el=document.createElement("img"); el.className="crit"; el.src="assets/creature-sprite.webp";
-    el.style.filter="hue-rotate("+c.hue+"deg) drop-shadow(0 4px 3px rgba(20,30,18,.32))";
+    el.style.filter="hue-rotate("+c.hue+"deg) drop-shadow(0 4px 3px rgba(20,30,18,.35))";
     var sh=document.createElement("div"); sh.className="shadow";
     scene.appendChild(sh); scene.appendChild(el);
-    crits.push({el:el,sh:sh,hue:c.hue, x:rand(40,W-60), y:rand(H*0.55,H*0.8),
-      vx:0,vy:0, dir:1, lean:0, step:rand(0,9), state:"idle", stn:null, until:0,
-      workStart:0,workDur:0, emit:0});
+    crits.push({el:el,sh:sh,hue:c.hue, x:rand(40,W-50), y:SIDEWALK+rand(-4,6),
+      vx:0,vy:0, dir:1, lean:0, step:rand(0,9), state:"idle", stn:null, until:0, workStart:0,workDur:0, emit:0});
   });
 
   function freeStation(){var f=STATIONS.filter(function(s){return !s.worker;});return f.length?f[Math.floor(rand(0,f.length-1e-3))]:null;}
-  function assign(o){var s=freeStation();if(s){s.worker=o;o.stn=s;o.tx=s.x-30;o.ty=s.y+16;o.state="go";}else{o.state="wait";o.until=performance.now()+rand(500,1400);}}
-  crits.forEach(function(o,i){ setTimeout(function(){assign(o);}, i*450); });
-
-  function depth(y){return 0.62+0.55*(y/H-0.45)/0.45;}
+  function assign(o){var s=freeStation();if(s){s.worker=o;o.stn=s;o.tx=s.x;o.ty=SIDEWALK+rand(-3,5);o.state="go";}else{o.state="wait";o.until=performance.now()+rand(500,1400);}}
+  crits.forEach(function(o,i){ setTimeout(function(){assign(o);}, i*500); });
 
   var last=0;
   function frame(now){
@@ -96,47 +89,33 @@
       if(o.state==="go" && o.stn){
         var dx=o.tx-o.x, dy=o.ty-o.y, d=Math.hypot(dx,dy)||1;
         if(d<3){ o.state="work"; o.workStart=now; o.workDur=rand(3000,5600); o.until=now+o.workDur; o.dir=1; o.vx=o.vy=0; }
-        else {
-          var slow=Math.min(1,d/46);            // arrive: ease-out near target
-          var sp=78*slow;                        // px/s
-          var dvx=dx/d*sp, dvy=dy/d*sp;
-          var k=Math.min(1,dt*7);                // velocity smoothing -> ease-in + smooth turns
-          o.vx+=(dvx-o.vx)*k; o.vy+=(dvy-o.vy)*k;
-          o.x+=o.vx*dt; o.y+=o.vy*dt;
-          if(Math.abs(o.vx)>3)o.dir=o.vx>0?1:-1;
-          moving=Math.hypot(o.vx,o.vy)>6;
-        }
+        else { var slow=Math.min(1,d/44), sp=80*slow; var k=Math.min(1,dt*7);
+          o.vx+=(dx/d*sp-o.vx)*k; o.vy+=(dy/d*sp-o.vy)*k; o.x+=o.vx*dt; o.y+=o.vy*dt;
+          if(Math.abs(o.vx)>3)o.dir=o.vx>0?1:-1; moving=Math.hypot(o.vx,o.vy)>6; }
       } else if(o.state==="work"){
         onit++;
         var prog=Math.min(1,(now-o.workStart)/o.workDur);
-        if(o.stn){o.stn.ring.classList.add("on");o.stn.ring.style.background="conic-gradient(#00B14F "+(prog*360)+"deg, rgba(0,177,79,.16) 0)";
-          o.stn.badge.style.transform="scale("+(1+Math.sin(now/150)*0.05)+")";}
-        // VISIBLE WORK: emit the task's icon from the creature toward the station
-        if(now-o.emit>440){o.emit=now; if(o.stn)spark(o.x+16,o.y-34,o.stn.icon);}
-        if(now>o.until){
-          if(o.stn){o.stn.check.classList.add("on");o.stn.ring.classList.remove("on");o.stn.badge.style.transform="";
-            burst(o.stn.x,o.stn.y);(function(st){setTimeout(function(){st.check.classList.remove("on");},950);})(o.stn);o.stn.worker=null;}
-          o.stn=null; assign(o);
-        }
-      } else if(o.state==="wait" || o.state==="idle"){
-        if(now>o.until && o.state==="wait") assign(o);
-      }
-      // ----- render -----
-      var s=depth(o.y), sz=46*s;
+        if(o.stn){o.stn.ring.classList.add("on");o.stn.ring.style.background="conic-gradient(#00B14F "+(prog*360)+"deg, rgba(0,177,79,.18) 0)";
+          o.stn.tag.style.transform="translateY("+(Math.sin(now/220)*1)+"px)";}
+        if(now-o.emit>430){o.emit=now; if(o.stn)spark(o.x+12,o.y-40,o.stn.icon);}
+        if(now>o.until){ if(o.stn){o.stn.check.classList.add("on");o.stn.ring.classList.remove("on");o.stn.tag.style.transform="";
+          burst(o.stn.x,o.stn.sy);(function(st){setTimeout(function(){st.check.classList.remove("on");},950);})(o.stn);o.stn.worker=null;} o.stn=null; assign(o); }
+      } else if(o.state==="wait"){ if(now>o.until) assign(o); }
+      // render
+      var sz=44;
       o.lean += ((moving? Math.max(-6,Math.min(6,o.vx*0.06)) : 0) - o.lean)*Math.min(1,dt*9);
       var sq=1, st=1, bob=0;
-      if(moving){ o.step+=dt*9; var ph=Math.sin(o.step); bob=Math.abs(ph)*3.5; sq=1-Math.abs(ph)*0.05; st=1+Math.abs(ph)*0.05; } // squash-stretch walk
-      else if(o.state==="work"){ o.step+=dt*7; bob=Math.abs(Math.sin(o.step))*2.2; } // focused tapping
-      else { bob=Math.sin(now/620+o.hue)*1.2; } // gentle idle breathe
+      if(moving){ o.step+=dt*9; var ph=Math.sin(o.step); bob=Math.abs(ph)*3.5; sq=1-Math.abs(ph)*0.05; st=1+Math.abs(ph)*0.05; }
+      else if(o.state==="work"){ o.step+=dt*7; bob=Math.abs(Math.sin(o.step))*2.2; }
+      else { bob=Math.sin(now/620+o.hue)*1.2; }
       o.el.style.width=sz+"px"; o.el.style.height=sz+"px"; o.el.style.transformOrigin="50% 100%";
       o.el.style.transform="translate("+(o.x-sz/2)+"px,"+(o.y-sz-bob)+"px) scaleX("+(o.dir*sq)+") scaleY("+st+") rotate("+o.lean+"deg)";
       o.el.style.zIndex=Math.round(o.y);
-      var shw=28*s, shh=8*s, shs=moving?(1-bob*0.04):1;
-      o.sh.style.width=shw+"px"; o.sh.style.height=shh+"px";
-      o.sh.style.transform="translate("+(o.x-shw/2)+"px,"+(o.y-shh/2)+"px) scale("+shs+")";
+      o.sh.style.width="26px"; o.sh.style.height="7px";
+      o.sh.style.transform="translate("+(o.x-13)+"px,"+(o.y-3.5)+"px) scale("+(moving?1-bob*0.04:1)+")";
       o.sh.style.zIndex=Math.round(o.y)-1;
     });
-    document.getElementById("gtxt").textContent=(onit||"")+(onit?" on it":"on it");
+    document.getElementById("gtxt").textContent=(onit?onit+" on it":"on it");
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
