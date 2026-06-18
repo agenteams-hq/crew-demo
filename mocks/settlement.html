@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crew · Agent-to-agent settlement (mockup)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..650;1,9..144,300..650&display=swap" rel="stylesheet">
+<style>
+/* Crew design system (locked v2) - tokens + components lifted verbatim from
+   crew-demo/index.html so the mock reads as the real AgenTeams app. */
+:root{
+  --paper:#FBF8F1; --bone:#F3EFE5;
+  --ink:#20241E; --ink2:#565B4E; --mute:#8B8F7E;
+  --hair:#E7E2D4; --hair2:#DDD7C5;
+  --green:#00B14F; --green-deep:#00813B; --green-tint:#E3F3E8;
+  --amber:#B45309; --amber-tint:#FBF0DC; --amber-line:#EFDCBA;
+  --serif:"Fraunces",Georgia,serif;
+  --grot:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",sans-serif;
+  --spring:cubic-bezier(.34,1.35,.64,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+body{font-family:var(--grot);color:var(--ink);background:var(--bone);text-rendering:optimizeLegibility;padding:0 0 80px;}
+
+/* ---- gallery backdrop ---- */
+.wrap{max-width:1900px;margin:0 auto;padding:0 28px;}
+.masthead{text-align:center;padding:64px 20px 18px;}
+.mark{width:60px;height:60px;border-radius:16px;background:var(--paper);border:1px solid var(--hair);margin:0 auto 22px;position:relative;box-shadow:0 1px 2px rgba(32,36,30,.05);}
+.mark span{font-family:var(--serif);font-style:italic;font-weight:600;font-size:38px;color:var(--ink);position:absolute;left:50%;top:50%;transform:translate(-52%,-52%);}
+.mark::after{content:"";position:absolute;right:13px;bottom:14px;width:11px;height:11px;border-radius:50%;background:var(--green);}
+.masthead h1{font-family:var(--serif);font-weight:480;font-size:40px;letter-spacing:-.02em;line-height:1.05;font-variation-settings:"opsz" 60;}
+.masthead h1 em{font-style:italic;font-weight:430;}
+.masthead .sub{font-size:15px;color:var(--ink2);margin-top:14px;line-height:1.5;max-width:560px;margin-left:auto;margin-right:auto;}
+.eyebrow{font-family:var(--grot);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);}
+.eyebrow.grn{color:var(--green-deep);} .eyebrow.amb{color:var(--amber);}
+.masthead .tag{display:inline-flex;align-items:center;gap:7px;margin-top:20px;background:var(--paper);border:1px solid var(--hair);border-radius:999px;padding:7px 14px;}
+.masthead .tag .dot{width:6px;height:6px;border-radius:50%;background:var(--amber);}
+
+.rail{display:flex;gap:30px;overflow-x:auto;padding:46px 8px 30px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;align-items:flex-start;justify-content:flex-start;}
+.rail::-webkit-scrollbar{height:8px;} .rail::-webkit-scrollbar-thumb{background:var(--hair2);border-radius:8px;}
+@media(min-width:1700px){.rail{justify-content:center;}}
+.step{flex:none;scroll-snap-align:center;width:344px;}
+.steplbl{display:flex;align-items:center;gap:10px;margin:0 6px 14px;}
+.stepnum{font-family:var(--serif);font-style:italic;font-weight:560;font-size:19px;color:var(--green-deep);width:26px;}
+.steplbl .t{font-size:13px;font-weight:600;color:var(--ink);letter-spacing:-.005em;}
+.steplbl .t small{display:block;font-family:var(--grot);font-weight:500;font-size:11px;color:var(--mute);letter-spacing:0;margin-top:1px;}
+
+/* ---- phone frame ---- */
+.phone{width:344px;height:746px;border-radius:46px;background:#15170F;padding:9px;box-shadow:0 2px 4px rgba(32,36,30,.1),0 40px 70px -40px rgba(32,36,30,.55);position:relative;}
+.screen{width:100%;height:100%;border-radius:38px;background:var(--paper);overflow:hidden;position:relative;display:flex;flex-direction:column;}
+.screen::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:60;background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2"/><feColorMatrix type="saturate" values="0"/></filter><rect width="120" height="120" filter="url(%23g)" opacity="0.03"/></svg>');}
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:16px 26px 0;font-size:12px;font-weight:600;color:var(--ink);flex:none;}
+.statusbar .dots{display:flex;gap:5px;align-items:center;}
+.statusbar .dots svg{opacity:.85;}
+.navrow{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 6px;position:relative;flex:none;}
+.backbtn{display:inline-flex;align-items:center;gap:6px;font-family:var(--grot);font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);background:#fff;border:1px solid var(--hair);border-radius:999px;padding:9px 14px 9px 11px;box-shadow:0 1px 2px rgba(32,36,30,.05);}
+.vbody{flex:1;overflow:hidden;padding:0 22px;display:flex;flex-direction:column;min-height:0;}
+
+/* ---- shared components (from index.html) ---- */
+.display{font-family:var(--serif);font-weight:480;letter-spacing:-.015em;line-height:1.08;font-variation-settings:"opsz" 60;}
+.display em{font-style:italic;font-weight:430;}
+.body-t{font-size:14px;line-height:1.55;color:var(--ink2);}
+.card{background:#fff;border:1px solid var(--hair);border-radius:24px;box-shadow:0 1px 2px rgba(32,36,30,.04),0 10px 24px -18px rgba(32,36,30,.18);}
+.card.soft{background:rgba(255,255,255,.66);}
+.av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;flex:none;font-family:var(--serif);font-style:italic;font-weight:560;font-size:18px;letter-spacing:-.02em;box-shadow:0 0 0 1px rgba(32,36,30,.08) inset,0 1px 2px rgba(32,36,30,.08);}
+.av::before{content:"";position:absolute;inset:3px;border-radius:50%;border:1px solid rgba(255,255,255,.55);}
+.av.sm{width:34px;height:34px;font-size:14px;} .av.lg{width:60px;height:60px;font-size:25px;}
+.av .st{position:absolute;right:-1px;bottom:-1px;width:13px;height:13px;border-radius:50%;border:2.5px solid var(--paper);}
+.av .st.grn{background:var(--green);} .av .st.amb{background:var(--amber);}
+.av-ramy{background:linear-gradient(135deg,#DDEDE0,#C9E2D1);color:#23513C;}
+.av-niko{background:linear-gradient(135deg,#D7E8E6,#C2DCD9);color:#1E5A56;}
+.av-crew{background:linear-gradient(135deg,#20241E,#3A4034);color:#F3EFE5;}
+.pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--grot);font-size:9.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;border-radius:999px;padding:5px 10px;white-space:nowrap;}
+.pill .dot{width:6px;height:6px;border-radius:50%;}
+.pill.needs{background:var(--amber-tint);color:var(--amber);} .pill.needs .dot{background:var(--amber);}
+.pill.working{background:var(--green-tint);color:var(--green-deep);} .pill.working .dot{background:var(--green);}
+.pill.done{background:var(--bone);color:var(--ink2);} .pill.done .dot{background:var(--ink2);}
+.ztag{font-family:var(--grot);font-size:8px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;border-radius:5px;padding:2.5px 6px;display:inline-block;vertical-align:1px;}
+.ztag.work{background:var(--ink);color:var(--paper);}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;font-weight:700;font-size:15px;letter-spacing:.01em;height:54px;width:100%;}
+.btn-approve{background:var(--green);color:#fff;box-shadow:0 10px 20px -10px rgba(0,129,59,.55),0 1px 0 rgba(255,255,255,.25) inset;}
+.btn-secondary{background:#fff;color:var(--ink);border:1px solid var(--hair2);box-shadow:0 1px 2px rgba(32,36,30,.05);}
+.fact{display:flex;align-items:baseline;justify-content:space-between;padding:11px 0;}
+.fact + .fact{border-top:1px solid var(--hair);}
+.fact .k{font-size:13px;color:var(--ink2);} .fact .v{font-size:13.5px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;}
+.holdrow{display:flex;justify-content:center;gap:22px;align-items:center;margin-top:14px;}
+.holdred{font-family:var(--grot);font-size:13px;font-weight:600;color:var(--ink2);background:none;border:none;}
+.guard{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:14px;}
+.guard span{font-family:var(--grot);font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);}
+@keyframes breathe{0%,100%{box-shadow:0 0 0 0 rgba(0,177,79,.32);}50%{box-shadow:0 0 0 7px rgba(0,177,79,0);}}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:breathe 2.8s ease-in-out infinite;flex:none;}
+/* trust seal */
+.seal{width:84px;height:84px;border-radius:50%;background:var(--green-tint);display:flex;align-items:center;justify-content:center;margin:0 auto;position:relative;}
+.seal::before{content:"";position:absolute;inset:-7px;border-radius:50%;border:1.5px solid var(--green-tint);}
+.kya{display:flex;align-items:center;gap:7px;background:var(--green-tint);color:var(--green-deep);border-radius:999px;padding:6px 12px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;font-family:var(--grot);}
+/* escrow timeline */
+.tl{position:relative;padding-left:26px;}
+.tl::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:1.5px;background:var(--hair2);}
+.tlrow{position:relative;padding:9px 0;}
+.tlrow .node{position:absolute;left:-22px;top:11px;width:13px;height:13px;border-radius:50%;background:#fff;border:2px solid var(--hair2);}
+.tlrow.done .node{background:var(--green);border-color:var(--green);}
+.tlrow.now .node{background:#fff;border-color:var(--green);box-shadow:0 0 0 4px var(--green-tint);}
+.tlrow .tt{font-size:13.5px;font-weight:600;color:var(--ink);}
+.tlrow.pend .tt{color:var(--mute);font-weight:500;}
+.tlrow .ts{font-size:11px;color:var(--mute);margin-top:1px;}
+.amount{font-family:var(--serif);font-weight:500;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
+.foot-note{text-align:center;font-size:11.5px;color:var(--mute);margin-top:13px;line-height:1.45;}
+.disclaimer{text-align:center;max-width:680px;margin:8px auto 0;font-size:12px;color:var(--mute);line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="mark"><span>C</span></div>
+    <div class="eyebrow amb">AgenTeams &middot; mockup for approval &middot; not built yet</div>
+    <h1 style="margin-top:16px;">Your agent, <em>settling</em> with theirs.</h1>
+    <p class="sub">How a Crew user sees and feels their agent transacting with another person or business agent on their behalf. Propose, approve, verify, settle, receipt - every step held behind approve-before-act.</p>
+    <div class="tag"><span class="dot"></span><span class="eyebrow amb" style="letter-spacing:.1em;">Concept &middot; pending Fares sign-off</span></div>
+  </div>
+
+  <div class="rail">
+
+    <!-- 1 PROPOSAL -->
+    <div class="step">
+      <div class="steplbl"><span class="stepnum">1</span><span class="t">Proposal<small>Your agent surfaces a deal</small></span></div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="dots"><svg width="17" height="11" viewBox="0 0 17 11" fill="none"><rect x="0" y="6" width="3" height="5" rx="1" fill="#20241E"/><rect x="4.5" y="4" width="3" height="7" rx="1" fill="#20241E"/><rect x="9" y="2" width="3" height="9" rx="1" fill="#20241E"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="#20241E" opacity=".3"/></svg><svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="1" y="1" width="20" height="9" rx="2.5" stroke="#20241E" stroke-opacity=".4"/><rect x="2.5" y="2.5" width="15" height="6" rx="1.5" fill="#20241E"/><rect x="22" y="3.5" width="1.5" height="4" rx="1" fill="#20241E" fill-opacity=".4"/></svg></span></div>
+        <div class="navrow"><span class="backbtn"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1 1.5 6 6 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Home</span><span class="eyebrow amb">Settlement &middot; needs you</span></div>
+        <div class="vbody" style="padding-top:18px;">
+          <div style="display:flex;align-items:center;gap:11px;">
+            <span class="av av-ramy">R<span class="st amb"></span></span>
+            <div><div style="font-size:15px;font-weight:600;">Ramy <span class="ztag work" style="margin-left:3px;">Work</span></div><div style="font-size:12px;color:var(--mute);">Sales &middot; your agent</div></div>
+          </div>
+          <h2 class="display" style="font-size:31px;margin:24px 0 0;">Cedar &amp; Co's agent <em>proposed</em> catering for the launch.</h2>
+          <p class="body-t" style="font-size:14px;margin-top:13px;">Ramy negotiated terms with their agent. Nothing moves until you approve.</p>
+          <div class="card" style="margin-top:20px;padding:15px 17px;">
+            <div style="display:flex;align-items:center;gap:10px;padding-bottom:13px;border-bottom:1px solid var(--hair);">
+              <span class="av sm av-niko">N<span class="st grn"></span></span>
+              <div style="flex:1;"><div style="font-size:13.5px;font-weight:600;">Niko</div><div style="font-size:11px;color:var(--mute);">agent for Cedar &amp; Co &middot; catering</div></div>
+              <span class="kya"><svg width="11" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5c0 4.4 3 8.4 7 9.5 4-1.1 7-5.1 7-9.5V6l-7-3Z"/><path d="m9 11.5 2 2 4-4"/></svg>Verified</span>
+            </div>
+            <div class="fact"><span class="k">Service</span><span class="v">40 covers &middot; Fri 7:00pm</span></div>
+            <div class="fact"><span class="k">Amount</span><span class="v amount" style="font-size:16px;">$1,840</span></div>
+            <div class="fact"><span class="k">Your spend cap</span><span class="v" style="color:var(--green-deep);">$2,000 &middot; within</span></div>
+          </div>
+          <div style="flex:1;"></div>
+          <span class="pill needs" style="align-self:center;margin-bottom:12px;"><span class="dot"></span>Waiting on your approval</span>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- 2 APPROVE -->
+    <div class="step">
+      <div class="steplbl"><span class="stepnum">2</span><span class="t">Approve<small>Approve-before-act (already enforced)</small></span></div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="dots"><svg width="17" height="11" viewBox="0 0 17 11" fill="none"><rect x="0" y="6" width="3" height="5" rx="1" fill="#20241E"/><rect x="4.5" y="4" width="3" height="7" rx="1" fill="#20241E"/><rect x="9" y="2" width="3" height="9" rx="1" fill="#20241E"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="#20241E" opacity=".3"/></svg></span></div>
+        <div class="navrow"><span class="backbtn"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1 1.5 6 6 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Back</span><span class="eyebrow amb">Decision &middot; 1 of 1</span></div>
+        <div class="vbody" style="padding-top:26px;">
+          <h2 class="display" style="font-size:36px;">Approve this <em>booking</em>?</h2>
+          <p class="body-t" style="font-size:15px;margin-top:14px;">You authorize Ramy to settle <b style="color:var(--ink);">$1,840</b> with Cedar &amp; Co's agent. Funds are held in escrow until the service is confirmed.</p>
+          <div class="card" style="margin-top:20px;padding:4px 17px;">
+            <div class="fact"><span class="k">Pay to</span><span class="v">Cedar &amp; Co</span></div>
+            <div class="fact"><span class="k">Amount</span><span class="v amount" style="font-size:16px;">$1,840</span></div>
+            <div class="fact"><span class="k">Held in</span><span class="v">Escrow &middot; release on confirm</span></div>
+            <div class="fact"><span class="k">Mandate</span><span class="v">One-time &middot; expires 24h</span></div>
+          </div>
+          <div style="flex:1;"></div>
+          <button class="btn btn-approve" style="font-size:17px;height:62px;">
+            <svg width="15" height="12" viewBox="0 0 14 11" fill="none"><path d="M1.5 5.5 5.2 9.2 12.5 1.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Approve &amp; authorize
+          </button>
+          <div class="holdrow"><button class="holdred">Hold</button><span style="width:1px;height:14px;background:var(--hair2);"></span><button class="holdred">Decline</button></div>
+          <div class="guard" style="margin-bottom:14px;"><svg width="12" height="13" viewBox="0 0 24 24" fill="none" stroke="#8B8F7E" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5c0 4.4 3 8.4 7 9.5 4-1.1 7-5.1 7-9.5V6l-7-3Z"/></svg><span>Face ID confirms &middot; scoped to this deal</span></div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- 3 KNOW-YOUR-AGENT -->
+    <div class="step">
+      <div class="steplbl"><span class="stepnum">3</span><span class="t">Know-Your-Agent<small>The trust moment</small></span></div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="dots"><svg width="17" height="11" viewBox="0 0 17 11" fill="none"><rect x="0" y="6" width="3" height="5" rx="1" fill="#20241E"/><rect x="4.5" y="4" width="3" height="7" rx="1" fill="#20241E"/><rect x="9" y="2" width="3" height="9" rx="1" fill="#20241E"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="#20241E" opacity=".3"/></svg></span></div>
+        <div class="navrow"><span class="backbtn"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1 1.5 6 6 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Back</span><span class="eyebrow grn">Know-Your-Agent</span></div>
+        <div class="vbody" style="padding-top:30px;align-items:center;text-align:center;">
+          <div class="seal"><svg width="38" height="42" viewBox="0 0 24 24" fill="none" stroke="#00813B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5c0 4.4 3 8.4 7 9.5 4-1.1 7-5.1 7-9.5V6l-7-3Z"/><path d="m8.5 11.8 2.4 2.4 4.6-4.8"/></svg></div>
+          <h2 class="display" style="font-size:27px;margin-top:22px;">You are settling with a <em>verified</em> agent.</h2>
+          <p class="body-t" style="font-size:13.5px;margin-top:11px;">Cedar &amp; Co's agent presented a cryptographically signed mandate. Crew checked it before letting Ramy proceed.</p>
+          <div class="card" style="margin-top:20px;padding:4px 17px;width:100%;text-align:left;">
+            <div class="fact"><span class="k">Counterpart</span><span class="v">Cedar &amp; Co (business)</span></div>
+            <div class="fact"><span class="k">Identity</span><span class="v" style="color:var(--green-deep);">KYA verified</span></div>
+            <div class="fact"><span class="k">Mandate</span><span class="v">Signed &middot; A2A / AP2</span></div>
+            <div class="fact"><span class="k">Authorized for</span><span class="v">Catering invoice only</span></div>
+          </div>
+          <div style="flex:1;"></div>
+          <span class="kya" style="margin-bottom:8px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Verified by AgenTeams</span>
+          <div class="foot-note" style="margin-bottom:16px;">If identity ever fails, the deal stops here. Nothing settles with an unverified agent.</div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- 4 ESCROW / SETTLING -->
+    <div class="step">
+      <div class="steplbl"><span class="stepnum">4</span><span class="t">Settling<small>Escrow, in motion</small></span></div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:42</span><span class="dots"><svg width="17" height="11" viewBox="0 0 17 11" fill="none"><rect x="0" y="6" width="3" height="5" rx="1" fill="#20241E"/><rect x="4.5" y="4" width="3" height="7" rx="1" fill="#20241E"/><rect x="9" y="2" width="3" height="9" rx="1" fill="#20241E"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="#20241E" opacity=".3"/></svg></span></div>
+        <div class="navrow"><span class="backbtn"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1 1.5 6 6 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Home</span><span class="eyebrow grn">Settling</span></div>
+        <div class="vbody" style="padding-top:22px;">
+          <div style="display:flex;align-items:center;gap:9px;"><span class="live-dot"></span><span class="eyebrow grn" style="letter-spacing:.1em;">In escrow</span></div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-top:12px;"><span class="amount" style="font-size:44px;">$1,840</span><span style="font-size:13px;color:var(--mute);">held safely</span></div>
+          <p class="body-t" style="font-size:13.5px;margin-top:6px;">Released to Cedar &amp; Co the moment the service is confirmed. You do not have to watch.</p>
+          <div class="card" style="margin-top:22px;padding:16px 18px 10px;">
+            <div class="tl">
+              <div class="tlrow done"><span class="node"></span><div class="tt">Both agents signed</div><div class="ts">A2A mandate exchanged &middot; 9:41</div></div>
+              <div class="tlrow done"><span class="node"></span><div class="tt">Escrow funded</div><div class="ts">$1,840 from your wallet &middot; 9:41</div></div>
+              <div class="tlrow now"><span class="node"></span><div class="tt">Awaiting service confirm</div><div class="ts">Cedar &amp; Co marks delivered</div></div>
+              <div class="tlrow pend"><span class="node"></span><div class="tt">Release &amp; receipt</div><div class="ts">Auto on confirm</div></div>
+            </div>
+          </div>
+          <div style="flex:1;"></div>
+          <button class="btn btn-secondary" style="margin-bottom:8px;height:50px;font-size:14px;">View deal</button>
+          <div class="foot-note" style="margin-bottom:14px;">Held in escrow &middot; refundable until released</div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- 5 RECEIPT / AUDIT -->
+    <div class="step">
+      <div class="steplbl"><span class="stepnum">5</span><span class="t">Receipt<small>Clean audit, every time</small></span></div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>6:12</span><span class="dots"><svg width="17" height="11" viewBox="0 0 17 11" fill="none"><rect x="0" y="6" width="3" height="5" rx="1" fill="#20241E"/><rect x="4.5" y="4" width="3" height="7" rx="1" fill="#20241E"/><rect x="9" y="2" width="3" height="9" rx="1" fill="#20241E"/><rect x="13.5" y="0" width="3" height="11" rx="1" fill="#20241E" opacity=".3"/></svg></span></div>
+        <div class="navrow"><span class="backbtn"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1 1.5 6 6 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Activity</span><span class="eyebrow">Receipt</span></div>
+        <div class="vbody" style="padding-top:22px;">
+          <div style="display:flex;align-items:center;gap:11px;">
+            <span class="av av-ramy">R</span>
+            <div style="flex:1;"><div style="font-size:14.5px;font-weight:600;">Catering settled</div><div style="font-size:11.5px;color:var(--mute);">Ramy &middot; on your behalf</div></div>
+            <span class="pill done"><span class="dot"></span>Done</span>
+          </div>
+          <div class="card" style="margin-top:18px;padding:18px 18px 6px;">
+            <div style="text-align:center;padding-bottom:14px;border-bottom:1px solid var(--hair);">
+              <div class="amount" style="font-size:34px;">$1,840.00</div>
+              <div style="font-size:12px;color:var(--mute);margin-top:3px;">paid to Cedar &amp; Co &middot; Fri 7:04pm</div>
+            </div>
+            <div class="fact"><span class="k">From</span><span class="v">You &middot; via Ramy</span></div>
+            <div class="fact"><span class="k">Approved by</span><span class="v">You &middot; Face ID 9:41</span></div>
+            <div class="fact"><span class="k">Counterpart</span><span class="v" style="color:var(--green-deep);">KYA verified</span></div>
+            <div class="fact"><span class="k">Mandate ID</span><span class="v" style="font-size:12px;">ap2_8f3c&hellip;a91</span></div>
+            <div class="fact"><span class="k">Escrow</span><span class="v">Released on confirm</span></div>
+          </div>
+          <button class="btn btn-secondary" style="margin-top:14px;height:48px;font-size:13.5px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#20241E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg>
+            View full audit trail
+          </button>
+          <div style="flex:1;"></div>
+          <div class="guard" style="margin-bottom:16px;"><svg width="12" height="13" viewBox="0 0 24 24" fill="none" stroke="#8B8F7E" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5c0 4.4 3 8.4 7 9.5 4-1.1 7-5.1 7-9.5V6l-7-3Z"/></svg><span>Signed &middot; disputable for 30 days</span></div>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+  <p class="disclaimer">Static mockup for direction only - not a live feature. Settlement ships strictly behind approve-before-act + a Fares GO, embedding emerging open rails (Google A2A / AP2, Coinbase x402, Visa / Mastercard agent pay) rather than inventing our own. Brand: AgenTeams.</p>
+</div>
+</body>
+</html>
